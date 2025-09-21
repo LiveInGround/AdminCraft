@@ -32,13 +32,22 @@ public class Config {
             .defineInRange("spawnProtectionCenterX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
     private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z = BUILDER.comment("The Z coordinate of the spawn protection")
-            .defineInRange("spawnProtectionCenterY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            .defineInRange("spawnProtectionCenterZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
     private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS = BUILDER.comment("The spawn protection radius")
             .defineInRange("spawnProtectionRadius", 16, 0, Integer.MAX_VALUE);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE = BUILDER.comment("Should the world spawn point being forced ?")
-            .define("enableSpawnProtection", true);
+            .define("overrideSpawn", true);
+
+    private static final ForgeConfigSpec.IntValue SPAWN_X = BUILDER.comment("The spawn X coordinate")
+            .defineInRange("spawnX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+    private static final ForgeConfigSpec.IntValue SPAWN_Y = BUILDER.comment("The spawn Y coordinate")
+            .defineInRange("spawnY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+    private static final ForgeConfigSpec.IntValue SPAWN_Z = BUILDER.comment("The spawn Z coordinate")
+            .defineInRange("spawnZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
     public static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER = BUILDER.comment("The message sent when a player enters the spawn protection")
             .define("spawnEnter", "You are now in the spawn protection");
@@ -69,6 +78,9 @@ public class Config {
     public static Set<Block> allowedBlocks;
     public static Set<MobEffect> sp_effects;
     public static int sp_op_level;
+    public static int spawn_x;
+    public static int spawn_y;
+    public static int spawn_z;
 
 
     private static boolean validateBlockName(final Object obj) {
@@ -87,6 +99,9 @@ public class Config {
         sp_center_z = SPAWN_PROTECTION_CENTER_Z.get();
         sp_radius = SPAWN_PROTECTION_RADIUS.get();
         spawn_override = ENABLE_SPAWN_OVERRIDE.get();
+        spawn_x = SPAWN_X.get();
+        spawn_y = SPAWN_Y.get();
+        spawn_z = SPAWN_Z.get();
         sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
         sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
         sp_pvp_enabled = ALLOW_PVP.get();

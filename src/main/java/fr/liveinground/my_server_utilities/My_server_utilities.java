@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
@@ -167,6 +168,15 @@ public class My_server_utilities {
                 }
                 serverPlayer.displayClientMessage(Component.literal(Config.sp_leave_msg).withStyle(ChatFormatting.RED), true);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onSpawnFinalise(PlayerEvent.PlayerRespawnEvent event) {
+        ServerPlayer serverPlayer = (ServerPlayer) event.getEntity();
+        if (serverPlayer.getRespawnPosition() == null || serverPlayer.getRespawnPosition() == serverPlayer.getServer().overworld().getSharedSpawnPos() || event.isEndConquered()) {
+            serverPlayer.setRespawnPosition(Level.OVERWORLD, new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z), 0, true, false);
+            serverPlayer.teleportTo(Config.spawn_x, Config.spawn_y, Config.spawn_z);
         }
     }
 }
