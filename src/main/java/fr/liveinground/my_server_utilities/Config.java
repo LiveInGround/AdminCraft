@@ -53,7 +53,7 @@ public class Config {
             .define("spawnEnter", "You are now in the spawn protection");
 
     public static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE = BUILDER.comment("The message sent when a player leaves the spawn protection")
-            .define("spawnEnter", "You are no more in the spawn protection");
+            .define("spawnLeave", "You are no more in the spawn protection");
 
     private static final ForgeConfigSpec.BooleanValue ALLOW_PVP = BUILDER.comment("Should PvP being enabled in the spawn protection ?")
             .define("enablePvP", false);
