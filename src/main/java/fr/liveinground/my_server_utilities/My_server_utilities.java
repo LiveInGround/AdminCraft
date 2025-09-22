@@ -176,7 +176,7 @@ public class My_server_utilities {
         ServerPlayer serverPlayer = (ServerPlayer) event.getEntity();
         if (serverPlayer.getRespawnPosition() == null || serverPlayer.getRespawnPosition() == serverPlayer.getServer().overworld().getSharedSpawnPos() || event.isEndConquered()) {
             serverPlayer.setRespawnPosition(Level.OVERWORLD, new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z), 0, true, false);
-            serverPlayer.teleportTo(Config.spawn_x, Config.spawn_y, Config.spawn_z);
+            // serverPlayer.teleportTo(Config.spawn_x, Config.spawn_y, Config.spawn_z);
         }
     }
 }
