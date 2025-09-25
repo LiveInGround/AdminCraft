@@ -25,7 +25,7 @@ displayName = "${mod_name}" #mandatory
 # A URL for the "homepage" for this mod, displayed in the mod UI
 displayURL = "https://elkube.wtfcraft.ovh" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-#logoFile="my_server_utilities.png" #optional
+#logoFile="admin_craft.png" #optional
 # A text field displayed in the mod UI
 #credits="Thanks for this example mod goes to Java" #optional
 # A text field displayed in the mod UI
@@ -60,4 +60,4 @@ mandatory = true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
-side = "BOTH"
+side = "SERVER"
