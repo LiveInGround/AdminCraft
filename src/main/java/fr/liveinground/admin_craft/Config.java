@@ -2,93 +2,137 @@ package fr.liveinground.admin_craft;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = AdminCraft.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
+
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION = BUILDER.comment("Should the spawn protection being enabled ?")
-            .define("enableSpawnProtection", true);
+    static {
+        BUILDER.push("spawnProtection");
 
-    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL = BUILDER.comment("The operator level required to bypass protections")
-            .defineInRange("bypassOPLevel", 1, 0, 4);
+        ENABLE_SPAWN_PROTECTION = BUILDER.comment("Enable/disable spawn protection")
+                .define("enable", true);
 
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X = BUILDER.comment("The X coordinate of the spawn protection")
-            .defineInRange("spawnProtectionCenterX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SP_OP_LEVEL = BUILDER.comment("OP level required to bypass protections")
+                .defineInRange("bypassOPLevel", 1, 0, 4);
 
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z = BUILDER.comment("The Z coordinate of the spawn protection")
-            .defineInRange("spawnProtectionCenterZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SPAWN_PROTECTION_CENTER_X = BUILDER.comment("Center X coordinate of protection")
+                .defineInRange("centerX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS = BUILDER.comment("The spawn protection radius")
-            .defineInRange("spawnProtectionRadius", 16, 0, Integer.MAX_VALUE);
+        SPAWN_PROTECTION_CENTER_Z = BUILDER.comment("Center Z coordinate of protection")
+                .defineInRange("centerZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE = BUILDER.comment("Should the world spawn point being forced ?")
-            .define("overrideSpawn", true);
+        SPAWN_PROTECTION_RADIUS = BUILDER.comment("Protection radius")
+                .defineInRange("radius", 16, 0, Integer.MAX_VALUE);
 
-    private static final ForgeConfigSpec.IntValue SPAWN_X = BUILDER.comment("The spawn X coordinate")
-            .defineInRange("spawnX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        ALLOW_PVP = BUILDER.comment("Allow PvP inside spawn protection")
+                .define("enablePvP", false);
 
-    private static final ForgeConfigSpec.IntValue SPAWN_Y = BUILDER.comment("The spawn Y coordinate")
-            .defineInRange("spawnY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SP_EFFECTS = BUILDER.comment("Effects applied in spawn protection")
+                .defineListAllowEmpty(
+                        "effects",
+                        List.of("minecraft:resistance", "minecraft:regeneration", "minecraft:saturation"),
+                        Config::validateEffectName
+                );
 
-    private static final ForgeConfigSpec.IntValue SPAWN_Z = BUILDER.comment("The spawn Z coordinate")
-            .defineInRange("spawnZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        ALLOWED_BLOCKS = BUILDER.comment("Blocks players are allowed to interact with")
+                .defineListAllowEmpty(
+                        "allowedBlocks",
+                        List.of("minecraft:stone_button"),
+                        Config::validateBlockName
+                );
 
-    public static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER = BUILDER.comment("The message sent when a player enters the spawn protection")
-            .define("spawnEnter", "You are now in the spawn protection");
+        BUILDER.pop();
+    }
 
-    public static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE = BUILDER.comment("The message sent when a player leaves the spawn protection")
-            .define("spawnLeave", "You are no more in the spawn protection");
+    static {
+        BUILDER.push("spawnOverride");
 
-    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP = BUILDER.comment("Should PvP being enabled in the spawn protection ?")
-            .define("enablePvP", false);
+        ENABLE_SPAWN_OVERRIDE = BUILDER.comment("Should the world spawn be overridden?")
+                .define("enabled", true);
 
-    // a list of strings that are treated as resource locations for items
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS = BUILDER.comment("A list of blocks the players are allowed to interact to.")
-            .defineListAllowEmpty("allowedBlocks", List.of("minecraft:stone_button"), Config::validateBlockName);
+        SPAWN_X = BUILDER.comment("Spawn X coordinate").defineInRange("x", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SPAWN_Y = BUILDER.comment("Spawn Y coordinate").defineInRange("y", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SPAWN_Z = BUILDER.comment("Spawn Z coordinate").defineInRange("z", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS = BUILDER.comment("A list of effects applied in the spawn protection")
-            .defineListAllowEmpty("spawnProtectionEffects", List.of("minecraft:resistance", "minecraft:regeneration", "minecraft:saturation"), Config::validateEffectName);
+        BUILDER.pop();
+    }
+
+    static {
+        BUILDER.push("messages");
+
+        SPAWN_PROTECTION_ENTER = BUILDER.comment("Message when entering spawn protection")
+                .define("enter", "You are now in the spawn protection");
+
+        SPAWN_PROTECTION_LEAVE = BUILDER.comment("Message when leaving spawn protection")
+                .define("leave", "You are no more in the spawn protection");
+
+        BUILDER.pop();
+    }
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
+    private static ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
+    private static ForgeConfigSpec.IntValue SP_OP_LEVEL;
+    private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
+    private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
+    private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
+    private static ForgeConfigSpec.BooleanValue ALLOW_PVP;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
+
+    private static ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
+    private static ForgeConfigSpec.IntValue SPAWN_X;
+    private static ForgeConfigSpec.IntValue SPAWN_Y;
+    private static ForgeConfigSpec.IntValue SPAWN_Z;
+
+    private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
+    private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+
     public static boolean sp_enabled;
+    public static int sp_op_level;
     public static int sp_center_x;
     public static int sp_center_z;
     public static int sp_radius;
-    public static boolean spawn_override;
-    public static String sp_enter_msg;
-    public static String sp_leave_msg;
     public static boolean sp_pvp_enabled;
     public static Set<Block> allowedBlocks;
     public static Set<MobEffect> sp_effects;
-    public static int sp_op_level;
+
+    public static boolean spawn_override;
     public static int spawn_x;
     public static int spawn_y;
     public static int spawn_z;
 
+    public static String sp_enter_msg;
+    public static String sp_leave_msg;
 
     private static boolean validateBlockName(final Object obj) {
-        return obj instanceof final String blockName && ForgeRegistries.BLOCKS.containsKey(new ResourceLocation(blockName));
+        if (!(obj instanceof String blockName)) return false;
+
+        ResourceLocation rl = ResourceLocation.tryParse(blockName);
+        if (rl == null) return false;
+
+        return ForgeRegistries.BLOCKS.containsKey(rl);
     }
 
     private static boolean validateEffectName(final Object obj) {
-        return obj instanceof final String effectName && ForgeRegistries.MOB_EFFECTS.containsKey(new ResourceLocation(effectName));
+        if (!(obj instanceof String effectName)) return false;
+
+        ResourceLocation rl = ResourceLocation.tryParse(effectName);
+        if (rl == null) return false;
+
+        return ForgeRegistries.MOB_EFFECTS.containsKey(rl);
     }
 
     @SubscribeEvent
@@ -98,12 +142,6 @@ public class Config {
         sp_center_x = SPAWN_PROTECTION_CENTER_X.get();
         sp_center_z = SPAWN_PROTECTION_CENTER_Z.get();
         sp_radius = SPAWN_PROTECTION_RADIUS.get();
-        spawn_override = ENABLE_SPAWN_OVERRIDE.get();
-        spawn_x = SPAWN_X.get();
-        spawn_y = SPAWN_Y.get();
-        spawn_z = SPAWN_Z.get();
-        sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
-        sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
         sp_pvp_enabled = ALLOW_PVP.get();
         allowedBlocks = ALLOWED_BLOCKS.get().stream()
                 .map(blockName -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockName)))
@@ -111,6 +149,14 @@ public class Config {
         sp_effects = SP_EFFECTS.get().stream()
                 .map(effectName -> ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effectName)))
                 .collect(Collectors.toSet());
+
+        spawn_override = ENABLE_SPAWN_OVERRIDE.get();
+        spawn_x = SPAWN_X.get();
+        spawn_y = SPAWN_Y.get();
+        spawn_z = SPAWN_Z.get();
+
+        sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
+        sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
     }
 
     @SubscribeEvent
