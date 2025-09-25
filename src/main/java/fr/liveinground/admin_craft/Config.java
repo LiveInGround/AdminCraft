@@ -81,6 +81,18 @@ public class Config {
         SPAWN_PROTECTION_LEAVE = BUILDER.comment("Message when leaving spawn protection")
                 .define("leave", "You are no more in the spawn protection");
 
+
+            BUILDER.push("mute");
+            MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted").define("muteMessage", "You were muted by an operator. Reason: ");
+            MUTE_MESSAGE_NO_REASON = BUILDER.comment("Message sent to players when they are muted without a specified reason").define("muteMessageNoReason", "You were muted by an operator.");
+            MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted").define("muteSuccess", "%player% was muted: %reason%");
+            MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted").define("alreadyMuted", "%player% is already muted");
+
+            UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
+            UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted").define("unMuteSuccess", "%player% was unmuted");
+            UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted").define("notMuted", "%player% is not muted");
+            BUILDER.pop();
+
         BUILDER.pop();
     }
 
@@ -103,6 +115,13 @@ public class Config {
 
     private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
     private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+        private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
+        private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
+        private static ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
+        private static ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
+        private static ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
+        private static ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
+        private static ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
 
     public static boolean sp_enabled;
     public static int sp_op_level;
@@ -121,6 +140,13 @@ public class Config {
 
     public static String sp_enter_msg;
     public static String sp_leave_msg;
+        public static String mute_message;
+        public static String mute_message_no_reason;
+        public static String mute_success;
+        public static String mute_failed_already_muted;
+        public static String unmute_message;
+        public static String unmute_success;
+        public static String unmute_failed_not_muted;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
@@ -148,11 +174,12 @@ public class Config {
         sp_center_z = SPAWN_PROTECTION_CENTER_Z.get();
         sp_radius = SPAWN_PROTECTION_RADIUS.get();
         sp_pvp_enabled = ALLOW_PVP.get();
+        sp_explosion_enabled = ALLOW_EXPLOSION.get();
         allowedBlocks = ALLOWED_BLOCKS.get().stream()
-                .map(blockName -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockName)))
+                .map(blockName -> ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(blockName)))
                 .collect(Collectors.toSet());
         sp_effects = SP_EFFECTS.get().stream()
-                .map(effectName -> ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effectName)))
+                .map(effectName -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.tryParse(effectName)))
                 .collect(Collectors.toSet());
 
         spawn_override = ENABLE_SPAWN_OVERRIDE.get();
@@ -162,6 +189,13 @@ public class Config {
 
         sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
         sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
+            mute_message = MUTE_MESSAGE.get();
+            mute_message_no_reason = MUTE_MESSAGE_NO_REASON.get();
+            mute_success = MUTE_SUCCESS.get();
+            mute_failed_already_muted = MUTE_FAILED_ALREADY_MUTED.get();
+            unmute_message = UNMUTE_MESSAGE.get();
+            unmute_success = UNMUTE_SUCCESS.get();
+            unmute_failed_not_muted = UNMUTE_FAILED_NOT_MUTED.get();
     }
 
     @SubscribeEvent
