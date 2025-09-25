@@ -56,6 +56,7 @@ public class AdminCraft {
 
     @SubscribeEvent
     public void onExplode(ExplosionEvent event) {
+        if (Config.sp_explosion_enabled) return;
         for (BlockPos pos: event.getExplosion().getToBlow()) {
             if (isInSP(event.getLevel(), pos)) {
                 event.getExplosion().clearToBlow();

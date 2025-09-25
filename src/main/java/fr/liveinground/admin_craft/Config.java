@@ -39,6 +39,9 @@ public class Config {
         ALLOW_PVP = BUILDER.comment("Allow PvP inside spawn protection")
                 .define("enablePvP", false);
 
+        ALLOW_EXPLOSION = BUILDER.comment("If set to false, explosions that might break blocks in the spawn protection won't deal any block damage")
+                .define("allowExplosions", false);
+
         SP_EFFECTS = BUILDER.comment("Effects applied in spawn protection")
                 .defineListAllowEmpty(
                         "effects",
@@ -89,6 +92,7 @@ public class Config {
     private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
     private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
     private static ForgeConfigSpec.BooleanValue ALLOW_PVP;
+    private static ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
 
@@ -106,6 +110,7 @@ public class Config {
     public static int sp_center_z;
     public static int sp_radius;
     public static boolean sp_pvp_enabled;
+    public static boolean sp_explosion_enabled;
     public static Set<Block> allowedBlocks;
     public static Set<MobEffect> sp_effects;
 
