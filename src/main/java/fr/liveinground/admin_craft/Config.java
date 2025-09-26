@@ -73,6 +73,14 @@ public class Config {
     }
 
     static {
+        BUILDER.push("muteSystem");
+        
+        MUTE_LEVEL = BUILDER.comment("The OP level required to use the /mute and /unmute commands").defineInRange("opLevel", 3, 0, 4);
+        
+        BUILDER.pop();
+    }
+
+    static {
         BUILDER.push("messages");
 
         SPAWN_PROTECTION_ENTER = BUILDER.comment("Message when entering spawn protection")
@@ -87,6 +95,7 @@ public class Config {
             MUTE_MESSAGE_NO_REASON = BUILDER.comment("Message sent to players when they are muted without a specified reason").define("muteMessageNoReason", "You were muted by an operator.");
             MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted").define("muteSuccess", "%player% was muted: %reason%");
             MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted").define("alreadyMuted", "%player% is already muted");
+            MUTE_MESSAGE_CANCELLED = BUILDER.comment("Message sent to muted players when they attempt sending a message in chat").define("cancelChatMessage", "You can't send messages while muted!");
 
             UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
             UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted").define("unMuteSuccess", "%player% was unmuted");
@@ -123,6 +132,10 @@ public class Config {
         private static ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
         private static ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
 
+        private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
+
+    private static ForgeConfigSpec.IntValue MUTE_LEVEL;
+
     public static boolean sp_enabled;
     public static int sp_op_level;
     public static int sp_center_x;
@@ -147,6 +160,9 @@ public class Config {
         public static String unmute_message;
         public static String unmute_success;
         public static String unmute_failed_not_muted;
+        public static String mute_message_cancelled;
+
+    public static int mute_level;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
@@ -196,6 +212,9 @@ public class Config {
             unmute_message = UNMUTE_MESSAGE.get();
             unmute_success = UNMUTE_SUCCESS.get();
             unmute_failed_not_muted = UNMUTE_FAILED_NOT_MUTED.get();
+            mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
+
+        mute_level = MUTE_LEVEL.get();
     }
 
     @SubscribeEvent
