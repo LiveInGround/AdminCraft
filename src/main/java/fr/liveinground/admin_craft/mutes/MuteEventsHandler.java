@@ -59,7 +59,7 @@ public class MuteEventsHandler {
                     ServerPlayer sender = event.getParseResults().getContext().getSource().getPlayerOrException();
                     if (AdminCraft.mutedPlayersUUID.contains(sender.getStringUUID())) {
                         for (ServerPlayer op: Utils.getOnlineOperators()) {
-                            if (args.length >= 3 && op.getName().getString().equalsIgnoreCase(args[1])) {
+                            if (args.length >= 3 && op.getName().getString().equalsIgnoreCase(args[1]) && Config.allow_to_ops_msg) {
                                 op.sendSystemMessage(Component.literal("Note: The following message was sent by a muted player. Since you have operator permission, the message wasn't cancelled."));
                                 event.setCanceled(false);
                                 return;
@@ -80,7 +80,7 @@ public class MuteEventsHandler {
     public static void onServerStarted(ServerStartedEvent event) {
         Path serverPath = event.getServer().getServerDirectory().toPath();
         playerDataManager = new PlayerDataManager(serverPath);
-        for (PlayerMuteData playerData: playerDataManager.getEntries()) {
+        for (PlayerMuteData playerData: playerDataManager.getMuteEntries()) {
             AdminCraft.mutedPlayersUUID.add(playerData.uuid);
         }
 
@@ -107,7 +107,7 @@ public class MuteEventsHandler {
         if (event.getEntity() instanceof ServerPlayer p) {
 
             if ((event.getPlacedBlock().getBlock() instanceof SignBlock) || (event.getPlacedBlock().getBlock() instanceof WallSignBlock))
-                if (AdminCraft.mutedPlayersUUID.contains(p.getStringUUID())) {
+                if (AdminCraft.mutedPlayersUUID.contains(p.getStringUUID()) && Config.prevent_signs) {
                     event.setCanceled(true);
                     // event.getLevel().playSound(p, event.getPos(), SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
                     Utils.logCancelledMessage(p, "[BLOCK] The placement of a sign by this muted player was canceled.");
