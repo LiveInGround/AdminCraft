@@ -1,5 +1,6 @@
 package fr.liveinground.admin_craft.mutes;
 
+import fr.liveinground.admin_craft.Config;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,7 +33,7 @@ public class Utils {
 
     public static void logCancelledMessage(ServerPlayer player, String message) {
         if (Config.log_cancelled_events) {
-            final String logMessage = PlaceHolderSystem.replacePlaceHolders(Config.log_format, Map.of("player", player.getDisplayName().getString(), "message", message));
+            final String logMessage = PlaceHolderSystem.replacePlaceholders(Config.cancel_log_format, Map.of("player", player.getDisplayName().getString(), "message", message));
             AdminCraft.LOGGER.info(logMessage);
             for (ServerPlayer p: getOnlineOperators()) {
                 p.sendSystemMessage(Component.literal(logMessage));
