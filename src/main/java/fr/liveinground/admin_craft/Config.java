@@ -86,6 +86,11 @@ public class Config {
     }
 
     static {
+        BUILDER.push("noAltsSystem");
+
+        ALT_LEVEL = BUILDER.comment("The OP level required to use the /alts command").defineInRange("opLevel", 3, 0, 4);
+
+    static {
         BUILDER.push("messages");
 
         SPAWN_PROTECTION_ENTER = BUILDER.comment("Message when entering spawn protection")
@@ -179,6 +184,8 @@ public class Config {
 
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
+
+    public static alt_level;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
