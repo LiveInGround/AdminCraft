@@ -142,6 +142,7 @@ public class Config {
         private static ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
         private static ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
         private static ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+        private static ForgeConfigSpec.BooleanValur LOG_CANCELLED_EVENTS;
 
     private static ForgeConfigSpec.IntValue MUTE_LEVEL;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
@@ -174,6 +175,7 @@ public class Config {
         public static String cancel_log_format;
         public static boolean prevent_signs;
         public static boolean allow_to_ops_msg;
+        public static boolean log_cancelled_events;
 
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
@@ -232,6 +234,7 @@ public class Config {
             unmute_failed_not_muted = UNMUTE_FAILED_NOT_MUTED.get();
             mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
             cancel_log_format = CANCEL_LOG_FORMAT.get();
+            log_cancelled_events = LOG_CANCELLED_EVENTS.get();
 
         mute_level = MUTE_LEVEL.get();
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
