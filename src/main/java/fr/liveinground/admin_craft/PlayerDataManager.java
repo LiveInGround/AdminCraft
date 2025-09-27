@@ -6,7 +6,6 @@ import com.google.gson.reflect.TypeToken;
 import fr.liveinground.admin_craft.ips.PlayerIPSData;
 import fr.liveinground.admin_craft.mutes.PlayerMuteData;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -52,6 +51,10 @@ public class PlayerDataManager {
     public void removeMuteEntry(PlayerMuteData entry) {
         muteEntries.remove(entry);
         AdminCraft.mutedPlayersUUID.remove(entry.uuid);
+    }
+
+    public void removeIPEntry(PlayerIPSData entry) {
+        ipsEntries.remove(entry);
     }
 
     public void load(boolean fileNotFound) {
@@ -118,13 +121,14 @@ public class PlayerDataManager {
         return null;
     }
 
-    public PlayerIPSData getPlayerIPSDataByIP (String ip) {
+    public List<PlayerIPSData> getPlayerIPSDataByIP (String ip) {
+        List<PlayerIPSData> datas = new ArrayList<>();
         for (PlayerIPSData data: ipsEntries) {
-            if (data.ips.contains(ip)) {
-                return data;
+            if (data.ip.equals(ip)) {
+                datas.add(data);
             }
         }
-        return null;
+        return datas;
     }
 
     public PlayerMuteData getPlayerMuteDataByName (String playerName) {
@@ -145,8 +149,8 @@ public class PlayerDataManager {
         return null;
     }
 
-    public void addIPSData (String uuid, List<String> ips) {
-        ipsEntries.add(new PlayerIPSData(uuid, ips));
+    public void addIPSData (String name, String uuid, String ips) {
+        ipsEntries.add(new PlayerIPSData(name, uuid, ips));
     }
 
     public void save() {
