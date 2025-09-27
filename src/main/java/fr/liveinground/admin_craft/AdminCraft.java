@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import fr.liveinground.admin_craft.commands.AltCommand;
 import fr.liveinground.admin_craft.commands.MuteCommand;
 import fr.liveinground.admin_craft.commands.StaffModeCommand;
+import fr.liveinground.admin_craft.ips.PlayerIPSData;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -16,10 +17,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
@@ -64,7 +67,7 @@ public class AdminCraft {
 
         MuteCommand.register(event.getDispatcher());
         AltCommand.register(event.getDispatcher());
-        StaffModeCommand.register(event.getDispatcher());
+        // StaffModeCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
@@ -195,6 +198,16 @@ public class AdminCraft {
             }
         }
     }
+
+    @SubscribeEvent
+    public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        if (playerDataManager.getPlayerIPSDataByUUID(player.getStringUUID()) != null) {
+            playerDataManager.removeIPEntry(playerDataManager.getPlayerIPSDataByUUID(player.getStringUUID()));
+        }
+        playerDataManager.addIPSData(player.getName().toString(), player.getStringUUID(), player.getIpAddress());
+    }
+
     /*
     @SubscribeEvent
     public void onSpawnFinalise(LivingDeathEvent event) {

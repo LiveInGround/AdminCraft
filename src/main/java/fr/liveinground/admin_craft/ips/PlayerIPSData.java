@@ -1,15 +1,13 @@
 package fr.liveinground.admin_craft.ips;
 
-import fr.liveinground.admin_craft.PlayerDataManager;
-
-import java.util.List;
-
 public class PlayerIPSData {
+    public String name;
     public String uuid;
-    public List<String> ips;
+    public String ip;
 
-    public PlayerIPSData(String uuid, List<String> ips) {
+    public PlayerIPSData(String name, String uuid, String ips) {
+        this.name = name;
         this.uuid = uuid;
-        this.ips = ips;
+        this.ip = ips;
     }
 }

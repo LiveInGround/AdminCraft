@@ -73,6 +73,10 @@ public class MuteCommand {
                                 GameProfile targetProfile = profiles.iterator().next();
                                 ServerPlayer playerToUnmute = ctx.getSource().getServer().getPlayerList().getPlayer(targetProfile.getId());
 
+                                if (playerToUnmute == null) {
+                                    ctx.getSource().sendFailure(Component.literal("No player with this username was found."));
+                                    return 1;
+                                }
 
                                 if (!AdminCraft.mutedPlayersUUID.contains(playerToUnmute.getStringUUID())) {
                                     String msg = PlaceHolderSystem.replacePlaceholders(Config.unmute_failed_not_muted, Map.of("player", playerToUnmute.getName().getString()));
