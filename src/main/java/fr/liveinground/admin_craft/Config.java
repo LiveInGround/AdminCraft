@@ -78,6 +78,9 @@ public class Config {
         
         MUTE_LEVEL = BUILDER.comment("The OP level required to use the /mute and /unmute commands").defineInRange("opLevel", 3, 0, 4);
         MUTE_FORBIDDEN_CMD = BUILDER.comment("The list of commands the players can't use while muted").defineListAllowEmpty("muteForbiddenCommands", List.of("msg", "tell", "teammsg", "w"), Config::validateString);
+        MUTE_PREVENT_SIGN_PLACING = BUILDER.comment("Should the mod prevent muted players using signs ?").define("preventSigns", true);
+        LOG_CANCELLED_EVENTS = BUILDER.comment("Should the mod log cancelled events to ops and console ?").define("logCancelledEvent", true);
+        ALLOW_MESSAGES_TO_OPS = BUILDER.comment("Should the mod allow muted players to use commands to send messages to ops ?").define("allowMessagesToOps", true);
 
         BUILDER.pop();
     }
@@ -98,6 +101,7 @@ public class Config {
             MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted").define("muteSuccess", "%player% was muted: %reason%");
             MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted").define("alreadyMuted", "%player% is already muted");
             MUTE_MESSAGE_CANCELLED = BUILDER.comment("Message sent to muted players when they attempt sending a message in chat").define("cancelChatMessage", "You can't send messages while muted!");
+            CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled").define("logFormat", "[CANCELED] <%player% (muted)> <message>");
 
             UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
             UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted").define("unMuteSuccess", "%player% was unmuted");
@@ -135,6 +139,9 @@ public class Config {
         private static ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
 
         private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
+        private static ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
+        private static ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
+        private static ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
 
     private static ForgeConfigSpec.IntValue MUTE_LEVEL;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
@@ -164,6 +171,9 @@ public class Config {
         public static String unmute_success;
         public static String unmute_failed_not_muted;
         public static String mute_message_cancelled;
+        public static String cancel_log_format;
+        public static boolean prevent_signs;
+        public static boolean allow_to_ops_msg;
 
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
@@ -221,9 +231,12 @@ public class Config {
             unmute_success = UNMUTE_SUCCESS.get();
             unmute_failed_not_muted = UNMUTE_FAILED_NOT_MUTED.get();
             mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
+            cancel_log_format = CANCEL_LOG_FORMAT.get();
 
         mute_level = MUTE_LEVEL.get();
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
+        prevent_signs = MUTE_PREVENT_SIGN_PLACING.get();
+        allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
     }
 
     @SubscribeEvent
