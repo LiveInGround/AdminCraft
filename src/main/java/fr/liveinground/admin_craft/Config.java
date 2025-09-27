@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -76,7 +77,8 @@ public class Config {
         BUILDER.push("muteSystem");
         
         MUTE_LEVEL = BUILDER.comment("The OP level required to use the /mute and /unmute commands").defineInRange("opLevel", 3, 0, 4);
-        
+        MUTE_FORBIDDEN_CMD = BUILDER.comment("The list of commands the players can't use while muted").defineListAllowEmpty("muteForbiddenCommands", List.of("msg", "tell", "teammsg", "w"), Config::validateString);
+
         BUILDER.pop();
     }
 
@@ -135,6 +137,7 @@ public class Config {
         private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
 
     private static ForgeConfigSpec.IntValue MUTE_LEVEL;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
 
     public static boolean sp_enabled;
     public static int sp_op_level;
@@ -163,6 +166,7 @@ public class Config {
         public static String mute_message_cancelled;
 
     public static int mute_level;
+    public static Set<String> mute_forbidden_cmd;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
@@ -180,6 +184,10 @@ public class Config {
         if (rl == null) return false;
 
         return ForgeRegistries.MOB_EFFECTS.containsKey(rl);
+    }
+
+    private static boolean validateString(final Object obj) {
+        return true;
     }
 
     @SubscribeEvent
@@ -215,12 +223,14 @@ public class Config {
             mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
 
         mute_level = MUTE_LEVEL.get();
+        mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
     }
 
     @SubscribeEvent
     static void onReload(final ModConfigEvent.Reloading event) {
         sp_effects.clear();
         allowedBlocks.clear();
+        mute_forbidden_cmd.clear();
         onLoad(null);
     }
 }

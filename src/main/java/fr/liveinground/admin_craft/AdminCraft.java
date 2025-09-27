@@ -1,7 +1,13 @@
 package fr.liveinground.admin_craft;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
+import fr.liveinground.admin_craft.commands.AltCommand;
+import fr.liveinground.admin_craft.commands.MuteCommand;
+import fr.liveinground.admin_craft.commands.StaffModeCommand;
+import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -31,7 +38,7 @@ import java.util.List;
 public class AdminCraft {
 
     public static final String MODID = "my_server_utilities";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     private static final String SP_TAG = "inSpawnProtection";
 
     public static List<String> mutedPlayersUUID = new ArrayList<>();
@@ -40,7 +47,8 @@ public class AdminCraft {
     public AdminCraft(FMLJavaModLoadingContext ctx) {
         IEventBus modEventBus = ctx.getModEventBus();
 
-        MinecraftForge.EVENT_BUS.register(this);;
+        MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(MuteEventsHandler.class);
 
         ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
@@ -48,6 +56,15 @@ public class AdminCraft {
     @SubscribeEvent
     public void onServerStart(ServerStartingEvent event) {
 
+    }
+
+    @SubscribeEvent
+    public void onCommandRegister(RegisterCommandsEvent event) {
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+
+        MuteCommand.register(event.getDispatcher());
+        AltCommand.register(event.getDispatcher());
+        StaffModeCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent
