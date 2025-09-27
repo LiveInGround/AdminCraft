@@ -23,10 +23,10 @@ public class MuteCommand {
 
     private MuteCommand() {}
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, int permissionLevel) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("mute")
-                .requires(commandSource -> commandSource.hasPermission(permissionLevel))
+                .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
                             ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
                             if (AdminCraft.mutedPlayersUUID.contains(playerToMute.getStringUUID())) {
@@ -34,11 +34,11 @@ public class MuteCommand {
                                 return 1;
                             }
                             AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(playerToMute.getName().toString(), playerToMute.getStringUUID(), "Muted by an operator"));
-                            // ...
+
                             String msg = Config.mute_message;
                             playerToMute.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.RED));
 
-                            String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", playerToMute.getName().getString(), "reason", reason));
+                            String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", playerToMute.getName().getString()));
                             ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
 
                             return 1;
@@ -61,7 +61,7 @@ public class MuteCommand {
                         ))));
 
         dispatcher.register(Commands.literal("unmute")
-                .requires(source -> source.hasPermission(permissionLevel))
+                .requires(source -> source.hasPermission(Config.mute_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
 
@@ -75,17 +75,18 @@ public class MuteCommand {
 
 
                                 if (!AdminCraft.mutedPlayersUUID.contains(playerToUnmute.getStringUUID())) {
-                                    Component messageToOperator = AdminCraft.parseComponent(ctx.getSource().getPlayerOrException().level(), muteMessages.unmuteFailedNotMuted().get());
+                                    String msg = PlaceHolderSystem.replacePlaceholders(Config.unmute_failed_not_muted, Map.of("player", playerToUnmute.getName().getString()));
+                                    Component messageToOperator = Component.literal(msg);
                                     ctx.getSource().sendFailure(messageToOperator);
                                     return 1;
                                 }
-                                AdminCraft.playerDataManager.removeEntry(AdminCraft.playerDataManager.getPlayerDataByUUID(playerToUnmute.getStringUUID()));
+                                AdminCraft.playerDataManager.removeMuteEntry(AdminCraft.playerDataManager.getPlayerMuteDataByUUID(playerToUnmute.getStringUUID()));
 
-
-                                Component messageComponent = AdminCraft.parseComponent(playerToUnmute.level(), muteMessages.muteEnds().get());
+                                Component messageComponent = Component.literal(Config.unmute_message).withStyle(ChatFormatting.GREEN);
                                 playerToUnmute.sendSystemMessage(messageComponent);
 
-                                Component messageToOperator = AdminCraft.parseComponent(ctx.getSource().getLevel(), String.format(muteMessages.unmuteSuccess().get(), playerToUnmute.getName().getString()));
+                                String msg = PlaceHolderSystem.replacePlaceholders(Config.unmute_success, Map.of("player", playerToUnmute.getName().getString()));
+                                Component messageToOperator = Component.literal(msg);
                                 ctx.getSource().sendSuccess(() -> messageToOperator, true);
                                 return 1;
                             } else {
