@@ -8,9 +8,11 @@ import net.minecraft.server.players.ServerOpListEntry;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import fr.liveinground.admin_craft.AdminCraft;
+import fr.liveinground.admin_craft.PlaceHolderSystem;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 public class Utils {
     public static List<ServerPlayer> getOnlineOperators() {
@@ -29,13 +31,12 @@ public class Utils {
     }
 
     public static void logCancelledMessage(ServerPlayer player, String message) {
-        // todo: custom message with placeholders
-
-        final String logMessage = "[CANCELLED] <" + player.getDisplayName().getString() + "> " + message;
-        AdminCraft.LOGGER.info(logMessage);
-
-        for (ServerPlayer p: getOnlineOperators()) {
-            p.sendSystemMessage(Component.literal(logMessage));
+        if (Config.log_cancelled_events) {
+            final String logMessage = PlaceHolderSystem.replacePlaceHolders(Config.log_format, Map.of("player", player.getDisplayName().getString(), "message", message));
+            AdminCraft.LOGGER.info(logMessage);
+            for (ServerPlayer p: getOnlineOperators()) {
+                p.sendSystemMessage(Component.literal(logMessage));
+            }
         }
     }
 }
