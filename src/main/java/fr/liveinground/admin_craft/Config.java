@@ -90,6 +90,9 @@ public class Config {
 
         ALT_LEVEL = BUILDER.comment("The OP level required to use the /alts command").defineInRange("opLevel", 3, 0, 4);
 
+        BUILDER.pop();
+    }
+
     static {
         BUILDER.push("messages");
 
@@ -147,10 +150,12 @@ public class Config {
         private static ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
         private static ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
         private static ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
-        private static ForgeConfigSpec.BooleanValur LOG_CANCELLED_EVENTS;
+        private static ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
 
     private static ForgeConfigSpec.IntValue MUTE_LEVEL;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
+
+    private static ForgeConfigSpec.IntValue ALT_LEVEL;
 
     public static boolean sp_enabled;
     public static int sp_op_level;
@@ -185,7 +190,7 @@ public class Config {
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
 
-    public static alt_level;
+    public static int alt_level;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
