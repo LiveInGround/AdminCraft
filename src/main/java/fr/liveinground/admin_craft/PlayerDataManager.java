@@ -3,6 +3,7 @@ package fr.liveinground.admin_craft;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import fr.liveinground.admin_craft.ips.PlayerIPSData;
 import fr.liveinground.admin_craft.mutes.PlayerMuteData;
 
 import java.io.File;
@@ -27,7 +28,8 @@ public class PlayerDataManager {
     private final Path ips_data_file;
     private final Path staff_mode_data_file;
 
-    private final List<PlayerMuteData> entries = new ArrayList<>();
+    private final List<PlayerMuteData> muteEntries = new ArrayList<>();
+    private final List<PlayerIPSData> ipsEntries = new ArrayList<>();
 
 
     public PlayerDataManager(Path worldPath) {
@@ -39,16 +41,16 @@ public class PlayerDataManager {
     }
 
     public List<PlayerMuteData> getEntries() {
-        return entries;
+        return muteEntries;
     }
 
     public void addMuteEntry(PlayerMuteData entry) {
-        entries.add(entry);
+        muteEntries.add(entry);
         AdminCraft.mutedPlayersUUID.add(entry.uuid);
     }
 
     public void removeMuteEntry(PlayerMuteData entry) {
-        entries.remove(entry);
+        muteEntries.remove(entry);
         AdminCraft.mutedPlayersUUID.remove(entry.uuid);
     }
 
@@ -59,8 +61,8 @@ public class PlayerDataManager {
                 Type type = new TypeToken<List<PlayerMuteData>>(){}.getType();
                 List<PlayerMuteData> loaded = GSON.fromJson(reader, type);
                 if (loaded != null) {
-                    entries.clear();
-                    entries.addAll(loaded);
+                    muteEntries.clear();
+                    muteEntries.addAll(loaded);
                 }
             } catch (IOException e) {
                 System.err.println("Failed to load mutes datas: " + e.getMessage());
@@ -70,12 +72,32 @@ public class PlayerDataManager {
                 System.err.println("Failed to create mutes storage");
                 return;
             } else {
-                fileNotFound = true;
+                // fileNotFound = true;
                 try {
                     Files.writeString(mute_data_file, "[]", StandardOpenOption.CREATE_NEW);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+        }
+
+        if (Files.exists(ips_data_file)) {
+            try (Reader reader = Files.newBufferedReader(ips_data_file)) {
+                Type type = new TypeToken<List<PlayerIPSData>>(){}.getType();
+                List<PlayerIPSData> loaded = GSON.fromJson(reader, type);
+                if (loaded != null) {
+                    ipsEntries.clear();
+                    ipsEntries.addAll(loaded);
+                }
+            } catch (IOException e) {
+                System.err.println("Failed to load IPS datas: " + e.getMessage());
+            }
+        } else {
+            // fileNotFound = true;
+            try {
+                Files.writeString(ips_data_file, "[]", StandardOpenOption.CREATE_NEW);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
         // todo: ips storage (alt accounts easy detection)
@@ -87,8 +109,26 @@ public class PlayerDataManager {
 
     }
 
+    public PlayerIPSData getPlayerIPSDataByUUID (String playerUUID) {
+        for (PlayerIPSData data: ipsEntries) {
+            if (data.uuid.equals(playerUUID)) {
+                return data;
+            }
+        }
+        return null;
+    }
+
+    public PlayerIPSData getPlayerIPSDataByIP (String ip) {
+        for (PlayerIPSData data: ipsEntries) {
+            if (data.ips.contains(ip)) {
+                return data;
+            }
+        }
+        return null;
+    }
+
     public PlayerMuteData getPlayerMuteDataByName (String playerName) {
-        for (PlayerMuteData data: entries) {
+        for (PlayerMuteData data: muteEntries) {
             if (data.name.equals(playerName)) {
                 return data;
             }
@@ -97,7 +137,7 @@ public class PlayerDataManager {
     }
 
     public PlayerMuteData getPlayerMuteDataByUUID (String playerUUID) {
-        for (PlayerMuteData data: entries) {
+        for (PlayerMuteData data: muteEntries) {
             if (data.uuid.equals(playerUUID)) {
                 return data;
             }
@@ -105,13 +145,20 @@ public class PlayerDataManager {
         return null;
     }
 
+    public void addIPSData (String uuid, List<String> ips) {
+        ipsEntries.add(new PlayerIPSData(uuid, ips));
+    }
+
     public void save() {
         try {
             try (Writer writer = Files.newBufferedWriter(mute_data_file)) {
-                GSON.toJson(entries, writer);
+                GSON.toJson(muteEntries, writer);
+            }
+            try (Writer writer = Files.newBufferedWriter(ips_data_file)) {
+                GSON.toJson(ipsEntries, writer);
             }
         } catch (IOException e) {
-            System.err.println("Failed to save mutes datas: " + e.getMessage());
+            System.err.println("Failed to save datas: " + e.getMessage());
         }
     }
 
