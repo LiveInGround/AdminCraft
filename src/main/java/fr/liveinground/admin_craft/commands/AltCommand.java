@@ -23,7 +23,7 @@ public class AltCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-        dispatcher.register(Commands.literal("mute")
+        dispatcher.register(Commands.literal("alts")
                 .requires(commandSource -> commandSource.hasPermission(Config.alt_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile()).executes(ctx -> {
                     // Get the target player
