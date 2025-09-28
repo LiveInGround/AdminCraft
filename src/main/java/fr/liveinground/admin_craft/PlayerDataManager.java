@@ -39,7 +39,7 @@ public class PlayerDataManager {
         load(false);
     }
 
-    public List<PlayerMuteData> getEntries() {
+    public List<PlayerMuteData> getMuteEntries() {
         return muteEntries;
     }
 
