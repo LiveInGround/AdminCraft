@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import fr.liveinground.admin_craft.ips.PlayerIPSData;
+import fr.liveinground.admin_craft.moderation.PlayerHistoryData;
+import fr.liveinground.admin_craft.moderation.SanctionData;
 import fr.liveinground.admin_craft.mutes.PlayerMuteData;
 
 import java.io.IOException;
@@ -21,22 +23,53 @@ public class PlayerDataManager {
     private static final String MUTE_FILE_NAME = "mutes.json";
     private static final String IPS_FILE_NAME = "ips.json";
     private static final String STAFF_MODE_DATA = "staff_mode.json";
+    private static final String SANCTION_HISTORY = "sanction_history.json";
     private static final String WORLD_CHANGES_DATABASE_FILE = "world_changes.db";
 
     private final Path mute_data_file;
     private final Path ips_data_file;
+    private final Path sanction_history_file;
     private final Path staff_mode_data_file;
 
     private final List<PlayerMuteData> muteEntries = new ArrayList<>();
     private final List<PlayerIPSData> ipsEntries = new ArrayList<>();
-
+    private final List<PlayerHistoryData> historyEntries = new ArrayList<>();
 
     public PlayerDataManager(Path worldPath) {
         this.mute_data_file = worldPath.resolve(MUTE_FILE_NAME);
         this.ips_data_file = worldPath.resolve(IPS_FILE_NAME);
         this.staff_mode_data_file = worldPath.resolve(STAFF_MODE_DATA);
+        this.sanction_history_file = worldPath.resolve(SANCTION_HISTORY);
 
         load(false);
+    }
+
+    public List<PlayerHistoryData> getHistoryEntries() {
+        return historyEntries;
+    }
+
+    public PlayerHistoryData getHistoryFromUUID(String playerUUID) {
+        for (PlayerHistoryData data: historyEntries) {
+            if (data.uuid.equals(playerUUID)) return data;
+        }
+        return null;
+    }
+
+    public void addHistoryEntry (String uuid, List<SanctionData> sanctionList) {
+        PlayerHistoryData playerData = new PlayerHistoryData(uuid, sanctionList);
+        boolean exists = false;
+        for (PlayerHistoryData d: historyEntries) {
+            if (d.uuid.equals(uuid)) {
+                playerData.sanctionList.addAll(d.sanctionList);
+            }
+        }
+        if (!exists) {
+            historyEntries.add(playerData);
+        }
+    }
+
+    public void removeHistoryEntry (String uuid) {
+        historyEntries.remove(getHistoryFromUUID(uuid));
     }
 
     public List<PlayerMuteData> getMuteEntries() {
@@ -83,7 +116,7 @@ public class PlayerDataManager {
                 }
             }
         }
-
+        // ips system
         if (Files.exists(ips_data_file)) {
             try (Reader reader = Files.newBufferedReader(ips_data_file)) {
                 Type type = new TypeToken<List<PlayerIPSData>>(){}.getType();
@@ -99,6 +132,26 @@ public class PlayerDataManager {
             // fileNotFound = true;
             try {
                 Files.writeString(ips_data_file, "[]", StandardOpenOption.CREATE_NEW);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // sanctions system
+        if (Files.exists(sanction_history_file)) {
+            try (Reader reader = Files.newBufferedReader(sanction_history_file)) {
+                Type type = new TypeToken<List<PlayerHistoryData>>(){}.getType();
+                List<PlayerHistoryData> loaded = GSON.fromJson(reader, type);
+                if (loaded != null) {
+                    historyEntries.clear();
+                    historyEntries.addAll(loaded);
+                }
+            } catch (IOException e) {
+                System.err.println("Failed to load history datas: " + e.getMessage());
+            }
+        } else {
+            // fileNotFound = false;
+            try {
+                Files.writeString(sanction_history_file, "[]", StandardOpenOption.CREATE_NEW);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -160,6 +213,9 @@ public class PlayerDataManager {
             }
             try (Writer writer = Files.newBufferedWriter(ips_data_file)) {
                 GSON.toJson(ipsEntries, writer);
+            }
+            try (Writer writer = Files.newBufferedWriter(sanction_history_file)) {
+                GSON.toJson(historyEntries, writer);
             }
         } catch (IOException e) {
             System.err.println("Failed to save datas: " + e.getMessage());
