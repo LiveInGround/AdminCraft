@@ -9,9 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = AdminCraft.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -252,6 +250,7 @@ public class Config {
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
         prevent_signs = MUTE_PREVENT_SIGN_PLACING.get();
         allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
+        alt_level = ALT_LEVEL.get();
     }
 
     @SubscribeEvent
