@@ -4,6 +4,7 @@ public enum Sanction {
     WARN,
     TEMPMUTE,
     MUTE,
+    KICK,
     TEMPBAN,
     BAN
 }

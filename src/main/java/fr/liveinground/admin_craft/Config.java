@@ -92,6 +92,15 @@ public class Config {
     }
 
     static {
+        BUILDER.push("quickSanctionSystem");
+
+        ENABLE_SANC = BUILDER.comment("Should the /sanction command and the quick sanction system be enabled ? IMPORTANT NOTE: The sanctions can be configured in admin_craft_sanctions.toml").define("enable", true);
+        SANC_LEVEL = BUILDER.comment("The OP level required to use the /sanction command").defineInRange("sanctionCommandLevel", 3, 0, 4);
+
+        BUILDER.pop();
+    }
+
+    static {
         BUILDER.push("messages");
 
         SPAWN_PROTECTION_ENTER = BUILDER.comment("Message when entering spawn protection")
@@ -155,6 +164,9 @@ public class Config {
 
     private static ForgeConfigSpec.IntValue ALT_LEVEL;
 
+    private static ForgeConfigSpec.BooleanValue ENABLE_SANC;
+    private static ForgeConfigSpec.IntValue SANC_LEVEL;
+
     public static boolean sp_enabled;
     public static int sp_op_level;
     public static int sp_center_x;
@@ -187,6 +199,9 @@ public class Config {
 
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
+
+    public static boolean enable_sanction_cmd;
+    public static int sanction_level;
 
     public static int alt_level;
 
@@ -251,6 +266,8 @@ public class Config {
         prevent_signs = MUTE_PREVENT_SIGN_PLACING.get();
         allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
         alt_level = ALT_LEVEL.get();
+        enable_sanction_cmd = ENABLE_SANC.get();
+        sanction_level = SANC_LEVEL.get();
     }
 
     @SubscribeEvent

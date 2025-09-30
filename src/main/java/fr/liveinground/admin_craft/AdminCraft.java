@@ -4,8 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import fr.liveinground.admin_craft.commands.AltCommand;
 import fr.liveinground.admin_craft.commands.MuteCommand;
+import fr.liveinground.admin_craft.commands.SanctionCommand;
 import fr.liveinground.admin_craft.commands.StaffModeCommand;
 import fr.liveinground.admin_craft.ips.PlayerIPSData;
+import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -17,7 +19,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -26,7 +27,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -57,8 +58,8 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onServerStart(ServerStartingEvent event) {
-
+    public void onServerStarted(ServerStartedEvent event) {
+        SanctionConfig.load(event.getServer().getServerDirectory().toPath().resolve("world").resolve("serverconfig"));
     }
 
     @SubscribeEvent
@@ -67,6 +68,9 @@ public class AdminCraft {
 
         MuteCommand.register(event.getDispatcher());
         AltCommand.register(event.getDispatcher());
+        if (Config.enable_sanction_cmd) {
+            SanctionCommand.register(event.getDispatcher());
+        }
         // StaffModeCommand.register(event.getDispatcher());
     }
 

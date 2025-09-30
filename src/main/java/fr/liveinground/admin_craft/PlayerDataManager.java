@@ -5,8 +5,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import fr.liveinground.admin_craft.ips.PlayerIPSData;
 import fr.liveinground.admin_craft.moderation.PlayerHistoryData;
+import fr.liveinground.admin_craft.moderation.Sanction;
 import fr.liveinground.admin_craft.moderation.SanctionData;
 import fr.liveinground.admin_craft.mutes.PlayerMuteData;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -16,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PlayerDataManager {
@@ -200,6 +203,21 @@ public class PlayerDataManager {
             }
         }
         return null;
+    }
+
+    public void addSanction(String uuid, Sanction type, String reason, @Nullable Date expiresOn) {
+        SanctionData d = new SanctionData(type, reason, new Date(), expiresOn);
+        PlayerHistoryData history = getHistoryFromUUID(uuid);
+        if (history == null) {
+            List<SanctionData> sanctionDataList = new ArrayList<>();
+            sanctionDataList.add(d);
+            addHistoryEntry(uuid, sanctionDataList);
+        } else {
+            List<SanctionData> sanctionDataList = history.sanctionList;
+            sanctionDataList.add(d);
+            removeHistoryEntry(uuid);
+            addHistoryEntry(uuid, sanctionDataList);
+        }
     }
 
     public void addIPSData (String name, String uuid, String ips) {

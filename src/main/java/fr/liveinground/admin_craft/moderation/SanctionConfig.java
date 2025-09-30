@@ -14,6 +14,7 @@ public class SanctionConfig {
     private static FileConfig sanctionConfig;
     public static Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();    // Sanction config
     public static Map<String, Map<Integer, SanctionTemplate>> escalates = new HashMap<>();  // Escalate config
+    public static List<String> availableReasons;
 
     public static void load(Path configDir) {
         Path file = configDir.resolve("admin_craft_sanctions.toml");
@@ -21,17 +22,28 @@ public class SanctionConfig {
         if (!Files.exists(file)) {
             try {
                 Files.createFile(file);
-                // Default
-                Files.writeString(file, """
-                [reasons.cheat]
-                1 = "tempban:1d"
-                2 = "tempban:3m"
 
-                [reasons.spam]
-                1 = "tempmute:1h"
-                
-                [reasons._mute]
-                3 = "tempban:1d"
+                // Default config file
+                Files.writeString(file, """
+                # NOTE: The server has to restart to reload this file.
+                # WARNING: Tempmute and Tempban are not implemented yet. Please avoid using them (nothing will occur if this sanction is set). Stay tuned!
+                [reasons]
+                    [reasons.cheat]
+                        displayName = "Cheating"
+                        message = "Cheating / Unfair advantage"
+                        1 = "tempban:1d"
+                        2 = "tempban:3m"
+                        3 = "ban"
+
+                    [reasons.spam]
+                        displayName = "Spam"
+                        message = "Spamming is not allowed!"
+                        1 = "warn"
+                        2 = "tempmute:1h"
+
+                    [reasons._warn]
+                        message = "You received %n% warns!"
+                        3 = "tempban:1d"
                 """);
             } catch (IOException e) {
                 AdminCraft.LOGGER.error(e.getMessage());
@@ -44,25 +56,44 @@ public class SanctionConfig {
         sanctions.clear();
         escalates.clear();
 
-        // Exemple : sanctions.reasons.cheat.1 = "tempban:1d"
         if (sanctionConfig.contains("reasons")) {
             var reasons = sanctionConfig.get("reasons");
-            if (reasons instanceof Map<?,?> map) {
+            if (reasons instanceof Map<?, ?> map) {
                 for (var entry : map.entrySet()) {
                     String reason = entry.getKey().toString();
                     Map<Integer, SanctionTemplate> sanctionsMap = new HashMap<>();
 
-                    if (entry.getValue() instanceof Map<?,?> inner) {
+                    // Fallbacks
+                    String displayName = reason;
+                    String message = "";
+
+                    if (entry.getValue() instanceof Map<?, ?> inner) {
                         for (var innerEntry : inner.entrySet()) {
-                            int lvl = Integer.parseInt(innerEntry.getKey().toString());
-                            String sanctionStr = innerEntry.getValue().toString(); // ex: "tempban:1d"
+                            String key = innerEntry.getKey().toString();
 
-                            String[] parts = sanctionStr.split(":", 2);
-                            Sanction type = Sanction.valueOf(parts[0].toUpperCase());
-                            String duration = parts.length > 1 ? parts[1] : "";
+                            if (key.equalsIgnoreCase("displayName")) {
+                                displayName = innerEntry.getValue().toString();
+                                availableReasons.add(displayName);
+                                continue;
+                            }
+                            if (key.equalsIgnoreCase("message")) {
+                                message = innerEntry.getValue().toString();
+                                continue;
+                            }
 
-                            SanctionTemplate s = new SanctionTemplate(type, duration);
-                            sanctionsMap.put(lvl, s);
+                            try {
+                                int lvl = Integer.parseInt(key);
+                                String sanctionStr = innerEntry.getValue().toString();
+
+                                String[] parts = sanctionStr.split(":", 2);
+                                Sanction type = Sanction.valueOf(parts[0].toUpperCase());
+                                String duration = parts.length > 1 ? parts[1] : "";
+
+                                SanctionTemplate s = new SanctionTemplate(displayName, message, type, duration);
+                                sanctionsMap.put(lvl, s);
+                            } catch (NumberFormatException ex) {
+                                AdminCraft.LOGGER.warn("Invalid key in " + reason + ": " + key);
+                            }
                         }
                     }
 
@@ -73,15 +104,14 @@ public class SanctionConfig {
                     }
                 }
             }
-
         }
     }
 
-    public boolean checkDuration(String input) {
-        return !(getDuration(input) == null);
+    public static boolean checkDuration(String input) {
+        return (getDuration(input) != null);
     }
 
-    public List<Integer> getDuration(String input) {
+    public static List<Integer> getDuration(String input) {
         // Pattern pour capturer les nombres avant d, h, m, s
         Pattern pattern = Pattern.compile("(\\d+)d(\\d+)h(\\d+)m(\\d+)s");
         Matcher matcher = pattern.matcher(input);
