@@ -19,20 +19,20 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -48,13 +48,12 @@ public class AdminCraft {
     public static List<String> mutedPlayersUUID = new ArrayList<>();
     public static PlayerDataManager playerDataManager;
 
-    public AdminCraft(FMLJavaModLoadingContext ctx) {
-        IEventBus modEventBus = ctx.getModEventBus();
+    public AdminCraft(IEventBus modEventBus, ModContainer modContainer) {
 
-        MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(MuteEventsHandler.class);
+        modEventBus.register(this);
+        modEventBus.register(MuteEventsHandler.class);
 
-        ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
 
     @SubscribeEvent
@@ -180,8 +179,8 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onPlayerMove(TickEvent.PlayerTickEvent e) {
-        Player player = e.player;
+    public void onPlayerMove(PlayerTickEvent e) {
+        Player player = e.getEntity();
         ServerPlayer serverPlayer = (ServerPlayer) player;
         if (isInSP(player.level(), player.getOnPos())) {
             for (MobEffect effect: Config.sp_effects) {
@@ -196,7 +195,7 @@ public class AdminCraft {
             if (player.getTags().contains(SP_TAG)){
                 player.removeTag(SP_TAG);
                 for (MobEffect effect: Config.sp_effects) {
-                    e.player.removeEffect(effect);
+                    e.getEntity().removeEffect(effect);
                 }
                 serverPlayer.displayClientMessage(Component.literal(Config.sp_leave_msg).withStyle(ChatFormatting.RED), true);
             }
