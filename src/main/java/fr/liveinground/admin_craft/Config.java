@@ -111,7 +111,7 @@ public class Config {
 
 
             BUILDER.push("mute");
-            MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted").define("muteMessage", "You were muted by an operator. Reason: ");
+            MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted").define("muteMessage", "You were muted by an operator. Reason: %reason%");
             MUTE_MESSAGE_NO_REASON = BUILDER.comment("Message sent to players when they are muted without a specified reason").define("muteMessageNoReason", "You were muted by an operator.");
             MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted").define("muteSuccess", "%player% was muted: %reason%");
             MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted").define("alreadyMuted", "%player% is already muted");

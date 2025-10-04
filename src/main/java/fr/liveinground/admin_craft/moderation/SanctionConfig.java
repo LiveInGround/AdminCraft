@@ -6,6 +6,9 @@ import fr.liveinground.admin_craft.AdminCraft;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +29,7 @@ public class SanctionConfig {
                 // Default config file
                 Files.writeString(file, """
                 # NOTE: The server has to restart to reload this file.
-                # WARNING: Tempmute and Tempban are not implemented yet. Please avoid using them (nothing will occur if this sanction is set). Stay tuned!
+                # WARNING: Warn, Tempmute and Tempban are not fully implemented yet. Please avoid using them. Stay tuned!
                 [reasons]
                     [reasons.cheat]
                         displayName = "Cheating"
@@ -88,6 +91,7 @@ public class SanctionConfig {
                                 String[] parts = sanctionStr.split(":", 2);
                                 Sanction type = Sanction.valueOf(parts[0].toUpperCase());
                                 String duration = parts.length > 1 ? parts[1] : "";
+                                if (!checkDuration(duration)) continue;
 
                                 SanctionTemplate s = new SanctionTemplate(displayName, message, type, duration);
                                 sanctionsMap.put(lvl, s);
@@ -112,7 +116,6 @@ public class SanctionConfig {
     }
 
     public static List<Integer> getDuration(String input) {
-        // Pattern pour capturer les nombres avant d, h, m, s
         Pattern pattern = Pattern.compile("(\\d+)d(\\d+)h(\\d+)m(\\d+)s");
         Matcher matcher = pattern.matcher(input);
 
@@ -130,5 +133,22 @@ public class SanctionConfig {
         } else {
             return null;
         }
+    }
+
+    public static Date getDurationAsDate(String input) {
+        List<Integer> duration = SanctionConfig.getDuration(input);
+        if (duration == null) throw new IllegalArgumentException("SanctionConfig.getDuration() returned null");
+        if (!(duration.size() == 4)) throw new IllegalArgumentException("SanctionConfig.getDuration() returned an invalid list");
+        Integer days = duration.get(0);
+        Integer hours = duration.get(1);
+        Integer minutes = duration.get(2);
+        Integer seconds = duration.get(3);
+        LocalTime now = LocalTime.now();
+        LocalDateTime expiresLocal = LocalDateTime.from(now
+                .plusHours(days * 24)
+                .plusHours(hours)
+                .plusMinutes(minutes)
+                .plusSeconds(seconds));
+        return Date.from(expiresLocal.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

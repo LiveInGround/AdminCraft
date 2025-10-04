@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
+import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.mutes.PlayerMuteData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -33,10 +34,8 @@ public class MuteCommand {
                                 ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
                                 return 1;
                             }
-                            AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(playerToMute.getName().toString(), playerToMute.getStringUUID(), "Muted by an operator"));
 
-                            String msg = Config.mute_message;
-                            playerToMute.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.RED));
+                            CustomSanctionSystem.mutePlayer(playerToMute, "Muted by an operator.", null);
 
                             String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", playerToMute.getName().getString()));
                             ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
@@ -49,10 +48,8 @@ public class MuteCommand {
                                 return 1;
                             }
                             String reason = StringArgumentType.getString(ctx, "reason");
-                            AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(playerToMute.getName().toString(), playerToMute.getStringUUID(), reason));
 
-                            String msg = PlaceHolderSystem.replacePlaceholders(Config.mute_message, Map.of("reason", reason));
-                            playerToMute.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.RED));
+                            CustomSanctionSystem.mutePlayer(playerToMute, reason, null);
 
                             String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", playerToMute.getName().getString(), "reason", reason));
                             ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
@@ -64,9 +61,6 @@ public class MuteCommand {
                 .requires(source -> source.hasPermission(Config.mute_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
-
-                            // todo: get config messages
-
                             Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
                             if (!profiles.isEmpty()) {
 
@@ -84,10 +78,8 @@ public class MuteCommand {
                                     ctx.getSource().sendFailure(messageToOperator);
                                     return 1;
                                 }
-                                AdminCraft.playerDataManager.removeMuteEntry(AdminCraft.playerDataManager.getPlayerMuteDataByUUID(playerToUnmute.getStringUUID()));
 
-                                Component messageComponent = Component.literal(Config.unmute_message).withStyle(ChatFormatting.GREEN);
-                                playerToUnmute.sendSystemMessage(messageComponent);
+                                CustomSanctionSystem.unMutePlayer(playerToUnmute);
 
                                 String msg = PlaceHolderSystem.replacePlaceholders(Config.unmute_success, Map.of("player", playerToUnmute.getName().getString()));
                                 Component messageToOperator = Component.literal(msg);

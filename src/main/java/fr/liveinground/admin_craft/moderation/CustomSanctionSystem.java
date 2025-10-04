@@ -2,6 +2,9 @@ package fr.liveinground.admin_craft.moderation;
 
 import com.mojang.authlib.GameProfile;
 import fr.liveinground.admin_craft.AdminCraft;
+import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.PlaceHolderSystem;
+import fr.liveinground.admin_craft.mutes.PlayerMuteData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +16,7 @@ import net.minecraft.server.players.UserBanListEntry;
 
 import javax.annotation.Nullable;
 import java.util.Date;
+import java.util.Map;
 
 public class CustomSanctionSystem {
     public static void banPlayer(MinecraftServer server, String source, ServerPlayer player, String reason, @Nullable Date expiresOn) {
@@ -34,7 +38,19 @@ public class CustomSanctionSystem {
         AdminCraft.playerDataManager.addSanction(player.getStringUUID(), Sanction.KICK, reason, null);
     }
 
-    public static void mutePlayer(ServerPlayer player, String reason) {
-        // todo
+    public static void mutePlayer(ServerPlayer player, String reason, @Nullable Date expiresOn) {
+        if (!AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
+            AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(player.getName().toString(), player.getStringUUID(), reason, expiresOn));
+            String msg = PlaceHolderSystem.replacePlaceholders(Config.mute_message, Map.of("reason", reason));
+            player.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.RED));
+        }
+    }
+
+    public static void unMutePlayer(ServerPlayer player) {
+        if (AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
+            AdminCraft.playerDataManager.removeMuteEntry(AdminCraft.playerDataManager.getPlayerMuteDataByUUID(player.getStringUUID()));
+            Component messageComponent = Component.literal(Config.unmute_message).withStyle(ChatFormatting.GREEN);
+            player.sendSystemMessage(messageComponent);
+        }
     }
 }

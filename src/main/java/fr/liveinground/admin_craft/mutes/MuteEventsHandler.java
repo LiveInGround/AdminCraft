@@ -4,6 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlayerDataManager;
+import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -23,6 +25,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Date;
 
 import static fr.liveinground.admin_craft.AdminCraft.playerDataManager;
 
@@ -112,6 +115,19 @@ public class MuteEventsHandler {
                     // event.getLevel().playSound(p, event.getPos(), SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
                     Utils.logCancelledMessage(p, "[BLOCK] The placement of a sign by this muted player was canceled.");
                 }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onTick(TickEvent.PlayerTickEvent e) {
+        if (e.phase == TickEvent.Phase.END && e.player.level().getGameTime() %20 == 0) {
+            if (AdminCraft.mutedPlayersUUID.contains(e.player.getStringUUID())) {
+                Date now = new Date();
+                PlayerMuteData data = playerDataManager.getPlayerMuteDataByUUID(e.player.getStringUUID());
+                if (data.expiresOn != null && data.expiresOn.before(now)) {
+                    CustomSanctionSystem.unMutePlayer((ServerPlayer) e.player);
+                }
+            }
         }
     }
 }

@@ -17,7 +17,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.codehaus.plexus.util.cli.Commandline;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -56,16 +60,18 @@ public class SanctionCommand {
                             CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, null);
                             break;
                         case TEMPBAN:
-                            // coming soon
+                            Date banExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
+                            CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, banExpiresOn);
                             break;
                         case KICK:
                             CustomSanctionSystem.kickPlayer(sanctionedPlayer, reason);
                             break;
                         case MUTE:
-                            CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason);
+                            CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, null);
                             break;
                         case TEMPMUTE:
-                            // coming soon
+                            Date muteExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
+                            CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
                             break;
                         case WARN:
                             // todo
