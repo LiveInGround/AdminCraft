@@ -2,6 +2,10 @@ package fr.liveinground.admin_craft.moderation;
 
 import com.electronwill.nightconfig.core.file.FileConfig;
 import fr.liveinground.admin_craft.AdminCraft;
+import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.PlaceHolderSystem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -150,5 +155,28 @@ public class SanctionConfig {
                 .plusMinutes(minutes)
                 .plusSeconds(seconds));
         return Date.from(expiresLocal.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    public static String getDurationAsStringFromDate(Date input) {
+        if (input != null) {
+            long diff = input.getTime() - System.currentTimeMillis();
+            long days = TimeUnit.MILLISECONDS.toDays(diff);
+            diff -= TimeUnit.DAYS.toMillis(days);
+
+            long hours = TimeUnit.MILLISECONDS.toHours(diff);
+            diff -= TimeUnit.HOURS.toMillis(hours);
+
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+
+            String daysStr = String.valueOf(days);
+            String hoursStr = String.valueOf(hours);
+            String minutesStr = String.valueOf(minutes);
+            return PlaceHolderSystem.replacePlaceholders(Config.time_remaining_short,
+                    Map.of("days", daysStr,
+                            "hours", hoursStr,
+                            "minutes", minutesStr));
+        } else {
+            return "N/A";
+        }
     }
 }
