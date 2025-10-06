@@ -109,6 +109,11 @@ public class Config {
         SPAWN_PROTECTION_LEAVE = BUILDER.comment("Message when leaving spawn protection")
                 .define("leave", "You are no more in the spawn protection");
 
+        TIME_REMAINING = BUILDER.comment("Message for displaying a sanction duration")
+                .define("timeRemainingMessage", "Time remaining: %days% days, %hours%, and %minutes% minutes");
+        TIME_REMAINING_SHORT = BUILDER.comment("Message for displaying shortly a sanction duration")
+                .define("timeRemainingMessageShort", "Time remaining: %days%d %hours%h %minutes%m");
+
 
             BUILDER.push("mute");
             MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted").define("muteMessage", "You were muted by an operator. Reason: %reason%");
@@ -145,6 +150,8 @@ public class Config {
 
     private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
     private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+    private static ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
+    private static ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
         private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
         private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
         private static ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
@@ -184,6 +191,8 @@ public class Config {
 
     public static String sp_enter_msg;
     public static String sp_leave_msg;
+    public static String time_remaining;
+    public static String time_remaining_short;
         public static String mute_message;
         public static String mute_message_no_reason;
         public static String mute_success;
@@ -250,7 +259,9 @@ public class Config {
 
         sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
         sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
-            mute_message = MUTE_MESSAGE.get();
+        time_remaining = TIME_REMAINING.get();
+        time_remaining_short = TIME_REMAINING_SHORT.get();
+        mute_message = MUTE_MESSAGE.get();
             mute_message_no_reason = MUTE_MESSAGE_NO_REASON.get();
             mute_success = MUTE_SUCCESS.get();
             mute_failed_already_muted = MUTE_FAILED_ALREADY_MUTED.get();

@@ -3,10 +3,13 @@ package fr.liveinground.admin_craft.commands;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
+import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.mutes.PlayerMuteData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -15,7 +18,9 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Collection;
 import java.util.Map;
@@ -29,31 +34,10 @@ public class MuteCommand {
         dispatcher.register(Commands.literal("mute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
-                            ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
-                            if (AdminCraft.mutedPlayersUUID.contains(playerToMute.getStringUUID())) {
-                                ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
-                                return 1;
-                            }
-
-                            CustomSanctionSystem.mutePlayer(playerToMute, "Muted by an operator.", null);
-
-                            String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", playerToMute.getName().getString()));
-                            ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
-
-                            return 1;
+                           return mute(ctx, null, null);
                         }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
-                            ServerPlayer playerToMute = EntityArgument.getPlayer(ctx, "player");
-                            if (AdminCraft.mutedPlayersUUID.contains(playerToMute.getStringUUID())) {
-                                ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
-                                return 1;
-                            }
                             String reason = StringArgumentType.getString(ctx, "reason");
-
-                            CustomSanctionSystem.mutePlayer(playerToMute, reason, null);
-
-                            String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", playerToMute.getName().getString(), "reason", reason));
-                            ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
-                            return 1;
+                            return mute(ctx, reason, null);
                         }
                         ))));
 
@@ -91,5 +75,35 @@ public class MuteCommand {
                             }
                         })
                 ));
+
+        dispatcher.register(Commands.literal("tempmute")
+                .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("duration", StringArgumentType.greedyString()))
+                        .executes(ctx -> {
+                    return mute(ctx, null, StringArgumentType.getString(ctx, "duration"));
+                }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
+                            String reason = StringArgumentType.getString(ctx, "reason");
+                            return mute(ctx, reason, StringArgumentType.getString(ctx, "duration"));
+                        }
+                ))));
+    }
+
+    private static int mute(@NotNull CommandContext<CommandSourceStack> ctx, @Nullable String reason, @Nullable String duration) throws CommandSyntaxException {
+        ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+
+        if (reason == null) {
+            reason = "Muted by an operator.";
+        }
+        if (AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
+            ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
+            return 1;
+        }
+
+        CustomSanctionSystem.mutePlayer(player, reason, SanctionConfig.getDurationAsDate(duration));
+
+        String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", player.getName().getString(), "reason", reason));
+        ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
+        return 1;
     }
 }

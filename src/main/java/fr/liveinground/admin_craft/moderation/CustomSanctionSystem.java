@@ -17,6 +17,7 @@ import net.minecraft.server.players.UserBanListEntry;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class CustomSanctionSystem {
     public static void banPlayer(MinecraftServer server, String source, ServerPlayer player, String reason, @Nullable Date expiresOn) {
@@ -40,9 +41,37 @@ public class CustomSanctionSystem {
 
     public static void mutePlayer(ServerPlayer player, String reason, @Nullable Date expiresOn) {
         if (!AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
-            AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(player.getName().toString(), player.getStringUUID(), reason, expiresOn));
+            AdminCraft.playerDataManager.addMuteEntry(
+                    new PlayerMuteData(player.getName().toString(), player.getStringUUID(), reason, expiresOn)
+            );
+
             String msg = PlaceHolderSystem.replacePlaceholders(Config.mute_message, Map.of("reason", reason));
             player.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.RED));
+
+            if (expiresOn != null) {
+                long diff = expiresOn.getTime() - System.currentTimeMillis();
+                long days = TimeUnit.MILLISECONDS.toDays(diff);
+                diff -= TimeUnit.DAYS.toMillis(days);
+
+                long hours = TimeUnit.MILLISECONDS.toHours(diff);
+                diff -= TimeUnit.HOURS.toMillis(hours);
+
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+
+                String daysStr = String.valueOf(days);
+                String hoursStr = String.valueOf(hours);
+                String minutesStr = String.valueOf(minutes);
+
+                String timeMsg = PlaceHolderSystem.replacePlaceholders(
+                        Config.time_remaining,
+                        Map.of(
+                                "days", daysStr,
+                                "hours", hoursStr,
+                                "minutes", minutesStr
+                        )
+                );
+                player.sendSystemMessage(Component.literal(timeMsg).withStyle(ChatFormatting.YELLOW));
+            }
         }
     }
 
