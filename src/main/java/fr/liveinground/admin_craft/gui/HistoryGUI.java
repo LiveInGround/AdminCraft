@@ -10,6 +10,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerListener;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.ChestMenu;
@@ -57,13 +59,18 @@ public class HistoryGUI {
                     reason = "N/A";
             }
             ItemStack stack = new ItemStack(item);
-            stack.setHoverName(Component.literal(sanction).withStyle(ChatFormatting.YELLOW));
-            ListTag lore = new ListTag();
-            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("Reason: " + reason).withStyle(ChatFormatting.RED))));
-            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("Date: " + date).withStyle(ChatFormatting.RED))));
-            lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.literal("Expires: " + expires).withStyle(ChatFormatting.RED))));
-            CompoundTag display = item.getOrCreateTagElement("display");
-            display.put("Lore", lore);
+
+            stack.setHoverName(Component.literal(sanction + "\n" +
+                    "Reason: " + reason + "\n" +
+                    "Expires: " + expires + "\n" +
+                    "Date: " + date).withStyle(ChatFormatting.YELLOW));
+            inventory.addItem(stack);
+            inventory.addListener(new ContainerListener() {
+                @Override
+                public void containerChanged(Container container) {
+
+                }
+            });
         }
 
 
@@ -73,4 +80,6 @@ public class HistoryGUI {
         );
 
     }
+
+
 }
