@@ -82,8 +82,20 @@ public class CustomSanctionSystem {
         }
     }
 
-    public static void warnPlayer(ServerPlayer player, String reason) {
-        // todo: send warn messages
+    public static void warnPlayer(ServerPlayer player, String reason, @Nullable String operator) {
+        if (operator == null) {
+            operator = "The Great Server (TGS)";
+        }
+        Component title = Component.literal(Config.warn_title).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
+        Component message = Component.literal(PlaceHolderSystem.replacePlaceholders(Config.warn_message,
+                Map.of("operator", operator,
+                        "reason", reason))).withStyle(ChatFormatting.YELLOW);
+
+        player.sendSystemMessage(Component.literal("---------------------------------------------").withStyle(ChatFormatting.DARK_RED));
+        player.sendSystemMessage(title);
+        player.sendSystemMessage(message);
+        player.sendSystemMessage(Component.literal("---------------------------------------------").withStyle(ChatFormatting.DARK_RED));
+
 
         AdminCraft.playerDataManager.addSanction(player.getStringUUID(), Sanction.WARN, reason, null);
     }
