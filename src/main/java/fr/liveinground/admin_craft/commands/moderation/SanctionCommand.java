@@ -73,7 +73,7 @@ public class SanctionCommand {
                             CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
                             break;
                         case WARN:
-                            // todo
+                            CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().toString());
                             break;
                     }
 

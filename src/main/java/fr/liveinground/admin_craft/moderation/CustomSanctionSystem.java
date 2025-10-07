@@ -82,9 +82,12 @@ public class CustomSanctionSystem {
         }
     }
 
-    public static void warnPlayer(ServerPlayer player, String reason, @Nullable String operator) {
+    public static void warnPlayer(ServerPlayer player, @Nullable String reason, @Nullable String operator) {
         if (operator == null) {
             operator = "The Great Server (TGS)";
+        }
+        if (reason == null) {
+            reason = "Warned by an operator";
         }
         Component title = Component.literal(Config.warn_title).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
         Component message = Component.literal(PlaceHolderSystem.replacePlaceholders(Config.warn_message,

@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import fr.liveinground.admin_craft.commands.AltCommand;
 import fr.liveinground.admin_craft.commands.moderation.MuteCommand;
 import fr.liveinground.admin_craft.commands.moderation.SanctionCommand;
+import fr.liveinground.admin_craft.commands.moderation.WarnCommand;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
@@ -64,6 +65,7 @@ public class AdminCraft {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
         MuteCommand.register(event.getDispatcher());
+        WarnCommand.register(event.getDispatcher());
         AltCommand.register(event.getDispatcher());
         if (Config.enable_sanction_cmd) {
             SanctionCommand.register(event.getDispatcher());
