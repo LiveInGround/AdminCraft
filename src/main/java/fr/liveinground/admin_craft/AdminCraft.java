@@ -45,6 +45,7 @@ public class AdminCraft {
     private static final String SP_TAG = "inSpawnProtection";
 
     public static List<String> mutedPlayersUUID = new ArrayList<>();
+    public static List<String> frozenPlayersUUID = new ArrayList<>();
     public static PlayerDataManager playerDataManager;
 
     public AdminCraft(FMLJavaModLoadingContext ctx) {
@@ -96,6 +97,11 @@ public class AdminCraft {
         BlockPos interactPos = e.getPos();
         Level interactLevel = e.getLevel();
 
+        if (frozenPlayersUUID.contains(player.getStringUUID())) {
+            e.setCanceled(true);
+            return;
+        }
+
         if (isAllowed(serverPlayer, interactLevel, interactPos)) return;
         if (!Config.allowedBlocks.contains(interactLevel.getBlockState(interactPos).getBlock())) {
             e.setCanceled(true);
@@ -116,6 +122,10 @@ public class AdminCraft {
 
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.EntityPlaceEvent e) {
+        if (e.getEntity() instanceof Player p && frozenPlayersUUID.contains(p.getStringUUID())) {
+            e.setCanceled(true);
+            return;
+        }
         if (!(isAllowed(e.getEntity(), (Level) e.getLevel(), e.getPos()))) {
             e.setCanceled(true);
         }
@@ -123,14 +133,14 @@ public class AdminCraft {
 
     @SubscribeEvent
     public void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock e) {
-        if (!(isAllowed(e.getEntity(), e.getLevel(), e.getPos()))) {
+        if (!(isAllowed(e.getEntity(), e.getLevel(), e.getPos())) || frozenPlayersUUID.contains(e.getEntity().getStringUUID())) {
             e.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent e) {
-        if (!(isAllowed(e.getPlayer(), (Level) e.getLevel(), e.getPos()))) {
+        if (!(isAllowed(e.getPlayer(), (Level) e.getLevel(), e.getPos())) || frozenPlayersUUID.contains(e.getPlayer().getStringUUID())) {
             e.setCanceled(true);
         }
     }
@@ -166,6 +176,11 @@ public class AdminCraft {
         Entity target = e.getTarget();
         Player attacker = e.getEntity();
 
+        if (frozenPlayersUUID.contains(target.getStringUUID()) || frozenPlayersUUID.contains(attacker.getStringUUID())) {
+            e.setCanceled(true);
+            return;
+        }
+
         if (target instanceof Player) {
             if (attacker.hasPermissions(Config.sp_op_level)) return;
 
@@ -178,6 +193,10 @@ public class AdminCraft {
     @SubscribeEvent
     public void onPlayerMove(TickEvent.PlayerTickEvent e) {
         Player player = e.player;
+        if (frozenPlayersUUID.contains(player.getStringUUID())) {
+            e.setCanceled(true);
+            return;
+        }
         ServerPlayer serverPlayer = (ServerPlayer) player;
         if (isInSP(player.level(), player.getOnPos())) {
             for (MobEffect effect: Config.sp_effects) {
