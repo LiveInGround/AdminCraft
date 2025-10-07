@@ -128,6 +128,12 @@ public class Config {
             UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted").define("notMuted", "%player% is not muted");
             BUILDER.pop();
 
+            BUILDER.push("warn");
+            WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
+            WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
+            WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
+            BUILDER.pop();
+
         BUILDER.pop();
     }
 
@@ -165,6 +171,10 @@ public class Config {
         private static ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
         private static ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
         private static ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+
+        private static ForgeConfigSpec.IntValue WARN_LEVEL;
+        private static ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
+        private static ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
 
     private static ForgeConfigSpec.IntValue MUTE_LEVEL;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
@@ -205,6 +215,10 @@ public class Config {
         public static boolean prevent_signs;
         public static boolean allow_to_ops_msg;
         public static boolean log_cancelled_events;
+
+        public static int warn_level;
+        public static String warn_title;
+        public static String warn_message;
 
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
@@ -271,6 +285,10 @@ public class Config {
             mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
             cancel_log_format = CANCEL_LOG_FORMAT.get();
             log_cancelled_events = LOG_CANCELLED_EVENTS.get();
+
+            warn_level = WARN_LEVEL.get();
+            warn_title = WARN_TITLE.get();
+            warn_message = WARN_MESSAGE.get();
 
         mute_level = MUTE_LEVEL.get();
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
