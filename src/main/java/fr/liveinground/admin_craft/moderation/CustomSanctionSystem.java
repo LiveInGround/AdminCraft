@@ -1,15 +1,14 @@
 package fr.liveinground.admin_craft.moderation;
 
-import com.mojang.authlib.GameProfile;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
-import fr.liveinground.admin_craft.mutes.PlayerMuteData;
+import fr.liveinground.admin_craft.storage.types.PlayerMuteData;
+import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.BanListEntry;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
@@ -81,5 +80,11 @@ public class CustomSanctionSystem {
             Component messageComponent = Component.literal(Config.unmute_message).withStyle(ChatFormatting.GREEN);
             player.sendSystemMessage(messageComponent);
         }
+    }
+
+    public static void warnPlayer(ServerPlayer player, String reason) {
+        // todo: send warn messages
+
+        AdminCraft.playerDataManager.addSanction(player.getStringUUID(), Sanction.WARN, reason, null);
     }
 }

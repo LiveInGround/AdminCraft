@@ -1,9 +1,9 @@
 /*package fr.liveinground.admin_craft.gui;
 
 import fr.liveinground.admin_craft.PlaceHolderSystem;
-import fr.liveinground.admin_craft.moderation.PlayerHistoryData;
+import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
-import fr.liveinground.admin_craft.moderation.SanctionData;
+import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;

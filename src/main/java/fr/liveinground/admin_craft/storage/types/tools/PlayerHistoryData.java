@@ -1,4 +1,6 @@
-package fr.liveinground.admin_craft.moderation;
+package fr.liveinground.admin_craft.storage.types.tools;
+
+import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 
 import java.util.ArrayList;
 import java.util.List;

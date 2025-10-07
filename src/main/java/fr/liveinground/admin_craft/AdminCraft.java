@@ -7,6 +7,7 @@ import fr.liveinground.admin_craft.commands.moderation.MuteCommand;
 import fr.liveinground.admin_craft.commands.moderation.SanctionCommand;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
+import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -160,11 +161,8 @@ public class AdminCraft {
 
     @SubscribeEvent
     public void onPvP(AttackEntityEvent e) {
-        boolean targetCondition;
         Entity target = e.getTarget();
         Player attacker = e.getEntity();
-        BlockPos targetPos = target.getOnPos();
-        BlockPos attackerPos = attacker.getOnPos();
 
         if (target instanceof Player) {
             if (attacker.hasPermissions(Config.sp_op_level)) return;

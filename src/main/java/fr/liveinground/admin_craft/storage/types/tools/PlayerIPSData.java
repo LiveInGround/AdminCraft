@@ -1,4 +1,4 @@
-package fr.liveinground.admin_craft.ips;
+package fr.liveinground.admin_craft.storage.types.tools;
 
 public class PlayerIPSData {
     public String name;

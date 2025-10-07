@@ -4,8 +4,8 @@ import com.electronwill.nightconfig.core.file.FileConfig;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
+import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
 
 import java.io.IOException;
 import java.nio.file.Files;

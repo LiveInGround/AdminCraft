@@ -1,4 +1,4 @@
-package fr.liveinground.admin_craft.moderation;
+package fr.liveinground.admin_craft.storage.types.sanction;
 
 import org.jetbrains.annotations.Nullable;
 

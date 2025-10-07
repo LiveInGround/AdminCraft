@@ -1,13 +1,14 @@
-package fr.liveinground.admin_craft;
+package fr.liveinground.admin_craft.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import fr.liveinground.admin_craft.ips.PlayerIPSData;
-import fr.liveinground.admin_craft.moderation.PlayerHistoryData;
-import fr.liveinground.admin_craft.moderation.Sanction;
-import fr.liveinground.admin_craft.moderation.SanctionData;
-import fr.liveinground.admin_craft.mutes.PlayerMuteData;
+import fr.liveinground.admin_craft.AdminCraft;
+import fr.liveinground.admin_craft.storage.types.*;
+import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
+import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
+import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
+import fr.liveinground.admin_craft.storage.types.tools.PlayerIPSData;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -80,6 +81,13 @@ public class PlayerDataManager {
     }
 
     public void addMuteEntry(PlayerMuteData entry) {
+        Sanction s;
+        if (entry.expiresOn == null) {
+            s = Sanction.MUTE;
+        } else {
+            s = Sanction.TEMPMUTE;
+        }
+        addSanction(entry.uuid, s, entry.reason, entry.expiresOn);
         muteEntries.add(entry);
         AdminCraft.mutedPlayersUUID.add(entry.uuid);
     }

@@ -1,4 +1,4 @@
-package fr.liveinground.admin_craft.mutes;
+package fr.liveinground.admin_craft.storage.types;
 
 import org.jetbrains.annotations.Nullable;
 
