@@ -1,4 +1,4 @@
-package fr.liveinground.admin_craft.gui;
+/*package fr.liveinground.admin_craft.gui;
 
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.moderation.PlayerHistoryData;
@@ -82,4 +82,4 @@ public class HistoryGUI {
     }
 
 
-}
+}*/

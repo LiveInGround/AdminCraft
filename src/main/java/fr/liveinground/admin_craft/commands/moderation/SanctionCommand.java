@@ -1,13 +1,14 @@
-package fr.liveinground.admin_craft.commands;
+package fr.liveinground.admin_craft.commands.moderation;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.moderation.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -15,12 +16,8 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.codehaus.plexus.util.cli.Commandline;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -86,5 +83,55 @@ public class SanctionCommand {
                     return 1;
                 })
             );
+
+        dispatcher.register(Commands.literal("history")
+                .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
+                .then(Commands.argument("player", GameProfileArgument.gameProfile()))
+                .executes(ctx -> {
+                    Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
+                    if (profiles.isEmpty()) {
+                        ctx.getSource().sendFailure(Component.literal("No player was found"));
+                        return 1;
+                    }
+                    GameProfile targetProfile = profiles.iterator().next();
+                    ServerPlayer player = ctx.getSource().getServer().getPlayerList().getPlayer(targetProfile.getId());
+
+                    assert player != null;
+
+                    StringBuilder list = new StringBuilder(player.getName().getString() + "'s history:\n");
+                    PlayerHistoryData playerHistory = AdminCraft.playerDataManager.getHistoryFromUUID(player.getStringUUID());
+                    if (!playerHistory.sanctionList.isEmpty()) {
+                        for (SanctionData data: playerHistory.sanctionList) {
+                            if (data.expiresOn != null) {
+                                if (data.expiresOn.before(new Date())) {
+                                    list.append(PlaceHolderSystem.replacePlaceholders("- %type%: %reason% (%date%), expired on %expires%",
+                                            Map.of("type", data.sanctionType.name(),
+                                                    "reason", data.reason,
+                                                    "date", data.date.toString(),
+                                                    "expires", data.expiresOn.toString())));
+                                } else {
+                                    list.append(PlaceHolderSystem.replacePlaceholders("- %type%: %reason% (%date%), %expires%",
+                                            Map.of("type", data.sanctionType.name(),
+                                                    "reason", data.reason,
+                                                    "date", data.date.toString(),
+                                                    "expires", SanctionConfig.getDurationAsStringFromDate(data.expiresOn))));
+                                }
+                            } else {
+                                list.append(PlaceHolderSystem.replacePlaceholders("- %type%: %reason% (%date%)",
+                                        Map.of("type", data.sanctionType.name(),
+                                                "reason", data.reason,
+                                                "date", SanctionConfig.getDurationAsStringFromDate(data.date))));
+                            }
+                        }
+                    } else {
+                        list.append("The player has no history.");
+                    }
+
+                    String output = list.toString();
+                    ctx.getSource().sendSuccess(() -> Component.literal(output), false);
+
+                    return 1;
+                })
+        );
     }
 }

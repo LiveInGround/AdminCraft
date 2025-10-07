@@ -1,4 +1,4 @@
-package fr.liveinground.admin_craft.gui;
+/*package fr.liveinground.admin_craft.gui;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -50,3 +50,4 @@ public class HistoryMenu extends AbstractContainerMenu {
         return true;
     }
 }
+*/
