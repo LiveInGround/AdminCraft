@@ -18,42 +18,36 @@ public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
     static {
+        BUILDER.push("commandsPermissions");
+
+        MUTE_LEVEL = BUILDER.comment("The OP level required to run the /mute and /unmute commands").defineInRange("mute", 3, 0, 4);
+        ALT_LEVEL = BUILDER.comment("The OP level required to run the /alts command").defineInRange("alts", 3, 0, 4);
+        SANC_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").defineInRange("sanction", 3, 0, 4);
+        FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").defineInRange("freeze", 3, 0, 4);
+
+        BUILDER.pop();
+    }
+
+    static {
         BUILDER.push("spawnProtection");
 
-        ENABLE_SPAWN_PROTECTION = BUILDER.comment("Enable/disable spawn protection")
-                .define("enable", true);
-
-        SP_OP_LEVEL = BUILDER.comment("OP level required to bypass protections")
-                .defineInRange("bypassOPLevel", 1, 0, 4);
-
-        SPAWN_PROTECTION_CENTER_X = BUILDER.comment("Center X coordinate of protection")
-                .defineInRange("centerX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-
-        SPAWN_PROTECTION_CENTER_Z = BUILDER.comment("Center Z coordinate of protection")
-                .defineInRange("centerZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-
-        SPAWN_PROTECTION_RADIUS = BUILDER.comment("Protection radius")
-                .defineInRange("radius", 16, 0, Integer.MAX_VALUE);
-
-        ALLOW_PVP = BUILDER.comment("Allow PvP inside spawn protection")
-                .define("enablePvP", false);
-
-        ALLOW_EXPLOSION = BUILDER.comment("If set to false, explosions that might break blocks in the spawn protection won't deal any block damage")
-                .define("allowExplosions", false);
-
+        ENABLE_SPAWN_PROTECTION = BUILDER.comment("Should the spawn protection being enabled?").define("enabled", true);
+        SP_OP_LEVEL = BUILDER.comment("The OP level required to bypass spawn protection").defineInRange("bypassOPLevel", 1, 0, 4);
+        SPAWN_PROTECTION_CENTER_X = BUILDER.comment("Center X coordinate of protection").defineInRange("centerX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SPAWN_PROTECTION_CENTER_Z = BUILDER.comment("Center Z coordinate of protection").defineInRange("centerZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        SPAWN_PROTECTION_RADIUS = BUILDER.comment("Protection radius").defineInRange("radius", 16, 0, Integer.MAX_VALUE);
+        ALLOW_PVP = BUILDER.comment("Allow PvP inside spawn protection").define("enablePvP", false);
+        ALLOW_EXPLOSION = BUILDER.comment("If set to false, explosions that might break blocks in the spawn protection won't deal any block damage").define("allowExplosions", false);
         SP_EFFECTS = BUILDER.comment("Effects applied in spawn protection")
                 .defineListAllowEmpty(
                         "effects",
                         List.of("minecraft:resistance", "minecraft:regeneration", "minecraft:saturation"),
-                        Config::validateEffectName
-                );
-
-        ALLOWED_BLOCKS = BUILDER.comment("Blocks players are allowed to interact with")
+                        Config::validateEffectName);
+        ALLOWED_BLOCKS = BUILDER.comment("Blocks players are allowed to interact with in the spawn protection")
                 .defineListAllowEmpty(
                         "allowedBlocks",
                         List.of("minecraft:stone_button"),
-                        Config::validateBlockName
-                );
+                        Config::validateBlockName);
 
         BUILDER.pop();
     }
@@ -61,9 +55,7 @@ public class Config {
     static {
         BUILDER.push("spawnOverride");
 
-        ENABLE_SPAWN_OVERRIDE = BUILDER.comment("Should the world spawn be overridden?")
-                .define("enabled", true);
-
+        ENABLE_SPAWN_OVERRIDE = BUILDER.comment("Should the world spawn be overridden?").define("enabled", true);
         SPAWN_X = BUILDER.comment("Spawn X coordinate").defineInRange("x", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
         SPAWN_Y = BUILDER.comment("Spawn Y coordinate").defineInRange("y", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
         SPAWN_Z = BUILDER.comment("Spawn Z coordinate").defineInRange("z", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -74,28 +66,10 @@ public class Config {
     static {
         BUILDER.push("muteSystem");
         
-        MUTE_LEVEL = BUILDER.comment("The OP level required to use the /mute and /unmute commands").defineInRange("opLevel", 3, 0, 4);
         MUTE_FORBIDDEN_CMD = BUILDER.comment("The list of commands the players can't use while muted").defineListAllowEmpty("muteForbiddenCommands", List.of("msg", "tell", "teammsg", "w"), Config::validateString);
         MUTE_PREVENT_SIGN_PLACING = BUILDER.comment("Should the mod prevent muted players using signs ?").define("preventSigns", true);
         LOG_CANCELLED_EVENTS = BUILDER.comment("Should the mod log cancelled events to ops and console ?").define("logCancelledEvent", true);
         ALLOW_MESSAGES_TO_OPS = BUILDER.comment("Should the mod allow muted players to use commands to send messages to ops ?").define("allowMessagesToOps", true);
-
-        BUILDER.pop();
-    }
-
-    static {
-        BUILDER.push("noAltsSystem");
-
-        ALT_LEVEL = BUILDER.comment("The OP level required to use the /alts command").defineInRange("opLevel", 3, 0, 4);
-
-        BUILDER.pop();
-    }
-
-    static {
-        BUILDER.push("quickSanctionSystem");
-
-        ENABLE_SANC = BUILDER.comment("Should the /sanction command and the quick sanction system be enabled ? IMPORTANT NOTE: The sanctions can be configured in admin_craft_sanctions.toml").define("enable", true);
-        SANC_LEVEL = BUILDER.comment("The OP level required to use the /sanction command").defineInRange("sanctionCommandLevel", 3, 0, 4);
 
         BUILDER.pop();
     }
@@ -171,6 +145,7 @@ public class Config {
         private static ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
         private static ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
         private static ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+        private static ForgeConfigSpec.IntValue FREEZE_LEVEL;
 
         private static ForgeConfigSpec.IntValue WARN_LEVEL;
         private static ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
@@ -219,6 +194,8 @@ public class Config {
         public static int warn_level;
         public static String warn_title;
         public static String warn_message;
+
+        public static int freezeLevel;
 
     public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
@@ -289,6 +266,7 @@ public class Config {
             warn_level = WARN_LEVEL.get();
             warn_title = WARN_TITLE.get();
             warn_message = WARN_MESSAGE.get();
+        freezeLevel = FREEZE_LEVEL.get();
 
         mute_level = MUTE_LEVEL.get();
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
