@@ -17,12 +17,23 @@ public class Config {
 
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
+    // -- Commands permissions --
+
+    private static final ForgeConfigSpec.IntValue MUTE_LEVEL;
+    private static final ForgeConfigSpec.IntValue ALT_LEVEL;
+    private static final ForgeConfigSpec.IntValue SANCTION_LEVEL;
+    private static final ForgeConfigSpec.IntValue FREEZE_LEVEL;
+
+    // -- Spawn protection
+
+
+
     static {
         BUILDER.push("commandsPermissions");
 
         MUTE_LEVEL = BUILDER.comment("The OP level required to run the /mute and /unmute commands").defineInRange("mute", 3, 0, 4);
         ALT_LEVEL = BUILDER.comment("The OP level required to run the /alts command").defineInRange("alts", 3, 0, 4);
-        SANC_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").defineInRange("sanction", 3, 0, 4);
+        SANCTION_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").defineInRange("sanction", 3, 0, 4);
         FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").defineInRange("freeze", 3, 0, 4);
 
         BUILDER.pop();
@@ -113,51 +124,47 @@ public class Config {
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
-    private static ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
-    private static ForgeConfigSpec.IntValue SP_OP_LEVEL;
-    private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
-    private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
-    private static ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
-    private static ForgeConfigSpec.BooleanValue ALLOW_PVP;
-    private static ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
-    private static ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
-    private static ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
+    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
+    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL;
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
+    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP;
+    private static final ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
 
-    private static ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
-    private static ForgeConfigSpec.IntValue SPAWN_X;
-    private static ForgeConfigSpec.IntValue SPAWN_Y;
-    private static ForgeConfigSpec.IntValue SPAWN_Z;
+    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
+    private static final ForgeConfigSpec.IntValue SPAWN_X;
+    private static final ForgeConfigSpec.IntValue SPAWN_Y;
+    private static final ForgeConfigSpec.IntValue SPAWN_Z;
 
-    private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
-    private static ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
-    private static ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
-    private static ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
-        private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
-        private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
-        private static ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
-        private static ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
-        private static ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
-        private static ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
-        private static ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
+    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
+    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
+    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
+        private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
+        private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
+        private static final ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
+        private static final ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
+        private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
+        private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
+        private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
 
-        private static ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
-        private static ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
-        private static ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
-        private static ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
-        private static ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
-        private static ForgeConfigSpec.IntValue FREEZE_LEVEL;
+        private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
+        private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
+        private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
+        private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+        private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
 
-        private static ForgeConfigSpec.IntValue WARN_LEVEL;
-        private static ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
-        private static ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
+        private static final ForgeConfigSpec.IntValue WARN_LEVEL;
+        private static final ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
+        private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
 
-    private static ForgeConfigSpec.IntValue MUTE_LEVEL;
-    private static ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
 
-    private static ForgeConfigSpec.IntValue ALT_LEVEL;
 
     private static ForgeConfigSpec.BooleanValue ENABLE_SANC;
-    private static ForgeConfigSpec.IntValue SANC_LEVEL;
 
     public static boolean sp_enabled;
     public static int sp_op_level;
@@ -274,7 +281,7 @@ public class Config {
         allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
         alt_level = ALT_LEVEL.get();
         enable_sanction_cmd = ENABLE_SANC.get();
-        sanction_level = SANC_LEVEL.get();
+        sanction_level = SANCTION_LEVEL.get();
     }
 
     @SubscribeEvent
