@@ -26,7 +26,22 @@ public class Config {
 
     // -- Spawn protection
 
+    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
+    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL;
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
+    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP;
+    private static final ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
 
+    // -- Spawn override --
+
+    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
+    private static final ForgeConfigSpec.IntValue SPAWN_X;
+    private static final ForgeConfigSpec.IntValue SPAWN_Y;
+    private static final ForgeConfigSpec.IntValue SPAWN_Z;
 
     static {
         BUILDER.push("commandsPermissions");
@@ -124,20 +139,9 @@ public class Config {
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
-    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL;
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
-    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP;
-    private static final ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
-    private static final ForgeConfigSpec.IntValue SPAWN_X;
-    private static final ForgeConfigSpec.IntValue SPAWN_Y;
-    private static final ForgeConfigSpec.IntValue SPAWN_Z;
+
+
 
     private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
     private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
