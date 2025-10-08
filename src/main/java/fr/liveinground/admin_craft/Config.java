@@ -43,6 +43,17 @@ public class Config {
     private static final ForgeConfigSpec.IntValue SPAWN_Y;
     private static final ForgeConfigSpec.IntValue SPAWN_Z;
 
+    // -- Mute system --
+
+        private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
+        private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
+        private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+        private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+
+    // -- Messages --
+
+    // todo
+
     static {
         BUILDER.push("commandsPermissions");
 
@@ -109,30 +120,26 @@ public class Config {
         SPAWN_PROTECTION_LEAVE = BUILDER.comment("Message when leaving spawn protection")
                 .define("leave", "You are no more in the spawn protection");
 
-        TIME_REMAINING = BUILDER.comment("Message for displaying a sanction duration")
+        TIME_REMAINING = BUILDER.comment("Message for displaying a sanction duration. Available placeholders: %days%, %hours%, and %minutes%")
                 .define("timeRemainingMessage", "Time remaining: %days% days, %hours%, and %minutes% minutes");
-        TIME_REMAINING_SHORT = BUILDER.comment("Message for displaying shortly a sanction duration")
+        TIME_REMAINING_SHORT = BUILDER.comment("Message for displaying shortly a sanction duration. Available placeholders: %days%, %hours%, and %minutes%")
                 .define("timeRemainingMessageShort", "Time remaining: %days%d %hours%h %minutes%m");
 
-
-            BUILDER.push("mute");
-            MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted").define("muteMessage", "You were muted by an operator. Reason: %reason%");
+            MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted. Available placeholder: %reason%").define("muteMessage", "You were muted by an operator. Reason: %reason%");
             MUTE_MESSAGE_NO_REASON = BUILDER.comment("Message sent to players when they are muted without a specified reason").define("muteMessageNoReason", "You were muted by an operator.");
-            MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted").define("muteSuccess", "%player% was muted: %reason%");
-            MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted").define("alreadyMuted", "%player% is already muted");
+            MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted. Available placeholders: %player% and %reason%").define("muteSuccess", "%player% was muted: %reason%");
+            MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted. Available placeholders: %player%").define("alreadyMuted", "%player% is already muted");
             MUTE_MESSAGE_CANCELLED = BUILDER.comment("Message sent to muted players when they attempt sending a message in chat").define("cancelChatMessage", "You can't send messages while muted!");
-            CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled").define("logFormat", "[CANCELED] <%player% (muted)> <message>");
+            CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled").define("logFormat", "[CANCELED] <%player% (muted)> %message%");
 
             UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
             UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted").define("unMuteSuccess", "%player% was unmuted");
             UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted").define("notMuted", "%player% is not muted");
-            BUILDER.pop();
 
-            BUILDER.push("warn");
             WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
             WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
             WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
-            BUILDER.pop();
+
 
         BUILDER.pop();
     }
@@ -157,15 +164,15 @@ public class Config {
 
         private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
         private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
-        private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
-        private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
-        private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+
+
+
 
         private static final ForgeConfigSpec.IntValue WARN_LEVEL;
         private static final ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
         private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
+
 
 
     private static ForgeConfigSpec.BooleanValue ENABLE_SANC;
