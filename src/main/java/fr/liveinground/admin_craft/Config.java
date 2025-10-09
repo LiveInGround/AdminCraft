@@ -17,42 +17,99 @@ public class Config {
 
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
+    // --------------------------
     // -- Commands permissions --
+    // --------------------------
 
     private static final ForgeConfigSpec.IntValue MUTE_LEVEL;
-    private static final ForgeConfigSpec.IntValue ALT_LEVEL;
-    private static final ForgeConfigSpec.IntValue SANCTION_LEVEL;
-    private static final ForgeConfigSpec.IntValue FREEZE_LEVEL;
+    public static int mute_level;
 
-    // -- Spawn protection
+    private static final ForgeConfigSpec.IntValue ALT_LEVEL;
+    public static int alt_level;
+
+    private static final ForgeConfigSpec.IntValue SANCTION_LEVEL;
+    public static int sanction_level;
+
+    private static final ForgeConfigSpec.IntValue FREEZE_LEVEL;
+    public static int freeze_level;
+
+    // ----------------------
+    // -- Spawn protection --
+    // ----------------------
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
-    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL;
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
-    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP;
-    private static final ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
+    public static boolean sp_enabled;
 
+    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL;
+    public static int sp_op_level;
+
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
+    public static int sp_center_x;
+
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
+    public static int sp_center_z;
+
+    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
+    public static int sp_radius;
+
+    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP;
+    public static boolean sp_pvp_enabled;
+
+    private static final ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
+    public static boolean sp_explosion_enabled;
+
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
+    public static Set<Block> allowedBlocks;
+
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
+    public static Set<MobEffect> sp_effects;
+
+    // --------------------
     // -- Spawn override --
+    // --------------------
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
+    public static boolean spawn_override;
+
     private static final ForgeConfigSpec.IntValue SPAWN_X;
+    public static int spawn_x;
+
     private static final ForgeConfigSpec.IntValue SPAWN_Y;
+    public static int spawn_y;
+
     private static final ForgeConfigSpec.IntValue SPAWN_Z;
+    public static int spawn_z;
 
+    // -----------------
     // -- Mute system --
+    // -----------------
 
-        private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
-        private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
-        private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
-        private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
+    private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
+    private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+    private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
 
     // -- Messages --
 
-    // todo
+    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
+    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+
+    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
+    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
+
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
+    private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
+    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
+    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
+    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
+
+    private static final ForgeConfigSpec.IntValue WARN_LEVEL;
+    private static final ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
+    private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
 
     static {
         BUILDER.push("commandsPermissions");
@@ -130,67 +187,21 @@ public class Config {
             MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted. Available placeholders: %player% and %reason%").define("muteSuccess", "%player% was muted: %reason%");
             MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted. Available placeholders: %player%").define("alreadyMuted", "%player% is already muted");
             MUTE_MESSAGE_CANCELLED = BUILDER.comment("Message sent to muted players when they attempt sending a message in chat").define("cancelChatMessage", "You can't send messages while muted!");
-            CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled").define("logFormat", "[CANCELED] <%player% (muted)> %message%");
+            CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled. Available placeholders: %player%, and %message%").define("logFormat", "[CANCELED] <%player% (muted)> %message%");
 
             UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
-            UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted").define("unMuteSuccess", "%player% was unmuted");
-            UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted").define("notMuted", "%player% is not muted");
+            UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted. Available placeholder: %player%").define("unMuteSuccess", "%player% was unmuted");
+            UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted. Available placeholder: %player%").define("notMuted", "%player% is not muted");
 
             WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
             WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
-            WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
+            WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message. Available placeholders: %operator% and %reason%").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
 
 
         BUILDER.pop();
     }
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
-
-
-
-
-
-    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
-    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
-    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
-    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
-        private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
-        private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
-        private static final ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
-        private static final ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
-        private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
-        private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
-        private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
-
-        private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
-        private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
-
-
-
-
-        private static final ForgeConfigSpec.IntValue WARN_LEVEL;
-        private static final ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
-        private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
-
-
-
-
-    private static ForgeConfigSpec.BooleanValue ENABLE_SANC;
-
-    public static boolean sp_enabled;
-    public static int sp_op_level;
-    public static int sp_center_x;
-    public static int sp_center_z;
-    public static int sp_radius;
-    public static boolean sp_pvp_enabled;
-    public static boolean sp_explosion_enabled;
-    public static Set<Block> allowedBlocks;
-    public static Set<MobEffect> sp_effects;
-
-    public static boolean spawn_override;
-    public static int spawn_x;
-    public static int spawn_y;
-    public static int spawn_z;
 
     public static String sp_enter_msg;
     public static String sp_leave_msg;
@@ -213,15 +224,8 @@ public class Config {
         public static String warn_title;
         public static String warn_message;
 
-        public static int freezeLevel;
 
-    public static int mute_level;
     public static Set<String> mute_forbidden_cmd;
-
-    public static boolean enable_sanction_cmd;
-    public static int sanction_level;
-
-    public static int alt_level;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
@@ -284,14 +288,13 @@ public class Config {
             warn_level = WARN_LEVEL.get();
             warn_title = WARN_TITLE.get();
             warn_message = WARN_MESSAGE.get();
-        freezeLevel = FREEZE_LEVEL.get();
+        freeze_level = FREEZE_LEVEL.get();
 
         mute_level = MUTE_LEVEL.get();
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
         prevent_signs = MUTE_PREVENT_SIGN_PLACING.get();
         allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
         alt_level = ALT_LEVEL.get();
-        enable_sanction_cmd = ENABLE_SANC.get();
         sanction_level = SANCTION_LEVEL.get();
     }
 
