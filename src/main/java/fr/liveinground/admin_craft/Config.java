@@ -10,11 +10,15 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = AdminCraft.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
 
+    private static final Pattern WEBHOOK_PATTERN = Pattern.compile(
+            "^https://discord\\.com/api/webhooks/\\d+/[A-Za-z0-9\\-]+$"
+    );
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
     // --------------------------
@@ -98,6 +102,19 @@ public class Config {
 
     private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
     public static boolean allow_to_ops_msg;
+
+    // -------------
+    // -- Reports --
+    // -------------
+
+    private static final ForgeConfigSpec.BooleanValue ENABLE_REPORTS;
+    public static boolean enable_reports;
+
+    private static final ForgeConfigSpec.BooleanValue USE_SANCTIONS_REASONS;
+    public static boolean use_sanction_reasons;
+
+    private static final ForgeConfigSpec.ConfigValue<String> REPORT_WEBHOOK;
+    public static String report_webhook;
 
     // --------------
     // -- Messages --
@@ -208,6 +225,16 @@ public class Config {
     }
 
     static {
+        BUILDER.push("reports");
+
+        ENABLE_REPORTS = BUILDER.comment("Enable the /report command for every players").worldRestart().define("enable", true);
+        USE_SANCTIONS_REASONS = BUILDER.comment("Should the mod suggests the sanctions defined in admin_craft_sanctions.toml as report reasons?").worldRestart().define("sanctionReasons", true);
+        REPORT_WEBHOOK = BUILDER.comment("Discord webhook to relay reports. Set to 'null' to disable").define("discordWebhook", "null");
+
+        BUILDER.pop();
+    }
+
+    static {
         BUILDER.push("messages");
 
         SPAWN_PROTECTION_ENTER = BUILDER.comment("Message when entering spawn protection")
@@ -235,7 +262,6 @@ public class Config {
         WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
         WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message. Available placeholders: %operator% and %reason%").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
 
-
         BUILDER.pop();
     }
 
@@ -261,6 +287,11 @@ public class Config {
 
     private static boolean validateString(final Object obj) {
         return true;
+    }
+
+    private static boolean checkWebhook(String url) {
+        if (url == null || url.isEmpty()) return false;
+        return WEBHOOK_PATTERN.matcher(url).matches();
     }
 
     @SubscribeEvent
@@ -314,6 +345,15 @@ public class Config {
         prevent_signs = MUTE_PREVENT_SIGN_PLACING.get();
         log_cancelled_events = LOG_CANCELLED_EVENTS.get();
         allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
+
+        // -------------
+        // -- Reports --
+        // -------------
+
+        enable_reports = ENABLE_REPORTS.get();
+        use_sanction_reasons = USE_SANCTIONS_REASONS.get();
+        if (checkWebhook(REPORT_WEBHOOK.get())) report_webhook = REPORT_WEBHOOK.get();
+        else report_webhook = null;
 
         // --------------
         // -- Messages --
