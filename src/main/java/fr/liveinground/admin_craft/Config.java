@@ -33,6 +33,9 @@ public class Config {
     private static final ForgeConfigSpec.IntValue FREEZE_LEVEL;
     public static int freeze_level;
 
+    private static final ForgeConfigSpec.IntValue WARN_LEVEL;
+    public static int warn_level;
+
     // ----------------------
     // -- Spawn protection --
     // ----------------------
@@ -85,31 +88,66 @@ public class Config {
     // -----------------
 
     private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
-    private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
-    private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
-    private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+    public static Set<String> mute_forbidden_cmd;
 
+    private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
+    public static boolean prevent_signs;
+
+    private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+    public static boolean log_cancelled_events;
+
+    private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+    public static boolean allow_to_ops_msg;
+
+    // --------------
     // -- Messages --
+    // --------------
 
     private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
+    public static String sp_enter_msg;
+
     private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+    public static String sp_leave_msg;
 
     private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
+    public static String time_remaining;
+
     private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
+    public static String time_remaining_short;
 
     private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
-    private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
-    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
-    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
-    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
+    public static String mute_message;
 
-    private static final ForgeConfigSpec.IntValue WARN_LEVEL;
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
+    public static String mute_message_no_reason;
+
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
+    public static String mute_success;
+
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
+    public static String mute_failed_already_muted;
+
+    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
+    public static String mute_message_cancelled;
+
+    private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
+    public static String cancel_log_format;
+
+    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
+    public static String unmute_message;
+
+    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
+    public static String unmute_success;
+
+    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
+    public static String unmute_failed_not_muted;
+
     private static final ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
+    public static String warn_title;
+
     private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
+    public static String warn_message;
+
 
     static {
         BUILDER.push("commandsPermissions");
@@ -118,6 +156,7 @@ public class Config {
         ALT_LEVEL = BUILDER.comment("The OP level required to run the /alts command").defineInRange("alts", 3, 0, 4);
         SANCTION_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").defineInRange("sanction", 3, 0, 4);
         FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").defineInRange("freeze", 3, 0, 4);
+        WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
 
         BUILDER.pop();
     }
@@ -193,7 +232,6 @@ public class Config {
             UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted. Available placeholder: %player%").define("unMuteSuccess", "%player% was unmuted");
             UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted. Available placeholder: %player%").define("notMuted", "%player% is not muted");
 
-            WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
             WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
             WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message. Available placeholders: %operator% and %reason%").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
 
@@ -202,30 +240,6 @@ public class Config {
     }
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
-
-    public static String sp_enter_msg;
-    public static String sp_leave_msg;
-    public static String time_remaining;
-    public static String time_remaining_short;
-        public static String mute_message;
-        public static String mute_message_no_reason;
-        public static String mute_success;
-        public static String mute_failed_already_muted;
-        public static String unmute_message;
-        public static String unmute_success;
-        public static String unmute_failed_not_muted;
-        public static String mute_message_cancelled;
-        public static String cancel_log_format;
-        public static boolean prevent_signs;
-        public static boolean allow_to_ops_msg;
-        public static boolean log_cancelled_events;
-
-        public static int warn_level;
-        public static String warn_title;
-        public static String warn_message;
-
-
-    public static Set<String> mute_forbidden_cmd;
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
