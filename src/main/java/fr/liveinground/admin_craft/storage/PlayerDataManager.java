@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.storage.types.*;
+import fr.liveinground.admin_craft.storage.types.reports.PlayerReportsData;
+import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
@@ -24,26 +26,33 @@ import java.util.List;
 
 public class PlayerDataManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    private static final String ROOT = "AdminCraft_Storage";
+
     private static final String MUTE_FILE_NAME = "mutes.json";
     private static final String IPS_FILE_NAME = "ips.json";
-    private static final String STAFF_MODE_DATA = "staff_mode.json";
+    // private static final String STAFF_MODE_DATA = "staff_mode.json";
     private static final String SANCTION_HISTORY = "sanction_history.json";
-    private static final String WORLD_CHANGES_DATABASE_FILE = "world_changes.db";
+    // private static final String WORLD_CHANGES_DATABASE_FILE = "world_changes.db";
+    private static final String REPORTS = "reports.json";
 
     private final Path mute_data_file;
     private final Path ips_data_file;
     private final Path sanction_history_file;
-    private final Path staff_mode_data_file;
+    // private final Path staff_mode_data_file;
+    private final Path reports_data_file;
 
     private final List<PlayerMuteData> muteEntries = new ArrayList<>();
     private final List<PlayerIPSData> ipsEntries = new ArrayList<>();
     private final List<PlayerHistoryData> historyEntries = new ArrayList<>();
+    private final List<PlayerReportsData> reportsEntries = new ArrayList<>();
 
     public PlayerDataManager(Path worldPath) {
-        this.mute_data_file = worldPath.resolve(MUTE_FILE_NAME);
-        this.ips_data_file = worldPath.resolve(IPS_FILE_NAME);
-        this.staff_mode_data_file = worldPath.resolve(STAFF_MODE_DATA);
-        this.sanction_history_file = worldPath.resolve(SANCTION_HISTORY);
+        this.mute_data_file = worldPath.resolve(ROOT).resolve(MUTE_FILE_NAME);
+        this.ips_data_file = worldPath.resolve(ROOT).resolve(IPS_FILE_NAME);
+        // this.staff_mode_data_file = worldPath.resolve(ROOT).resolve(STAFF_MODE_DATA);
+        this.sanction_history_file = worldPath.resolve(ROOT).resolve(SANCTION_HISTORY);
+        this.reports_data_file = worldPath.resolve(ROOT).resolve(REPORTS);
 
         load(false);
     }
@@ -167,8 +176,27 @@ public class PlayerDataManager {
                 throw new RuntimeException(e);
             }
         }
-        // todo: ips storage (alt accounts easy detection)
 
+        // report system
+        if (Files.exists(reports_data_file)) {
+            try (Reader reader = Files.newBufferedReader(reports_data_file)) {
+                Type type = new TypeToken<List<PlayerReportsData>>(){}.getType();
+                List<PlayerReportsData> loaded = GSON.fromJson(reader, type);
+                if (loaded != null) {
+                    reportsEntries.clear();
+                    reportsEntries.addAll(loaded);
+                }
+            } catch (IOException e) {
+                System.err.println("Failed to load report datas: " + e.getMessage());
+            }
+        } else {
+            // fileNotFound = false;
+            try {
+                Files.writeString(reports_data_file, "[]", StandardOpenOption.CREATE_NEW);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         // todo: staff mode data storage
 
@@ -204,6 +232,7 @@ public class PlayerDataManager {
         return null;
     }
 
+    @Nullable
     public PlayerMuteData getPlayerMuteDataByUUID (String playerUUID) {
         for (PlayerMuteData data: muteEntries) {
             if (data.uuid.equals(playerUUID)) {
@@ -228,10 +257,32 @@ public class PlayerDataManager {
         }
     }
 
-    public void addIPSData (String name, String uuid, String ips) {
+    public void addIPSData(String name, String uuid, String ips) {
         ipsEntries.add(new PlayerIPSData(name, uuid, ips));
     }
 
+    @Nullable
+    public PlayerReportsData getReportDatasByUUID(String uuid) {
+        for (PlayerReportsData d: reportsEntries) {
+            if (d.playerUUID().equals(uuid)) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    public void addReport(String targetUUID, String sourceUUID, String reason) {
+        ReportData data = new ReportData(targetUUID, sourceUUID, reason, new Date());
+        PlayerReportsData d = getReportDatasByUUID(targetUUID);
+        if (d == null) {
+            List<ReportData> l = new ArrayList<>();
+            l.add(new ReportData(targetUUID, sourceUUID, reason, new Date()));
+            d = new PlayerReportsData(targetUUID, l);
+        } else {
+            d.reports().add(new ReportData(targetUUID, sourceUUID, reason, new Date()));
+        }
+    }
+    
     public void save() {
         try {
             try (Writer writer = Files.newBufferedWriter(mute_data_file)) {
@@ -242,6 +293,9 @@ public class PlayerDataManager {
             }
             try (Writer writer = Files.newBufferedWriter(sanction_history_file)) {
                 GSON.toJson(historyEntries, writer);
+            }
+            try (Writer writer = Files.newBufferedWriter(reports_data_file)) {
+                GSON.toJson(reports_data_file, writer);
             }
         } catch (IOException e) {
             System.err.println("Failed to save datas: " + e.getMessage());
