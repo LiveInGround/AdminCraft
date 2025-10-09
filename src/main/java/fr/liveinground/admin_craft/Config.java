@@ -221,19 +221,19 @@ public class Config {
         TIME_REMAINING_SHORT = BUILDER.comment("Message for displaying shortly a sanction duration. Available placeholders: %days%, %hours%, and %minutes%")
                 .define("timeRemainingMessageShort", "Time remaining: %days%d %hours%h %minutes%m");
 
-            MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted. Available placeholder: %reason%").define("muteMessage", "You were muted by an operator. Reason: %reason%");
-            MUTE_MESSAGE_NO_REASON = BUILDER.comment("Message sent to players when they are muted without a specified reason").define("muteMessageNoReason", "You were muted by an operator.");
-            MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted. Available placeholders: %player% and %reason%").define("muteSuccess", "%player% was muted: %reason%");
-            MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted. Available placeholders: %player%").define("alreadyMuted", "%player% is already muted");
-            MUTE_MESSAGE_CANCELLED = BUILDER.comment("Message sent to muted players when they attempt sending a message in chat").define("cancelChatMessage", "You can't send messages while muted!");
-            CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled. Available placeholders: %player%, and %message%").define("logFormat", "[CANCELED] <%player% (muted)> %message%");
+        MUTE_MESSAGE = BUILDER.comment("Message sent to players when they are muted. Available placeholder: %reason%").define("muteMessage", "You were muted by an operator. Reason: %reason%");
+        MUTE_MESSAGE_NO_REASON = BUILDER.comment("Message sent to players when they are muted without a specified reason").define("muteMessageNoReason", "You were muted by an operator.");
+        MUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is successfully muted. Available placeholders: %player% and %reason%").define("muteSuccess", "%player% was muted: %reason%");
+        MUTE_FAILED_ALREADY_MUTED = BUILDER.comment("Message sent to the moderator if the player is already muted. Available placeholders: %player%").define("alreadyMuted", "%player% is already muted");
+        MUTE_MESSAGE_CANCELLED = BUILDER.comment("Message sent to muted players when they attempt sending a message in chat").define("cancelChatMessage", "You can't send messages while muted!");
+        CANCEL_LOG_FORMAT = BUILDER.comment("The log message sent to operators and console when a muted player's event is cancelled. Available placeholders: %player%, and %message%").define("logFormat", "[CANCELED] <%player% (muted)> %message%");
 
-            UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
-            UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted. Available placeholder: %player%").define("unMuteSuccess", "%player% was unmuted");
-            UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted. Available placeholder: %player%").define("notMuted", "%player% is not muted");
+        UNMUTE_MESSAGE = BUILDER.comment("Message sent to players when they are unmuted").define("unMuteMessage", "You are now unmuted!");
+        UNMUTE_SUCCESS = BUILDER.comment("Message sent to the moderator once the player is unmuted. Available placeholder: %player%").define("unMuteSuccess", "%player% was unmuted");
+        UNMUTE_FAILED_NOT_MUTED = BUILDER.comment("Message sent to the moderator if the player is not muted. Available placeholder: %player%").define("notMuted", "%player% is not muted");
 
-            WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
-            WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message. Available placeholders: %operator% and %reason%").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
+        WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
+        WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message. Available placeholders: %operator% and %reason%").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
 
 
         BUILDER.pop();
@@ -265,13 +265,31 @@ public class Config {
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
+
+        // --------------------------
+        // -- Commands permissions --
+        // --------------------------
+
+        mute_level = MUTE_LEVEL.get();
+        alt_level = ALT_LEVEL.get();
+        sanction_level = SANCTION_LEVEL.get();
+        freeze_level = FREEZE_LEVEL.get();
+        warn_level = WARN_LEVEL.get();
+
+        // ----------------------
+        // -- Spawn protection --
+        // ----------------------
+
         sp_enabled = ENABLE_SPAWN_PROTECTION.get();
         sp_op_level = SP_OP_LEVEL.get();
+
         sp_center_x = SPAWN_PROTECTION_CENTER_X.get();
         sp_center_z = SPAWN_PROTECTION_CENTER_Z.get();
+
         sp_radius = SPAWN_PROTECTION_RADIUS.get();
         sp_pvp_enabled = ALLOW_PVP.get();
         sp_explosion_enabled = ALLOW_EXPLOSION.get();
+
         allowedBlocks = ALLOWED_BLOCKS.get().stream()
                 .map(blockName -> ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(blockName)))
                 .collect(Collectors.toSet());
@@ -279,37 +297,48 @@ public class Config {
                 .map(effectName -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.tryParse(effectName)))
                 .collect(Collectors.toSet());
 
+        // --------------------
+        // -- Spawn override --
+        // --------------------
+
         spawn_override = ENABLE_SPAWN_OVERRIDE.get();
         spawn_x = SPAWN_X.get();
         spawn_y = SPAWN_Y.get();
         spawn_z = SPAWN_Z.get();
 
-        sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
-        sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
-        time_remaining = TIME_REMAINING.get();
-        time_remaining_short = TIME_REMAINING_SHORT.get();
-        mute_message = MUTE_MESSAGE.get();
-            mute_message_no_reason = MUTE_MESSAGE_NO_REASON.get();
-            mute_success = MUTE_SUCCESS.get();
-            mute_failed_already_muted = MUTE_FAILED_ALREADY_MUTED.get();
-            unmute_message = UNMUTE_MESSAGE.get();
-            unmute_success = UNMUTE_SUCCESS.get();
-            unmute_failed_not_muted = UNMUTE_FAILED_NOT_MUTED.get();
-            mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
-            cancel_log_format = CANCEL_LOG_FORMAT.get();
-            log_cancelled_events = LOG_CANCELLED_EVENTS.get();
+        // -----------------
+        // -- Mute system --
+        // -----------------
 
-            warn_level = WARN_LEVEL.get();
-            warn_title = WARN_TITLE.get();
-            warn_message = WARN_MESSAGE.get();
-        freeze_level = FREEZE_LEVEL.get();
-
-        mute_level = MUTE_LEVEL.get();
         mute_forbidden_cmd = new HashSet<>(MUTE_FORBIDDEN_CMD.get());
         prevent_signs = MUTE_PREVENT_SIGN_PLACING.get();
+        log_cancelled_events = LOG_CANCELLED_EVENTS.get();
         allow_to_ops_msg = ALLOW_MESSAGES_TO_OPS.get();
-        alt_level = ALT_LEVEL.get();
-        sanction_level = SANCTION_LEVEL.get();
+
+        // --------------
+        // -- Messages --
+        // --------------
+
+        sp_enter_msg = SPAWN_PROTECTION_ENTER.get();
+        sp_leave_msg = SPAWN_PROTECTION_LEAVE.get();
+
+        time_remaining = TIME_REMAINING.get();
+        time_remaining_short = TIME_REMAINING_SHORT.get();
+
+        mute_message = MUTE_MESSAGE.get();
+        mute_message_no_reason = MUTE_MESSAGE_NO_REASON.get();
+        mute_success = MUTE_SUCCESS.get();
+        mute_failed_already_muted = MUTE_FAILED_ALREADY_MUTED.get();
+
+        mute_message_cancelled = MUTE_MESSAGE_CANCELLED.get();
+        cancel_log_format = CANCEL_LOG_FORMAT.get();
+
+        unmute_message = UNMUTE_MESSAGE.get();
+        unmute_success = UNMUTE_SUCCESS.get();
+        unmute_failed_not_muted = UNMUTE_FAILED_NOT_MUTED.get();
+
+        warn_title = WARN_TITLE.get();
+        warn_message = WARN_MESSAGE.get();
     }
 
     @SubscribeEvent
