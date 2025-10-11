@@ -40,6 +40,9 @@ public class Config {
     private static final ForgeConfigSpec.IntValue WARN_LEVEL;
     public static int warn_level;
 
+    private static final ForgeConfigSpec.IntValue REPORTS_LEVEL;
+    public static int reports_level;
+
     // ----------------------
     // -- Spawn protection --
     // ----------------------
@@ -174,6 +177,7 @@ public class Config {
         SANCTION_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").defineInRange("sanction", 3, 0, 4);
         FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").defineInRange("freeze", 3, 0, 4);
         WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
+        REPORTS_LEVEL = BUILDER.comment("The op level required to run the /reports command").defineInRange("reportsOPLevel", 3, 0, 4);
 
         BUILDER.pop();
     }
@@ -306,6 +310,7 @@ public class Config {
         sanction_level = SANCTION_LEVEL.get();
         freeze_level = FREEZE_LEVEL.get();
         warn_level = WARN_LEVEL.get();
+        reports_level = REPORTS_LEVEL.get();
 
         // ----------------------
         // -- Spawn protection --
