@@ -3,10 +3,7 @@ package fr.liveinground.admin_craft;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import fr.liveinground.admin_craft.commands.AltCommand;
-import fr.liveinground.admin_craft.commands.moderation.FreezeCommand;
-import fr.liveinground.admin_craft.commands.moderation.MuteCommand;
-import fr.liveinground.admin_craft.commands.moderation.SanctionCommand;
-import fr.liveinground.admin_craft.commands.moderation.WarnCommand;
+import fr.liveinground.admin_craft.commands.moderation.*;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
@@ -71,6 +68,9 @@ public class AdminCraft {
         AltCommand.register(event.getDispatcher());
         SanctionCommand.register(event.getDispatcher());
         FreezeCommand.register(event.getDispatcher());
+        if (Config.enable_reports) {
+            ReportCommand.register(event.getDispatcher());
+        }
         // StaffModeCommand.register(event.getDispatcher());
     }
 
