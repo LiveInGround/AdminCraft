@@ -9,6 +9,7 @@ import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.moderation.*;
 import fr.liveinground.admin_craft.storage.types.reports.PlayerReportsData;
+import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
@@ -109,20 +110,20 @@ public class SanctionCommand {
                             for (SanctionData data : playerHistory.sanctionList) {
                                 if (data.expiresOn != null) {
                                     if (data.expiresOn.before(new Date())) {
-                                        list.append(PlaceHolderSystem.replacePlaceholders("- %type%: %reason% (%date%), expired on %expires%",
+                                        list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%), expired on %expires%",
                                                 Map.of("type", data.sanctionType.name(),
                                                         "reason", data.reason,
                                                         "date", data.date.toString(),
                                                         "expires", data.expiresOn.toString())));
                                     } else {
-                                        list.append(PlaceHolderSystem.replacePlaceholders("- %type%: %reason% (%date%), %expires%",
+                                        list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%), %expires%",
                                                 Map.of("type", data.sanctionType.name(),
                                                         "reason", data.reason,
                                                         "date", data.date.toString(),
                                                         "expires", SanctionConfig.getDurationAsStringFromDate(data.expiresOn))));
                                     }
                                 } else {
-                                    list.append(PlaceHolderSystem.replacePlaceholders("- %type%: %reason% (%date%)",
+                                    list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%)",
                                             Map.of("type", data.sanctionType.name(),
                                                     "reason", data.reason,
                                                     "date", SanctionConfig.getDurationAsStringFromDate(data.date))));
@@ -131,8 +132,16 @@ public class SanctionCommand {
                         } else {
                             list.append("This player was never sanctioned.");
                         }
+                        list.append("Reports:");
                         if (reportsData != null && !reportsData.reports().isEmpty()) {
-                            // todo: list reports
+                            for (ReportData data: reportsData.reports()) {
+                                list.append(PlaceHolderSystem.replacePlaceholders("  - REPORT: %reason% (reported by %source%, %date%)",
+                                        Map.of("reason", data.reason(),
+                                                "source", data.sourceUUID(),
+                                                "date", data.date().toString())));
+                            }
+                        } else {
+                            list.append("This player was never reported.");
                         }
                     } else {
                         list.append("The player has no history.");
