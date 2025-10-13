@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class ReportCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -56,12 +57,14 @@ public class ReportCommand {
                                 }
 
                                 if ((Config.report_webhook != null)) {
-                                    try {
-                                        sendWebhookMessage(reportedPlayer, player, reason);
-                                    } catch (Exception e) {
-                                        AdminCraft.LOGGER.error("An error occurred while posting a report into Discord Webhooks:", e);
-                                        player.sendSystemMessage(Component.literal("An issue may have occurred during your report. Don't hesitate to contact the staff if no operator is online.").withStyle(ChatFormatting.YELLOW));
-                                    }
+                                    CompletableFuture.runAsync(() -> {
+                                        try {
+                                            sendWebhookMessage(reportedPlayer, player, reason);
+                                        } catch (Exception e) {
+                                            AdminCraft.LOGGER.error("An error occurred while posting a report into Discord Webhooks:", e);
+                                            player.sendSystemMessage(Component.literal("An issue may have occurred during your report. Don't hesitate to contact the staff if no operator is online.").withStyle(ChatFormatting.YELLOW));
+                                        }
+                                    });
                                 }
                                 ctx.getSource().sendSuccess(() -> Component.literal("Report successfully submitted. Thank you for your vigilance.").withStyle(ChatFormatting.GREEN), true);
                             } else {
