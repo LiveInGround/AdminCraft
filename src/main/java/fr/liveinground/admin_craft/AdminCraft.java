@@ -192,29 +192,32 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onPlayerMove(TickEvent.PlayerTickEvent e) {
-        Player player = e.player;
-        if (frozenPlayersUUID.contains(player.getStringUUID())) {
-            e.setCanceled(true);
-            return;
-        }
-        ServerPlayer serverPlayer = (ServerPlayer) player;
-        if (isInSP(player.level(), player.getOnPos())) {
-            for (MobEffect effect: Config.sp_effects) {
-                player.addEffect(new MobEffectInstance(effect, Integer.MAX_VALUE, 255, false, false));
+    public void onPlayerTick(TickEvent.PlayerTickEvent e) {
+        if (e.phase.equals(TickEvent.Phase.END)) {
+            Player player = e.player;
+            if (frozenPlayersUUID.contains(player.getStringUUID())) {
+                // e.setCanceled(true);
+                // this event is not cancellable
+                return;
             }
-            if (player.getTags().contains(SP_TAG)) return;
-            else {
-                player.addTag(SP_TAG);
-                serverPlayer.displayClientMessage(Component.literal(Config.sp_enter_msg).withStyle(ChatFormatting.GREEN), true);
-            }
-        } else {
-            if (player.getTags().contains(SP_TAG)){
-                player.removeTag(SP_TAG);
-                for (MobEffect effect: Config.sp_effects) {
-                    e.player.removeEffect(effect);
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            if (isInSP(player.level(), player.getOnPos())) {
+                for (MobEffect effect : Config.sp_effects) {
+                    player.addEffect(new MobEffectInstance(effect, Integer.MAX_VALUE, 255, false, false));
                 }
-                serverPlayer.displayClientMessage(Component.literal(Config.sp_leave_msg).withStyle(ChatFormatting.RED), true);
+                if (player.getTags().contains(SP_TAG)) return;
+                else {
+                    player.addTag(SP_TAG);
+                    serverPlayer.displayClientMessage(Component.literal(Config.sp_enter_msg).withStyle(ChatFormatting.GREEN), true);
+                }
+            } else {
+                if (player.getTags().contains(SP_TAG)) {
+                    player.removeTag(SP_TAG);
+                    for (MobEffect effect : Config.sp_effects) {
+                        e.player.removeEffect(effect);
+                    }
+                    serverPlayer.displayClientMessage(Component.literal(Config.sp_leave_msg).withStyle(ChatFormatting.RED), true);
+                }
             }
         }
     }
