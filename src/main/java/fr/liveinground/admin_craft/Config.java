@@ -172,12 +172,12 @@ public class Config {
     static {
         BUILDER.push("commandsPermissions");
 
-        MUTE_LEVEL = BUILDER.comment("The OP level required to run the /mute and /unmute commands").defineInRange("mute", 3, 0, 4);
-        ALT_LEVEL = BUILDER.comment("The OP level required to run the /alts command").defineInRange("alts", 3, 0, 4);
-        SANCTION_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").defineInRange("sanction", 3, 0, 4);
-        FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").defineInRange("freeze", 3, 0, 4);
-        WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").defineInRange("warnOPLevel", 3, 0, 4);
-        REPORTS_LEVEL = BUILDER.comment("The op level required to run the /reports command").defineInRange("reportsOPLevel", 3, 0, 4);
+        MUTE_LEVEL = BUILDER.comment("The OP level required to run the /mute and /unmute commands").worldRestart().defineInRange("mute", 3, 0, 4);
+        ALT_LEVEL = BUILDER.comment("The OP level required to run the /alts command").worldRestart().defineInRange("alts", 3, 0, 4);
+        SANCTION_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").worldRestart().defineInRange("sanction", 3, 0, 4);
+        FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").worldRestart().defineInRange("freeze", 3, 0, 4);
+        WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").worldRestart().defineInRange("warn", 3, 0, 4);
+        REPORTS_LEVEL = BUILDER.comment("The op level required to run the /reports command").worldRestart().defineInRange("reports", 3, 0, 4);
 
         BUILDER.pop();
     }
