@@ -43,7 +43,7 @@ public class ReportCommand {
                                 String reason = StringArgumentType.getString(ctx, "reason");
 
                                 if (player.equals(reportedPlayer)) {
-                                    ctx.getSource().sendFailure(Component.literal("You can't report yourself!"));
+                                    ctx.getSource().sendFailure(Component.literal(Config.report_failed_self));
                                     return 1;
                                 }
 
@@ -62,11 +62,11 @@ public class ReportCommand {
                                             sendWebhookMessage(reportedPlayer, player, reason);
                                         } catch (Exception e) {
                                             AdminCraft.LOGGER.error("An error occurred while posting a report into Discord Webhooks:", e);
-                                            player.sendSystemMessage(Component.literal("An issue may have occurred during your report. Don't hesitate to contact the staff if no operator is online.").withStyle(ChatFormatting.YELLOW));
+                                            player.sendSystemMessage(Component.literal(Config.webhook_issue_message).withStyle(ChatFormatting.YELLOW));
                                         }
                                     });
                                 }
-                                ctx.getSource().sendSuccess(() -> Component.literal("Report successfully submitted. Thank you for your vigilance.").withStyle(ChatFormatting.GREEN), true);
+                                ctx.getSource().sendSuccess(() -> Component.literal(Config.report_success).withStyle(ChatFormatting.GREEN), true);
                             } else {
                                 ctx.getSource().sendFailure(Component.literal("This command can only be run by players."));
                             }

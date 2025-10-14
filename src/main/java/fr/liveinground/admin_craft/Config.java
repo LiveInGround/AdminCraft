@@ -168,6 +168,14 @@ public class Config {
     private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
     public static String warn_message;
 
+    private static final ForgeConfigSpec.ConfigValue<String> REPORT_SUCCESS;
+    public static String report_success;
+
+    private static final ForgeConfigSpec.ConfigValue<String> REPORT_WEBHOOK_ISSUE;
+    public static String webhook_issue_message;
+
+    private static final ForgeConfigSpec.ConfigValue<String> REPORT_FAILED_SELF;
+    public static String report_failed_self;
 
     static {
         BUILDER.push("commandsPermissions");
@@ -265,6 +273,10 @@ public class Config {
 
         WARN_TITLE = BUILDER.comment("The title of the warn message shown to sanctioned players").define("warnTitle", "YOU'VE BEEN WARNED!");
         WARN_MESSAGE = BUILDER.comment("The text under the title in the warn message. Available placeholders: %operator% and %reason%").define("warnMessage", "You've been warned by %operator%: %reason%. Please check the rules!");
+
+        REPORT_SUCCESS = BUILDER.comment("The message sent to the player once his report is issued").define("reportSuccess", "Report successfully submitted. Thank you for your vigilance.");
+        REPORT_WEBHOOK_ISSUE = BUILDER.comment("The message sent to the player if an issue occurred with webhook").define("webhookIssue", "An issue may have occurred during your report. Don't hesitate to contact the staff if no operator is online.");
+        REPORT_FAILED_SELF = BUILDER.comment("The message sent to a player trying to report himself").define("selfReport", "You can't report yourself!");
 
         BUILDER.pop();
     }
@@ -384,6 +396,10 @@ public class Config {
 
         warn_title = WARN_TITLE.get();
         warn_message = WARN_MESSAGE.get();
+
+        report_success = REPORT_SUCCESS.get();
+        webhook_issue_message = REPORT_WEBHOOK_ISSUE.get();
+        report_failed_self = REPORT_FAILED_SELF.get();
     }
 
     @SubscribeEvent
