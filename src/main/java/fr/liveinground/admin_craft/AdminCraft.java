@@ -71,6 +71,7 @@ public class AdminCraft {
         if (Config.enable_reports) {
             ReportCommand.register(event.getDispatcher());
         }
+        TempBanCommand.register(event.getDispatcher());
         // StaffModeCommand.register(event.getDispatcher());
     }
 

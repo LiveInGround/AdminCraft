@@ -43,6 +43,9 @@ public class Config {
     private static final ForgeConfigSpec.IntValue REPORTS_LEVEL;
     public static int reports_level;
 
+    private static final ForgeConfigSpec.IntValue TEMPBAN_LEVEL;
+    public static int tempban_level;
+
     // ----------------------
     // -- Spawn protection --
     // ----------------------
@@ -184,8 +187,9 @@ public class Config {
         ALT_LEVEL = BUILDER.comment("The OP level required to run the /alts command").worldRestart().defineInRange("alts", 3, 0, 4);
         SANCTION_LEVEL = BUILDER.comment("The OP level required to run the /sanction and /history commands").worldRestart().defineInRange("sanction", 3, 0, 4);
         FREEZE_LEVEL = BUILDER.comment("The OP level required to run the /freeze command").worldRestart().defineInRange("freeze", 3, 0, 4);
-        WARN_LEVEL = BUILDER.comment("The op level required to run the /warn command").worldRestart().defineInRange("warn", 3, 0, 4);
-        REPORTS_LEVEL = BUILDER.comment("The op level required to run the /reports command").worldRestart().defineInRange("reports", 3, 0, 4);
+        WARN_LEVEL = BUILDER.comment("The OP level required to run the /warn command").worldRestart().defineInRange("warn", 3, 0, 4);
+        REPORTS_LEVEL = BUILDER.comment("The OP level required to run the /reports command").worldRestart().defineInRange("reports", 3, 0, 4);
+        TEMPBAN_LEVEL = BUILDER.comment("The OP level required to run the /tempban command").worldRestart().defineInRange("tempban", 3, 0,4);
 
         BUILDER.pop();
     }
@@ -323,6 +327,7 @@ public class Config {
         freeze_level = FREEZE_LEVEL.get();
         warn_level = WARN_LEVEL.get();
         reports_level = REPORTS_LEVEL.get();
+        tempban_level = TEMPBAN_LEVEL.get();
 
         // ----------------------
         // -- Spawn protection --
