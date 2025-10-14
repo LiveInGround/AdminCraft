@@ -205,8 +205,7 @@ public class AdminCraft {
                 for (MobEffect effect : Config.sp_effects) {
                     player.addEffect(new MobEffectInstance(effect, Integer.MAX_VALUE, 255, false, false));
                 }
-                if (player.getTags().contains(SP_TAG)) return;
-                else {
+                if (!player.getTags().contains(SP_TAG)) {
                     player.addTag(SP_TAG);
                     serverPlayer.displayClientMessage(Component.literal(Config.sp_enter_msg).withStyle(ChatFormatting.GREEN), true);
                 }
