@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.liveinground.admin_craft.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "PlayerRespawnMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
