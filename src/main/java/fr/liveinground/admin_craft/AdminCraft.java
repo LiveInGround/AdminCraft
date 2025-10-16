@@ -64,16 +64,16 @@ public class AdminCraft {
     public void onCommandRegister(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
 
-        MuteCommand.register(event.getDispatcher());
-        WarnCommand.register(event.getDispatcher());
-        AltCommand.register(event.getDispatcher());
-        SanctionCommand.register(event.getDispatcher());
-        FreezeCommand.register(event.getDispatcher());
+        MuteCommand.register(dispatcher);
+        WarnCommand.register(dispatcher);
+        AltCommand.register(dispatcher);
+        SanctionCommand.register(dispatcher);
+        FreezeCommand.register(dispatcher);
         if (Config.enable_reports) {
-            ReportCommand.register(event.getDispatcher());
+            ReportCommand.register(dispatcher);
         }
-        TempBanCommand.register(event.getDispatcher());
-        // StaffModeCommand.register(event.getDispatcher());
+        TempBanCommand.register(dispatcher);
+        // StaffModeCommand.register(dispatcher);
     }
 
     @SubscribeEvent
@@ -225,23 +225,4 @@ public class AdminCraft {
         }
         playerDataManager.addIPSData(player.getName().toString(), player.getStringUUID(), player.getIpAddress());
     }
-
-    /*
-    @SubscribeEvent
-    public void onSpawnFinalise(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-
-        BlockPos currentRespawn = serverPlayer.getRespawnPosition();
-        BlockPos worldSpawn = serverPlayer.getServer().overworld().getSharedSpawnPos();
-
-        if (currentRespawn == null || currentRespawn.equals(worldSpawn)) {
-            serverPlayer.setRespawnPosition(
-                    Level.OVERWORLD,
-                    new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z),
-                    0f,
-                    true,
-                    false
-            );
-        }
-    }*/
 }
