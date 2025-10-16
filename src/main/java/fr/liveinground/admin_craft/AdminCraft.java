@@ -50,6 +50,7 @@ public class AdminCraft {
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(MuteEventsHandler.class);
+        MinecraftForge.EVENT_BUS.register(FreezeEventListener.class);
 
         ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
@@ -195,11 +196,6 @@ public class AdminCraft {
     public void onPlayerTick(TickEvent.PlayerTickEvent e) {
         if (e.phase.equals(TickEvent.Phase.END)) {
             Player player = e.player;
-            if (frozenPlayersUUID.contains(player.getStringUUID())) {
-                // e.setCanceled(true);
-                // this event is not cancellable
-                return;
-            }
             ServerPlayer serverPlayer = (ServerPlayer) player;
             if (isInSP(player.level(), player.getOnPos())) {
                 for (MobEffect effect : Config.sp_effects) {
