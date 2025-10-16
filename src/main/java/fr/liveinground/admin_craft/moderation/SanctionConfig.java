@@ -19,9 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SanctionConfig {
-    private static FileConfig sanctionConfig;
+    static FileConfig sanctionConfig;
     public static Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();    // Sanction config
-    public static Map<String, Map<Integer, SanctionTemplate>> escalates = new HashMap<>();  // Escalate config
     public static List<String> availableReasons;
 
     public static void load(Path configDir) {
@@ -34,11 +33,14 @@ public class SanctionConfig {
                 // Default config file
                 Files.writeString(file, """
                 # NOTE: The server has to restart to reload this file.
-                # WARNING: Warn, Tempmute and Tempban are not fully implemented yet. Please avoid using them. Stay tuned!
                 [reasons]
                     [reasons.cheat]
+                        # This will be displayed in commands
                         displayName = "Cheating"
+                
+                        # This is used as reason message
                         message = "Cheating / Unfair advantage"
+                
                         1 = "tempban:1d"
                         2 = "tempban:3m"
                         3 = "ban"
@@ -47,11 +49,9 @@ public class SanctionConfig {
                         displayName = "Spam"
                         message = "Spamming is not allowed!"
                         1 = "warn"
-                        2 = "tempmute:1h"
-
-                    [reasons._warn]
-                        message = "You received %n% warns!"
-                        3 = "tempban:1d"
+                        2 = "kick"
+                        3 = "tempmute:1h"
+                        5 = "ban"
                 """);
             } catch (IOException e) {
                 AdminCraft.LOGGER.error(e.getMessage());
@@ -62,7 +62,6 @@ public class SanctionConfig {
         sanctionConfig.load();
 
         sanctions.clear();
-        escalates.clear();
 
         if (sanctionConfig.contains("reasons")) {
             var reasons = sanctionConfig.get("reasons");
@@ -105,12 +104,7 @@ public class SanctionConfig {
                             }
                         }
                     }
-
-                    if (reason.startsWith("_")) {
-                        escalates.put(reason.substring(1), sanctionsMap);
-                    } else {
                         sanctions.put(reason, sanctionsMap);
-                    }
                 }
             }
         }
