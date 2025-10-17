@@ -35,62 +35,62 @@ public class SanctionCommand {
 
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-
         dispatcher.register(Commands.literal("sanction")
-                .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
-                .then(Commands.argument("player", EntityArgument.player()))
-                .then(Commands.argument("reason", StringArgumentType.word()).suggests(MODE_SUGGESTIONS)).executes(ctx -> {
-                    ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
-                    String reason = StringArgumentType.getString(ctx, "reason");
-                    if (!reasons.contains(reason)) {
-                        ctx.getSource().sendFailure(Component.literal("This reason is not configured yet."));
-                        return 1;
-                    }
-                    Map<Integer, SanctionTemplate> sanctionMap = SanctionConfig.sanctions.get(reason);
-                    PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
-                    int counter = 0;
-                    for (SanctionData data: history.sanctionList) {
-                        if (data.reason.equals(reason)) {
-                            counter ++;
-                        }
-                    }
+                        .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .then(Commands.argument("reason", StringArgumentType.greedyString()).suggests(MODE_SUGGESTIONS).executes(ctx -> {
+                                            ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
+                                            String reason = StringArgumentType.getString(ctx, "reason");
+                                            if (!reasons.contains(reason)) {
+                                                ctx.getSource().sendFailure(Component.literal("This reason is not configured yet."));
+                                                return 1;
+                                            }
+                                            Map<Integer, SanctionTemplate> sanctionMap = SanctionConfig.sanctions.get(reason);
+                                            PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
+                                            int counter = 0;
+                                            for (SanctionData data: history.sanctionList) {
+                                                if (data.reason.equals(reason)) {
+                                                    counter ++;
+                                                }
+                                            }
 
-                    SanctionTemplate template = sanctionMap.get(counter);
-                    switch (template.type()) {
-                        case BAN:
-                            CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, null);
-                            break;
-                        case TEMPBAN:
-                            Date banExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
-                            CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, banExpiresOn);
-                            break;
-                        case KICK:
-                            CustomSanctionSystem.kickPlayer(sanctionedPlayer, reason);
-                            break;
-                        case MUTE:
-                            CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, null);
-                            break;
-                        case TEMPMUTE:
-                            Date muteExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
-                            CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
-                            break;
-                        case WARN:
-                            CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().toString());
-                            break;
-                    }
+                                            SanctionTemplate template = sanctionMap.get(counter);
+                                            switch (template.type()) {
+                                                case BAN:
+                                                    CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, null);
+                                                    break;
+                                                case TEMPBAN:
+                                                    Date banExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
+                                                    CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, banExpiresOn);
+                                                    break;
+                                                case KICK:
+                                                    CustomSanctionSystem.kickPlayer(sanctionedPlayer, reason);
+                                                    break;
+                                                case MUTE:
+                                                    CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, null);
+                                                    break;
+                                                case TEMPMUTE:
+                                                    Date muteExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
+                                                    CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
+                                                    break;
+                                                case WARN:
+                                                    CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().toString());
+                                                    break;
+                                            }
 
-                    ctx.getSource().sendSuccess(() -> Component.literal(PlaceHolderSystem.replacePlaceholders("%player% was sanctionned (%type%): %reason%.",
-                            Map.of("player", sanctionedPlayer.getDisplayName().getString(),
-                                    "type", template.type().toString(),
-                                    "reason", reason))), true);
+                                            ctx.getSource().sendSuccess(() -> Component.literal(PlaceHolderSystem.replacePlaceholders("%player% was sanctionned (%type%): %reason%.",
+                                                    Map.of("player", sanctionedPlayer.getDisplayName().getString(),
+                                                            "type", template.type().toString(),
+                                                            "reason", reason))), true);
 
-                    return 1;
-                })
-            );
+                                            return 1;
+                                        }))
+                                )
+        );
 
         dispatcher.register(Commands.literal("history")
                 .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
-                .then(Commands.argument("player", GameProfileArgument.gameProfile()))
+                .then(Commands.argument("player", GameProfileArgument.gameProfile())
                 .executes(ctx -> {
                     Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
                     if (profiles.isEmpty()) {
@@ -151,7 +151,7 @@ public class SanctionCommand {
                     ctx.getSource().sendSuccess(() -> Component.literal(output), false);
 
                     return 1;
-                })
+                }))
         );
     }
 }
