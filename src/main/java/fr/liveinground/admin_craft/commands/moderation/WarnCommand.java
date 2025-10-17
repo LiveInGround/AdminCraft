@@ -17,7 +17,7 @@ public class WarnCommand {
                 .requires(commandSource -> commandSource.hasPermission(Config.warn_level))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
                     ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
-                    CustomSanctionSystem.warnPlayer(sanctionedPlayer, null, ctx.getSource().toString());
+                    CustomSanctionSystem.warnPlayer(sanctionedPlayer, null, ctx.getSource().getDisplayName().getString());
 
                     ctx.getSource().sendSuccess(() -> Component.literal(sanctionedPlayer.getDisplayName().getString() + "was warned"), true);
                     return 1;

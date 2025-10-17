@@ -6,7 +6,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
-import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.mutes.Utils;
 import fr.liveinground.admin_craft.storage.types.reports.PlayerReportsData;
 import fr.liveinground.admin_craft.storage.types.reports.ReportData;
@@ -18,10 +17,8 @@ import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -34,7 +31,7 @@ public class ReportCommand {
 
         dispatcher.register(Commands.literal("report")
                 .requires(CommandSourceStack::isPlayer)
-                .requires(commandSource -> commandSource.hasPermission(0))
+                .requires(commandSource -> true)
                 .then(Commands.argument("player", EntityArgument.player())
                 .then(Commands.argument("reason", StringArgumentType.greedyString())).executes(ctx -> {
                             if (ctx.getSource().getPlayer() != null) {
