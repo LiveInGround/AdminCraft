@@ -38,7 +38,7 @@ import java.util.List;
 @Mod(AdminCraft.MODID)
 public class AdminCraft {
 
-    public static final String MODID = "my_server_utilities";
+    public static final String MODID = "admin_craft";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final String SP_TAG = "inSpawnProtection";
 
