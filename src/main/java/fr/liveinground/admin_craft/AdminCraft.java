@@ -222,6 +222,6 @@ public class AdminCraft {
         if (playerDataManager.getPlayerIPSDataByUUID(player.getStringUUID()) != null) {
             playerDataManager.removeIPEntry(playerDataManager.getPlayerIPSDataByUUID(player.getStringUUID()));
         }
-        playerDataManager.addIPSData(player.getName().toString(), player.getStringUUID(), player.getIpAddress());
+        playerDataManager.addIPSData(player.getName().getString(), player.getStringUUID(), player.getIpAddress());
     }
 }

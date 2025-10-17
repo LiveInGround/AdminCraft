@@ -48,8 +48,9 @@ public class AltCommand {
                         }
                         Component answer = Component.literal(ans.toString()).withStyle(ChatFormatting.GREEN);
                         ctx.getSource().sendSuccess(() -> answer, false);
+                    } else {
+                        ctx.getSource().sendFailure(Component.literal("No player with this username was found."));
                     }
-                    ctx.getSource().sendFailure(Component.literal("No player with this username was found."));
                     return 1;
                 }
                 ))
