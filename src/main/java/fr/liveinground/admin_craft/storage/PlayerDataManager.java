@@ -54,7 +54,7 @@ public class PlayerDataManager {
         this.sanction_history_file = worldPath.resolve(ROOT).resolve(SANCTION_HISTORY);
         this.reports_data_file = worldPath.resolve(ROOT).resolve(REPORTS);
 
-        load(false);
+        load();
     }
 
     public List<PlayerHistoryData> getHistoryEntries() {
@@ -110,92 +110,82 @@ public class PlayerDataManager {
         ipsEntries.remove(entry);
     }
 
-    public void load(boolean fileNotFound) {
-        // Mute system
-        if (Files.exists(mute_data_file)) {
-            try (Reader reader = Files.newBufferedReader(mute_data_file)) {
-                Type type = new TypeToken<List<PlayerMuteData>>(){}.getType();
-                List<PlayerMuteData> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    muteEntries.clear();
-                    muteEntries.addAll(loaded);
-                }
+    public void load() {
+        if (!Files.exists(mute_data_file)) {
+            try {
+                Files.writeString(mute_data_file, "[]", StandardOpenOption.CREATE_NEW);
             } catch (IOException e) {
-                System.err.println("Failed to load mutes datas: " + e.getMessage());
-            }
-        } else {
-            if (fileNotFound) {
-                System.err.println("Failed to create mutes storage");
-                return;
-            } else {
-                // fileNotFound = true;
-                try {
-                    Files.writeString(mute_data_file, "[]", StandardOpenOption.CREATE_NEW);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                throw new RuntimeException(e);
             }
         }
-        // ips system
-        if (Files.exists(ips_data_file)) {
-            try (Reader reader = Files.newBufferedReader(ips_data_file)) {
-                Type type = new TypeToken<List<PlayerIPSData>>(){}.getType();
-                List<PlayerIPSData> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    ipsEntries.clear();
-                    ipsEntries.addAll(loaded);
-                }
-            } catch (IOException e) {
-                System.err.println("Failed to load IPS datas: " + e.getMessage());
-            }
-        } else {
-            // fileNotFound = true;
+        if (!Files.exists(ips_data_file)) {
             try {
                 Files.writeString(ips_data_file, "[]", StandardOpenOption.CREATE_NEW);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        // sanctions system
-        if (Files.exists(sanction_history_file)) {
-            try (Reader reader = Files.newBufferedReader(sanction_history_file)) {
-                Type type = new TypeToken<List<PlayerHistoryData>>(){}.getType();
-                List<PlayerHistoryData> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    historyEntries.clear();
-                    historyEntries.addAll(loaded);
-                }
-            } catch (IOException e) {
-                System.err.println("Failed to load history datas: " + e.getMessage());
-            }
-        } else {
-            // fileNotFound = false;
+        if (!Files.exists(sanction_history_file)) {
             try {
                 Files.writeString(sanction_history_file, "[]", StandardOpenOption.CREATE_NEW);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        // report system
-        if (Files.exists(reports_data_file)) {
-            try (Reader reader = Files.newBufferedReader(reports_data_file)) {
-                Type type = new TypeToken<List<PlayerReportsData>>(){}.getType();
-                List<PlayerReportsData> loaded = GSON.fromJson(reader, type);
-                if (loaded != null) {
-                    reportsEntries.clear();
-                    reportsEntries.addAll(loaded);
-                }
-            } catch (IOException e) {
-                System.err.println("Failed to load report datas: " + e.getMessage());
-            }
-        } else {
-            // fileNotFound = false;
+        if (!Files.exists(reports_data_file)) {
             try {
                 Files.writeString(reports_data_file, "[]", StandardOpenOption.CREATE_NEW);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        // Mute system
+        try (Reader reader = Files.newBufferedReader(mute_data_file)) {
+            Type type = new TypeToken<List<PlayerMuteData>>(){}.getType();
+            List<PlayerMuteData> loaded = GSON.fromJson(reader, type);
+            if (loaded != null) {
+                muteEntries.clear();
+                muteEntries.addAll(loaded);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load mutes datas: " + e.getMessage());
+        }
+
+        // ips system
+        try (Reader reader = Files.newBufferedReader(ips_data_file)) {
+            Type type = new TypeToken<List<PlayerIPSData>>(){}.getType();
+            List<PlayerIPSData> loaded = GSON.fromJson(reader, type);
+            if (loaded != null) {
+                ipsEntries.clear();
+                ipsEntries.addAll(loaded);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load IPS datas: " + e.getMessage());
+        }
+
+        // sanctions system
+        try (Reader reader = Files.newBufferedReader(sanction_history_file)) {
+            Type type = new TypeToken<List<PlayerHistoryData>>(){}.getType();
+            List<PlayerHistoryData> loaded = GSON.fromJson(reader, type);
+            if (loaded != null) {
+                historyEntries.clear();
+                historyEntries.addAll(loaded);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load history datas: " + e.getMessage());
+        }
+
+        // report system
+        try (Reader reader = Files.newBufferedReader(reports_data_file)) {
+            Type type = new TypeToken<List<PlayerReportsData>>(){}.getType();
+            List<PlayerReportsData> loaded = GSON.fromJson(reader, type);
+            if (loaded != null) {
+                reportsEntries.clear();
+                reportsEntries.addAll(loaded);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load report datas: " + e.getMessage());
         }
 
         // todo: staff mode data storage
@@ -276,10 +266,11 @@ public class PlayerDataManager {
         PlayerReportsData d = getReportDatasByUUID(targetUUID);
         if (d == null) {
             List<ReportData> l = new ArrayList<>();
-            l.add(new ReportData(targetUUID, sourceUUID, reason, new Date()));
+            l.add(data);
             d = new PlayerReportsData(targetUUID, l);
+            reportsEntries.add(d);
         } else {
-            d.reports().add(new ReportData(targetUUID, sourceUUID, reason, new Date()));
+            d.reports().add(data);
         }
     }
     
