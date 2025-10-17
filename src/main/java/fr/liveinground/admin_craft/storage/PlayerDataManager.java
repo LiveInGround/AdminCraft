@@ -228,16 +228,16 @@ public class PlayerDataManager {
     public void addSanction(String uuid, Sanction type, String reason, @Nullable Date expiresOn) {
         SanctionData d = new SanctionData(type, reason, new Date(), expiresOn);
         PlayerHistoryData history = getHistoryFromUUID(uuid);
+        List<SanctionData> sanctionDataList;
         if (history == null) {
-            List<SanctionData> sanctionDataList = new ArrayList<>();
+            sanctionDataList = new ArrayList<>();
             sanctionDataList.add(d);
-            addHistoryEntry(uuid, sanctionDataList);
         } else {
-            List<SanctionData> sanctionDataList = history.sanctionList;
+            sanctionDataList = history.sanctionList;
             sanctionDataList.add(d);
             removeHistoryEntry(uuid);
-            addHistoryEntry(uuid, sanctionDataList);
         }
+        addHistoryEntry(uuid, sanctionDataList);
     }
 
     public void addIPSData(String name, String uuid, String ips) {

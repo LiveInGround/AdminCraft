@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 public class WarnCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-        dispatcher.register(Commands.literal("mute")
+        dispatcher.register(Commands.literal("warn")
                 .requires(commandSource -> commandSource.hasPermission(Config.warn_level))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
                     ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
