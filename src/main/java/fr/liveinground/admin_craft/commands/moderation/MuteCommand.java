@@ -31,10 +31,12 @@ public class MuteCommand {
         dispatcher.register(Commands.literal("mute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
-                           return mute(ctx, null, null);
+                           mute(ctx, null, null);
+                           return 1;
                         }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             String reason = StringArgumentType.getString(ctx, "reason");
-                            return mute(ctx, reason, null);
+                            mute(ctx, reason, null);
+                            return 1;
                         }
                         ))));
 
@@ -76,17 +78,19 @@ public class MuteCommand {
         dispatcher.register(Commands.literal("tempmute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
                 .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.argument("duration", StringArgumentType.greedyString()))
+                        .then(Commands.argument("duration", StringArgumentType.greedyString())
                         .executes(ctx -> {
-                    return mute(ctx, null, StringArgumentType.getString(ctx, "duration"));
+                            mute(ctx, null, StringArgumentType.getString(ctx, "duration"));
+                            return 1;
                 }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             String reason = StringArgumentType.getString(ctx, "reason");
-                            return mute(ctx, reason, StringArgumentType.getString(ctx, "duration"));
+                            mute(ctx, reason, StringArgumentType.getString(ctx, "duration"));
+                            return 1;
                         }
-                ))));
+                )))));
     }
 
-    private static int mute(@NotNull CommandContext<CommandSourceStack> ctx, @Nullable String reason, @Nullable String duration) throws CommandSyntaxException {
+    private static void mute(@NotNull CommandContext<CommandSourceStack> ctx, @Nullable String reason, @Nullable String duration) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
 
         if (reason == null) {
@@ -94,13 +98,12 @@ public class MuteCommand {
         }
         if (AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
             ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
-            return 1;
+            return;
         }
 
         CustomSanctionSystem.mutePlayer(player, reason, SanctionConfig.getDurationAsDate(duration));
 
         String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", player.getName().getString(), "reason", reason));
         ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
-        return 1;
     }
 }
