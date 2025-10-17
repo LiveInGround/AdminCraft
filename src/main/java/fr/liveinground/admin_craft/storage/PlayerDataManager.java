@@ -48,13 +48,35 @@ public class PlayerDataManager {
     private final List<PlayerReportsData> reportsEntries = new ArrayList<>();
 
     public PlayerDataManager(Path worldPath) {
+        Path rootDir = worldPath.resolve(ROOT);
+        try {
+            Files.createDirectories(rootDir);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate root dir : " + rootDir, e);
+        }
+
         this.mute_data_file = worldPath.resolve(ROOT).resolve(MUTE_FILE_NAME);
         this.ips_data_file = worldPath.resolve(ROOT).resolve(IPS_FILE_NAME);
         // this.staff_mode_data_file = worldPath.resolve(ROOT).resolve(STAFF_MODE_DATA);
         this.sanction_history_file = worldPath.resolve(ROOT).resolve(SANCTION_HISTORY);
         this.reports_data_file = worldPath.resolve(ROOT).resolve(REPORTS);
 
+        createIfAbsent(mute_data_file);
+        createIfAbsent(ips_data_file);
+        createIfAbsent(sanction_history_file);
+        createIfAbsent(reports_data_file);
+
         load();
+    }
+
+    private void createIfAbsent(Path path) {
+        try {
+            if (!Files.exists(path)) {
+                Files.writeString(path, "[]", StandardOpenOption.CREATE_NEW);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate file: " + path, e);
+        }
     }
 
     public List<PlayerHistoryData> getHistoryEntries() {
@@ -111,35 +133,6 @@ public class PlayerDataManager {
     }
 
     public void load() {
-        if (!Files.exists(mute_data_file)) {
-            try {
-                Files.writeString(mute_data_file, "[]", StandardOpenOption.CREATE_NEW);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (!Files.exists(ips_data_file)) {
-            try {
-                Files.writeString(ips_data_file, "[]", StandardOpenOption.CREATE_NEW);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (!Files.exists(sanction_history_file)) {
-            try {
-                Files.writeString(sanction_history_file, "[]", StandardOpenOption.CREATE_NEW);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (!Files.exists(reports_data_file)) {
-            try {
-                Files.writeString(reports_data_file, "[]", StandardOpenOption.CREATE_NEW);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
         // Mute system
         try (Reader reader = Files.newBufferedReader(mute_data_file)) {
             Type type = new TypeToken<List<PlayerMuteData>>(){}.getType();
