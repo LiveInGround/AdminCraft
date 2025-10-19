@@ -33,12 +33,12 @@ public class MuteCommand {
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
                            mute(ctx, null, null);
                            return 1;
-                        }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
+                        })).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             String reason = StringArgumentType.getString(ctx, "reason");
                             mute(ctx, reason, null);
                             return 1;
                         }
-                        ))));
+                        )));
 
         dispatcher.register(Commands.literal("unmute")
                 .requires(source -> source.hasPermission(Config.mute_level))
@@ -100,8 +100,8 @@ public class MuteCommand {
             ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
             return;
         }
-
-        CustomSanctionSystem.mutePlayer(player, reason, SanctionConfig.getDurationAsDate(duration));
+        if (duration != null) duration = SanctionConfig.getDurationAsDate(duration);
+        CustomSanctionSystem.mutePlayer(player, reason, duration);
 
         String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", player.getName().getString(), "reason", reason));
         ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
