@@ -26,7 +26,7 @@ public class WarnCommand {
                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                             CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().toString());
 
-                            ctx.getSource().sendSuccess(() -> Component.literal(sanctionedPlayer.getDisplayName().getString() + "was warned: " + reason), true);
+                            ctx.getSource().sendSuccess(() -> Component.literal(sanctionedPlayer.getDisplayName().getString() +  "was warned: " + reason), true);
                             return 1;
                         }
                 ))));
