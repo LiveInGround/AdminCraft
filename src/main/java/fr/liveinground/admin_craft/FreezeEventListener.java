@@ -6,23 +6,25 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class FreezeEventListener {
-    private static final Vec3 nullDeltaMovement = new Vec3(0,0,0);
+    private static final Vec3 ZERO = new Vec3(0, 0, 0);
 
     @SubscribeEvent
-    public static void onPlayerTickEvent(TickEvent.PlayerTickEvent e) {
-        if (e.phase.equals(TickEvent.Phase.END)) {
-            Player player = e.player;
-            if (AdminCraft.frozenPlayersUUID.contains(player.getStringUUID())) {
-                Vec3 delta = player.getDeltaMovement();
-                if (!delta.equals(nullDeltaMovement)) {
-                    player.setDeltaMovement(nullDeltaMovement);
-                    Vec3 currentPos = player.position();
-                    Vec3 lastStablePos = new Vec3(player.getOnPos().getX(), player.getOnPos().getY(), player.getOnPos().getZ());
+    public static void onPlayerTickEvent(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            Player player = event.player;
 
-                    if (!currentPos.equals(lastStablePos)) {
-                        player.teleportTo(lastStablePos.x, lastStablePos.y, lastStablePos.z);
-                    }
+            if (AdminCraft.frozenPlayersUUID.contains(player.getStringUUID())) {
+
+                if (!player.getDeltaMovement().equals(ZERO)) {
+                    player.setDeltaMovement(ZERO);
+
+                    double centerX = Math.floor(player.getX()) + 0.5;
+                    double centerY = Math.floor(player.getY());
+                    double centerZ = Math.floor(player.getZ()) + 0.5;
+
+                    player.teleportTo(centerX, centerY, centerZ);
                 }
+
                 player.setYHeadRot(player.yHeadRotO);
                 player.setYRot(player.yRotO);
                 player.setXRot(player.xRotO);
