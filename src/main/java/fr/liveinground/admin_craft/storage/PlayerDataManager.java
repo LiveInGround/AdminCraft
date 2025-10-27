@@ -270,16 +270,16 @@ public class PlayerDataManager {
     public void save() {
         try {
             try (Writer writer = Files.newBufferedWriter(mute_data_file)) {
-                GSON.toJson(muteEntries, writer);
+                GSON.toJson(muteEntries.toString(), writer);
             }
             try (Writer writer = Files.newBufferedWriter(ips_data_file)) {
-                GSON.toJson(ipsEntries, writer);
+                GSON.toJson(ipsEntries.toString(), writer);
             }
             try (Writer writer = Files.newBufferedWriter(sanction_history_file)) {
-                GSON.toJson(historyEntries, writer);
+                GSON.toJson(historyEntries.toString(), writer);
             }
             try (Writer writer = Files.newBufferedWriter(reports_data_file)) {
-                GSON.toJson(reports_data_file, writer);
+                GSON.toJson(reports_data_file.toString(), writer);
             }
         } catch (IOException e) {
             System.err.println("Failed to save datas: " + e.getMessage());
