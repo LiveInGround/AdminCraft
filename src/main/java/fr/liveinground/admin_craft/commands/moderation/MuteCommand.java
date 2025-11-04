@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 public class MuteCommand {
@@ -100,8 +101,12 @@ public class MuteCommand {
             ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
             return;
         }
-        if (duration != null) duration = SanctionConfig.getDurationAsDate(duration);
-        CustomSanctionSystem.mutePlayer(player, reason, duration);
+        Date duration_f;
+        if (duration != null)
+            duration_f = SanctionConfig.getDurationAsDate(duration);
+        else
+            duration_f = null;
+        CustomSanctionSystem.mutePlayer(player, reason, duration_f);
 
         String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", player.getName().getString(), "reason", reason));
         ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
