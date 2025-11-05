@@ -28,17 +28,16 @@ import java.util.Map;
 
 public class SanctionCommand {
 
-    private static final List<String> reasons = SanctionConfig.availableReasons;
+    private static final SuggestionProvider<CommandSourceStack> REASON_SUGGESTIONS =
+        (context, builder) -> SharedSuggestionProvider.suggest(SanctionConfig.availableReasons, builder);
 
-    private static final SuggestionProvider<CommandSourceStack> MODE_SUGGESTIONS =
-            (context, builder) -> SharedSuggestionProvider.suggest(reasons, builder);
 
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("sanction")
                         .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
                                 .then(Commands.argument("player", EntityArgument.player())
-                                        .then(Commands.argument("reason", StringArgumentType.greedyString()).suggests(MODE_SUGGESTIONS).executes(ctx -> {
+                                        .then(Commands.argument("reason", StringArgumentType.word()).suggests(REASON_SUGGESTIONS).executes(ctx -> {
                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                                             String reason = StringArgumentType.getString(ctx, "reason");
                                             if (!reasons.contains(reason)) {
