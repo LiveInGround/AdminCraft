@@ -128,17 +128,19 @@ public class SanctionCommand {
                                                     "reason", data.reason,
                                                     "date", SanctionConfig.getDurationAsStringFromDate(data.date))));
                                 }
+                                list.append("\n");
                             }
                         } else {
-                            list.append("This player was never sanctioned.");
+                            list.append("This player was never sanctioned.\n");
                         }
-                        list.append("Reports:");
+                        list.append("Reports:\n");
                         if (reportsData != null && !reportsData.reports().isEmpty()) {
                             for (ReportData data: reportsData.reports()) {
                                 list.append(PlaceHolderSystem.replacePlaceholders("  - REPORT: %reason% (reported by %source%, %date%)",
                                         Map.of("reason", data.reason(),
                                                 "source", data.sourceUUID(),
                                                 "date", data.date().toString())));
+                                list.append("\n");
                             }
                         } else {
                             list.append("This player was never reported.");
