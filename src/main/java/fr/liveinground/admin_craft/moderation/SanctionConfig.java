@@ -6,6 +6,8 @@ import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -114,7 +116,7 @@ public class SanctionConfig {
         return (getDuration(input) != null);
     }
 
-    public static List<Integer> getDuration(String input) {
+    public static @Nullable List<Integer> getDuration(String input) {
         Pattern pattern = Pattern.compile("(\\d+)d(\\d+)h(\\d+)m(\\d+)s");
         Matcher matcher = pattern.matcher(input);
 
@@ -134,7 +136,7 @@ public class SanctionConfig {
         }
     }
 
-    public static Date getDurationAsDate(String input) {
+    public static @NotNull Date getDurationAsDate(String input) {
         List<Integer> duration = SanctionConfig.getDuration(input);
         if (duration == null) throw new IllegalArgumentException("SanctionConfig.getDuration() returned null");
         if (!(duration.size() == 4)) throw new IllegalArgumentException("SanctionConfig.getDuration() returned an invalid list");
