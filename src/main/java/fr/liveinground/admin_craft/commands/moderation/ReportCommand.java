@@ -31,45 +31,48 @@ public class ReportCommand {
 
         dispatcher.register(Commands.literal("report")
                 .requires(CommandSourceStack::isPlayer)
-                .requires(commandSource -> true)
                 .then(Commands.argument("player", EntityArgument.player())
-                .then(Commands.argument("reason", StringArgumentType.greedyString())).executes(ctx -> {
-                            if (ctx.getSource().getPlayer() != null) {
-                                ServerPlayer player = ctx.getSource().getPlayer();
-                                ServerPlayer reportedPlayer = EntityArgument.getPlayer(ctx, "player");
-                                String reason = StringArgumentType.getString(ctx, "reason");
+                        .then(Commands.argument("reason", StringArgumentType.greedyString())
+                                .executes(ctx -> {
+                                    if (ctx.getSource().getPlayer() != null) {
+                                        ServerPlayer player = ctx.getSource().getPlayer();
+                                        ServerPlayer reportedPlayer = EntityArgument.getPlayer(ctx, "player");
+                                        String reason = StringArgumentType.getString(ctx, "reason");
 
-                                if (player.equals(reportedPlayer)) {
-                                    ctx.getSource().sendFailure(Component.literal(Config.report_failed_self));
-                                    return 1;
-                                }
-
-                                AdminCraft.playerDataManager.addReport(reportedPlayer.getStringUUID(), player.getStringUUID(), reason);
-
-                                for (ServerPlayer operator: Utils.getOnlineOperators()) {
-                                    operator.sendSystemMessage(Component.literal(PlaceHolderSystem.replacePlaceholders("%player% was reported by %source%: %reason%.",
-                                            Map.of("player", reportedPlayer.getDisplayName().getString(),
-                                                    "source", player.getDisplayName().getString(),
-                                                    "reason", reason))).withStyle(ChatFormatting.YELLOW));
-                                }
-
-                                if ((Config.report_webhook != null)) {
-                                    CompletableFuture.runAsync(() -> {
-                                        try {
-                                            sendWebhookMessage(reportedPlayer, player, reason);
-                                        } catch (Exception e) {
-                                            AdminCraft.LOGGER.error("An error occurred while posting a report into Discord Webhooks:", e);
-                                            player.sendSystemMessage(Component.literal(Config.webhook_issue_message).withStyle(ChatFormatting.YELLOW));
+                                        if (player.equals(reportedPlayer)) {
+                                            ctx.getSource().sendFailure(Component.literal(Config.report_failed_self));
+                                            return 1;
                                         }
-                                    });
-                                }
-                                ctx.getSource().sendSuccess(() -> Component.literal(Config.report_success).withStyle(ChatFormatting.GREEN), true);
-                            } else {
-                                ctx.getSource().sendFailure(Component.literal("This command can only be run by players."));
-                            }
 
-                    return 1;
-                })));
+                                        AdminCraft.playerDataManager.addReport(reportedPlayer.getStringUUID(), player.getStringUUID(), reason);
+
+                                        for (ServerPlayer operator: Utils.getOnlineOperators()) {
+                                            operator.sendSystemMessage(Component.literal(PlaceHolderSystem.replacePlaceholders("%player% was reported by %source%: %reason%.",
+                                                    Map.of("player", reportedPlayer.getDisplayName().getString(),
+                                                            "source", player.getDisplayName().getString(),
+                                                            "reason", reason))).withStyle(ChatFormatting.YELLOW));
+                                        }
+
+                                        if ((Config.report_webhook != null)) {
+                                            CompletableFuture.runAsync(() -> {
+                                                try {
+                                                    sendWebhookMessage(reportedPlayer, player, reason);
+                                                } catch (Exception e) {
+                                                    AdminCraft.LOGGER.error("An error occurred while posting a report into Discord Webhooks:", e);
+                                                    player.sendSystemMessage(Component.literal(Config.webhook_issue_message).withStyle(ChatFormatting.YELLOW));
+                                                }
+                                            });
+                                        }
+                                        ctx.getSource().sendSuccess(() -> Component.literal(Config.report_success).withStyle(ChatFormatting.GREEN), true);
+                                    } else {
+                                        ctx.getSource().sendFailure(Component.literal("This command can only be run by players."));
+                                    }
+
+                                    return 1;
+                                })
+                        )
+                )
+        );
 
         dispatcher.register(Commands.literal("reports")
                 .requires(commandSource -> commandSource.hasPermission(Config.reports_level))
