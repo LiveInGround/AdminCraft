@@ -8,8 +8,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
+import fr.liveinground.admin_craft.commands.arguments.DurationArgument;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
-import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -31,15 +31,17 @@ public class MuteCommand {
 
         dispatcher.register(Commands.literal("mute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
-                .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
+                .then(Commands.argument("player", EntityArgument.player())
+                        .executes(ctx -> {
                            mute(ctx, null, null);
                            return 1;
-                        })).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
+                        })
+                    .then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
                             String reason = StringArgumentType.getString(ctx, "reason");
                             mute(ctx, reason, null);
                             return 1;
                         }
-                        )));
+                        ))));
 
         dispatcher.register(Commands.literal("unmute")
                 .requires(source -> source.hasPermission(Config.mute_level))
@@ -78,20 +80,24 @@ public class MuteCommand {
 
         dispatcher.register(Commands.literal("tempmute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.argument("duration", StringArgumentType.greedyString())
-                        .executes(ctx -> {
-                            mute(ctx, null, StringArgumentType.getString(ctx, "duration"));
-                            return 1;
-                }).then(Commands.argument("reason", StringArgumentType.greedyString()).executes(ctx -> {
-                            String reason = StringArgumentType.getString(ctx, "reason");
-                            mute(ctx, reason, StringArgumentType.getString(ctx, "duration"));
-                            return 1;
-                        }
-                )))));
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .then(Commands.argument("duration", DurationArgument.duration())
+                                        .executes(ctx -> {
+                                            mute(ctx, null, DurationArgument.getDurationAsDate(ctx, "duration"));
+                                            return 1;
+                                        })
+                                        .then(Commands.argument("reason", StringArgumentType.greedyString())
+                                                .executes(ctx -> {
+                                                    mute(ctx, StringArgumentType.getString(ctx, "reason"), DurationArgument.getDurationAsDate(ctx, "duration"));
+                                                    return 1;
+                                                })
+                                        )
+                                )
+                        )
+        );
     }
 
-    private static void mute(@NotNull CommandContext<CommandSourceStack> ctx, @Nullable String reason, @Nullable String duration) throws CommandSyntaxException {
+    private static void mute(@NotNull CommandContext<CommandSourceStack> ctx, @Nullable String reason, @Nullable Date duration) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
 
         if (reason == null) {
@@ -101,12 +107,7 @@ public class MuteCommand {
             ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
             return;
         }
-        Date duration_f;
-        if (duration != null)
-            duration_f = SanctionConfig.getDurationAsDate(duration);
-        else
-            duration_f = null;
-        CustomSanctionSystem.mutePlayer(player, reason, duration_f);
+        CustomSanctionSystem.mutePlayer(player, reason, duration);
 
         String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", player.getName().getString(), "reason", reason));
         ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
