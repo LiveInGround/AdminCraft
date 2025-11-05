@@ -44,6 +44,7 @@ public class AltCommand {
                         List<PlayerIPSData> alts = AdminCraft.playerDataManager.getPlayerIPSDataByIP(data.ip);
                         StringBuilder ans = new StringBuilder(PlaceHolderSystem.replacePlaceholders("The following players logged in from the I.P. address %ip%:\n", Map.of("ip", data.ip)));
                         for (PlayerIPSData n: alts) {
+                            ans.append(" - ");
                             ans.append(n.name).append("\n");
                         }
                         Component answer = Component.literal(ans.toString()).withStyle(ChatFormatting.GREEN);
