@@ -23,7 +23,6 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class SanctionCommand {
@@ -40,7 +39,7 @@ public class SanctionCommand {
                                         .then(Commands.argument("reason", StringArgumentType.word()).suggests(REASON_SUGGESTIONS).executes(ctx -> {
                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                                             String reason = StringArgumentType.getString(ctx, "reason");
-                                            if (!reasons.contains(reason)) {
+                                            if (!SanctionConfig.availableReasons.contains(reason)) {
                                                 ctx.getSource().sendFailure(Component.literal("This reason is not configured yet."));
                                                 return 1;
                                             }
