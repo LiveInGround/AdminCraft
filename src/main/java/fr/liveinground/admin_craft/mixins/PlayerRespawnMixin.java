@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PlayerRespawnMixin {
     @Inject(
             method = "respawn",
-            at = @At("HEAD")
+            at = @At("RETURN")
     )
     private void onRespawn(ServerPlayer player, boolean keepEverything, CallbackInfoReturnable<ServerPlayer> cir) {
         ServerLevel overworld = player.getServer().overworld();
@@ -31,5 +31,6 @@ public class PlayerRespawnMixin {
                     false
             );
         }
+        cir.setReturnValue(player);
     }
 }
