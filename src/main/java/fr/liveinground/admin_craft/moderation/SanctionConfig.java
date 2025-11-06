@@ -37,7 +37,7 @@ public class SanctionConfig {
                 # NOTE: The server has to restart to reload this file.
                 [reasons]
                     [reasons.cheat]
-                        # This will be displayed in commands
+                        # This will be displayed in commands, must contain only ONE word (but you still can use underscores)!
                         displayName = "Cheating"
                 
                         # This is used as reason message
@@ -74,6 +74,10 @@ public class SanctionConfig {
 
                     // Fallbacks
                     String displayName = reason;
+                    if (displayName.contains(" ")) {
+                        AdminCraft.LOGGER.warn("A custom sanction reason contains a space, skipping...");
+                        continue;
+                    }
                     String message = "";
 
                     if (entry.getValue() instanceof Map<?, ?> inner) {
