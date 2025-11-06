@@ -76,7 +76,8 @@ public class ReportCommand {
 
         dispatcher.register(Commands.literal("reports")
                 .requires(commandSource -> commandSource.hasPermission(Config.reports_level))
-                .then(Commands.argument("player", GameProfileArgument.gameProfile()).executes(ctx -> {
+                .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                        .executes(ctx -> {
                             Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
                             if (!profiles.isEmpty()) {
 
