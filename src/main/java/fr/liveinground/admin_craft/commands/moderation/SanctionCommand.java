@@ -47,12 +47,27 @@ public class SanctionCommand {
                                             PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
                                             int counter = 0;
                                             for (SanctionData data: history.sanctionList) {
-                                                if (data.reason.equals(reason)) {
+                                                if (data.reason.equals(sanctionMap.get(1).sanctionMessage())) {
                                                     counter ++;
                                                 }
                                             }
 
-                                            SanctionTemplate template = sanctionMap.get(counter);
+                                            boolean ok = false;
+                                            SanctionTemplate template=null;
+                                            while (!ok) {
+                                                if (sanctionMap.containsKey(counter)) {
+                                                    template = sanctionMap.get(counter);
+                                                    ok = true;
+                                                } else {
+                                                    if (counter <= 0) {
+                                                        ctx.getSource().sendFailure(Component.literal("No sanction configured. Please take a look at the sanction config."));
+                                                        return 1;
+                                                    } else {
+                                                        counter --;
+                                                    }
+                                                }
+                                            }
+                                            reason = template.sanctionMessage();
                                             switch (template.type()) {
                                                 case BAN:
                                                     CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, null);
@@ -76,10 +91,12 @@ public class SanctionCommand {
                                                     break;
                                             }
 
+                                            final String finalReason = reason;
+                                            final SanctionTemplate finalTemplate = template;
                                             ctx.getSource().sendSuccess(() -> Component.literal(PlaceHolderSystem.replacePlaceholders("%player% was sanctionned (%type%): %reason%.",
                                                     Map.of("player", sanctionedPlayer.getDisplayName().getString(),
-                                                            "type", template.type().toString(),
-                                                            "reason", reason))), true);
+                                                            "type", finalTemplate.type().toString(),
+                                                            "reason", finalReason))), true);
 
                                             return 1;
                                         }))

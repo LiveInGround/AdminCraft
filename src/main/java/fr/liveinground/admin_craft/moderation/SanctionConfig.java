@@ -43,7 +43,7 @@ public class SanctionConfig {
                         # This is used as reason message
                         message = "Cheating / Unfair advantage"
                 
-                        1 = "tempban:1d"
+                        1 = "tempban:1d"    # the first one is mandatory
                         2 = "tempban:3m"
                         3 = "ban"
 
