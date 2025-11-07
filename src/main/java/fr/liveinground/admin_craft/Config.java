@@ -21,6 +21,12 @@ public class Config {
     );
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
+    private static final ForgeConfigSpec.BooleanValue README;
+    public static boolean readme;
+
+    private static final ForgeConfigSpec.ConfigValue<String> _CONFIG_VERSION;
+    public static String _config_version;
+
     // --------------------------
     // -- Commands permissions --
     // --------------------------
@@ -181,6 +187,11 @@ public class Config {
     public static String report_failed_self;
 
     static {
+        README = BUILDER.comment("Enable the readme message for operators when joining the world").worldRestart().define("readme", true);
+        _CONFIG_VERSION = BUILDER.comment("WARNING! CHANGE THIS SETTING MAY BREAK THE MOD. DO ONLY IF YOU KNOW WHAT YOU ARE DOING").define("configVersion", AdminCraft._VERSION);
+    }
+
+    static {
         BUILDER.push("commandsPermissions");
 
         MUTE_LEVEL = BUILDER.comment("The OP level required to run the /mute and /unmute commands").worldRestart().defineInRange("mute", 3, 0, 4);
@@ -316,6 +327,9 @@ public class Config {
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
+
+        readme = README.get();
+        _config_version = _CONFIG_VERSION.get();
 
         // --------------------------
         // -- Commands permissions --
