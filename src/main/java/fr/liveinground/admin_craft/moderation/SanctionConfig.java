@@ -121,20 +121,24 @@ public class SanctionConfig {
     }
 
     public static @Nullable List<Integer> getDuration(String input) {
-        Pattern pattern = Pattern.compile("(\\d+)d(\\d+)h(\\d+)m(\\d+)s");
+        Pattern pattern = Pattern.compile(
+                "^(?:(\\d+)d)?(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?$"
+        );
         Matcher matcher = pattern.matcher(input);
 
-        if (matcher.matches()) {
-            int days = Integer.parseInt(matcher.group(1));
-            int hours = Integer.parseInt(matcher.group(2));
-            int minutes = Integer.parseInt(matcher.group(3));
-            int seconds = Integer.parseInt(matcher.group(4));
+        if (matcher.matches() && !input.isEmpty()) {
+            boolean hasAtLeastOne = false;
             List<Integer> output = new ArrayList<>();
-            output.add(days);
-            output.add(hours);
-            output.add(minutes);
-            output.add(seconds);
-            return output;
+            for (int i = 1; i <= 4; i++) {
+                String group = matcher.group(i);
+                if (group != null) {
+                    hasAtLeastOne = true;
+                    output.add(Integer.parseInt(group));
+                } else {
+                    output.add(0);
+                }
+            }
+            return hasAtLeastOne ? output : null;
         } else {
             return null;
         }
