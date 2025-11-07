@@ -10,6 +10,7 @@ import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.commands.arguments.DurationArgument;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
+import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -83,12 +84,22 @@ public class MuteCommand {
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("duration", DurationArgument.duration())
                                         .executes(ctx -> {
-                                            mute(ctx, null, DurationArgument.getDurationAsDate(ctx, "duration"));
+                                            Date duration = SanctionConfig.getDurationAsDate(StringArgumentType.getString(ctx, "duration"));
+                                            if (duration == null) {
+                                                ctx.getSource().sendFailure(Component.literal("Invalid duration, expecting format 1d1h1m1s"));
+                                                return 1;
+                                            }
+                                            mute(ctx, null, duration);
                                             return 1;
                                         })
                                         .then(Commands.argument("reason", StringArgumentType.greedyString())
                                                 .executes(ctx -> {
-                                                    mute(ctx, StringArgumentType.getString(ctx, "reason"), DurationArgument.getDurationAsDate(ctx, "duration"));
+                                                    Date duration = SanctionConfig.getDurationAsDate(StringArgumentType.getString(ctx, "duration"));
+                                                    if (duration == null) {
+                                                        ctx.getSource().sendFailure(Component.literal("Invalid duration, expecting format 1d1h1m1s"));
+                                                        return 1;
+                                                    }
+                                                    mute(ctx, StringArgumentType.getString(ctx, "reason"), duration);
                                                     return 1;
                                                 })
                                         )

@@ -144,10 +144,10 @@ public class SanctionConfig {
         }
     }
 
-    public static @NotNull Date getDurationAsDate(String input) {
+    public static @Nullable Date getDurationAsDate(String input) {
         List<Integer> duration = SanctionConfig.getDuration(input);
-        if (duration == null) throw new IllegalArgumentException("SanctionConfig.getDuration() returned null");
-        if (!(duration.size() == 4)) throw new IllegalArgumentException("SanctionConfig.getDuration() returned an invalid list");
+        if (duration == null) return null;
+        if (!(duration.size() == 4)) return null;
         Integer days = duration.get(0);
         Integer hours = duration.get(1);
         Integer minutes = duration.get(2);

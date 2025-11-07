@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.commands.arguments.DurationArgument;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
+import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -20,11 +21,15 @@ public class TempBanCommand {
         dispatcher.register(Commands.literal("tempban")
                         .requires(commandSource -> commandSource.hasPermission(Config.tempban_level))
                                 .then(Commands.argument("player", EntityArgument.player())
-                                        .then(Commands.argument("duration", DurationArgument.duration())
+                                        .then(Commands.argument("duration", StringArgumentType.word())
                                                 .executes(ctx -> {
                                                     ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                                                     String reason = "Banned by an operator";
-                                                    Date duration = DurationArgument.getDurationAsDate(ctx, "duration");
+                                                    Date duration = SanctionConfig.getDurationAsDate(StringArgumentType.getString(ctx, "duration"));
+                                                    if (duration == null) {
+                                                        ctx.getSource().sendFailure(Component.literal("Invalid duration, expecting format 1d1h1m1s"));
+                                                        return 1;
+                                                    }
                                                     tempban(ctx, sanctionedPlayer, duration, reason);
                                                     return 1;
                                                 })
@@ -32,7 +37,11 @@ public class TempBanCommand {
                                                         .executes(ctx -> {
                                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                                                             String reason = StringArgumentType.getString(ctx, "reason");
-                                                            Date duration = DurationArgument.getDurationAsDate(ctx, "duration");
+                                                            Date duration = SanctionConfig.getDurationAsDate(StringArgumentType.getString(ctx, "duration"));
+                                                            if (duration == null) {
+                                                                ctx.getSource().sendFailure(Component.literal("Invalid duration, expecting format 1d1h1m1s"));
+                                                                return 1;
+                                                            }
                                                             tempban(ctx, sanctionedPlayer, duration, reason);
                                                             return 1;
                                                         })))

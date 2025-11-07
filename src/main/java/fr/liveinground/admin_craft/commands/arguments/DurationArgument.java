@@ -38,5 +38,4 @@ public class DurationArgument implements ArgumentType<String> {
         String input = context.getArgument(name, String.class);
         return SanctionConfig.getDurationAsDate(input);
     }
-
 }
