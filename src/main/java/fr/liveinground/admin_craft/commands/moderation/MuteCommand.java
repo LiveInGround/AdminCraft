@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
-import fr.liveinground.admin_craft.commands.arguments.DurationArgument;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import net.minecraft.commands.CommandSourceStack;
@@ -82,7 +81,7 @@ public class MuteCommand {
         dispatcher.register(Commands.literal("tempmute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
                         .then(Commands.argument("player", EntityArgument.player())
-                                .then(Commands.argument("duration", DurationArgument.duration())
+                                .then(Commands.argument("duration", StringArgumentType.word())
                                         .executes(ctx -> {
                                             Date duration = SanctionConfig.getDurationAsDate(StringArgumentType.getString(ctx, "duration"));
                                             if (duration == null) {
