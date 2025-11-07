@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class SanctionConfig {
     static FileConfig sanctionConfig;
     public static Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();    // Sanction config
-    public static List<String> availableReasons;
+    public static List<String> availableReasons = new ArrayList<>();
 
     public static void load(Path configDir) {
         Path file = configDir.resolve("admin_craft_sanctions.toml");

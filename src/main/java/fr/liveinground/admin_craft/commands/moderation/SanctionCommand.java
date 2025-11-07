@@ -21,19 +21,15 @@ import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 public class SanctionCommand {
 
     private static final SuggestionProvider<CommandSourceStack> REASON_SUGGESTIONS =
             (context, builder) -> {
-                if (SanctionConfig.availableReasons == null) {
-                    return SharedSuggestionProvider.suggest(Collections.emptyList(), builder);
-                }
-                return SharedSuggestionProvider.suggest(SanctionConfig.availableReasons, builder);
+                List<String> reasons = SanctionConfig.availableReasons;
+                if (reasons == null || reasons.isEmpty()) reasons = Collections.emptyList();
+                return SharedSuggestionProvider.suggest(reasons, builder);
             };
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
