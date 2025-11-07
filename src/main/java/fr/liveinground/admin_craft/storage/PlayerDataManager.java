@@ -279,7 +279,7 @@ public class PlayerDataManager {
                 GSON.toJson(historyEntries, writer);
             }
             try (Writer writer = Files.newBufferedWriter(reports_data_file)) {
-                GSON.toJson(reports_entries, writer);
+                GSON.toJson(reportsEntries, writer);
             }
         } catch (IOException e) {
             System.err.println("Failed to save datas: " + e.getMessage());
