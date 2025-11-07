@@ -114,7 +114,7 @@ public class MuteCommand {
             reason = "Muted by an operator.";
         }
         if (AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
-            ctx.getSource().sendFailure(Component.literal(Config.mute_failed_already_muted));
+            ctx.getSource().sendFailure(Component.literal(PlaceHolderSystem.replacePlaceholders(Config.mute_failed_already_muted, Map.of("player", player.getName().getString()))));
             return;
         }
         CustomSanctionSystem.mutePlayer(player, reason, duration);
