@@ -141,7 +141,7 @@ public class SanctionCommand {
                                     list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%)",
                                             Map.of("type", data.sanctionType.name(),
                                                     "reason", data.reason,
-                                                    "date", SanctionConfig.getDurationAsStringFromDate(data.date))));
+                                                    "date", data.date.toString())));
                                 }
                                 list.append("\n");
                             }
