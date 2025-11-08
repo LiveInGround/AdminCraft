@@ -6,7 +6,6 @@ import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -27,8 +26,10 @@ public class SanctionConfig {
 
     public static void load(Path configDir) {
         Path file = configDir.resolve("admin_craft_sanctions.toml");
+        AdminCraft.LOGGER.debug("Loading sanctions configuration (" + file + ")");
 
         if (!Files.exists(file)) {
+            AdminCraft.LOGGER.debug("Files doesn't exist");
             try {
                 Files.createFile(file);
 
@@ -55,6 +56,7 @@ public class SanctionConfig {
                         3 = "tempmute:1h"
                         5 = "ban"
                 """);
+                AdminCraft.LOGGER.debug("File created and written");
             } catch (IOException e) {
                 AdminCraft.LOGGER.error(e.getMessage());
             }
@@ -62,12 +64,16 @@ public class SanctionConfig {
 
         sanctionConfig = FileConfig.builder(file).autoreload().autosave().build();
         sanctionConfig.load();
+        AdminCraft.LOGGER.debug("File loaded");
 
         sanctions.clear();
+        AdminCraft.LOGGER.debug("Previous data cleared");
 
         if (sanctionConfig.contains("reasons")) {
+            AdminCraft.LOGGER.debug("'reasons' key detected");
             var reasons = sanctionConfig.get("reasons");
             if (reasons instanceof Map<?, ?> map) {
+                AdminCraft.LOGGER.debug("'reasons' key is instance of Map<?, ?>");
                 for (var entry : map.entrySet()) {
                     String reason = entry.getKey().toString();
                     Map<Integer, SanctionTemplate> sanctionsMap = new HashMap<>();
@@ -87,6 +93,7 @@ public class SanctionConfig {
                             if (key.equalsIgnoreCase("displayName")) {
                                 displayName = innerEntry.getValue().toString();
                                 availableReasons.add(displayName);
+                                AdminCraft.LOGGER.debug("New reason displayName added to list: " + displayName);
                                 continue;
                             }
                             if (key.equalsIgnoreCase("message")) {
