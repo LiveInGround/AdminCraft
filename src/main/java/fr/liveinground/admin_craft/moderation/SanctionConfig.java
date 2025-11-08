@@ -159,12 +159,11 @@ public class SanctionConfig {
         Integer hours = duration.get(1);
         Integer minutes = duration.get(2);
         Integer seconds = duration.get(3);
-        LocalTime now = LocalTime.now();
-        LocalDateTime expiresLocal = LocalDateTime.from(now
+        LocalDateTime expiresLocal = LocalDateTime.now()
                 .plusHours(days * 24)
                 .plusHours(hours)
                 .plusMinutes(minutes)
-                .plusSeconds(seconds));
+                .plusSeconds(seconds);
         return Date.from(expiresLocal.atZone(ZoneId.systemDefault()).toInstant());
     }
 
