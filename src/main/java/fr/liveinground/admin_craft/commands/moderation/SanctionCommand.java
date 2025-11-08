@@ -46,9 +46,11 @@ public class SanctionCommand {
                                             Map<Integer, SanctionTemplate> sanctionMap = SanctionConfig.sanctions.get(reason);
                                             PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
                                             int counter = 0;
-                                            for (SanctionData data: history.sanctionList) {
-                                                if (data.reason.equals(sanctionMap.get(1).sanctionMessage())) {
-                                                    counter ++;
+                                            if (!(history==null || history.sanctionList.isEmpty())) {
+                                                for (SanctionData data: history.sanctionList) {
+                                                    if (data.reason.equals(sanctionMap.get(1).sanctionMessage())) {
+                                                        counter ++;
+                                                    }
                                                 }
                                             }
 
@@ -120,8 +122,8 @@ public class SanctionCommand {
                     StringBuilder list = new StringBuilder(player.getName().getString() + "'s history:\n");
                     PlayerHistoryData playerHistory = AdminCraft.playerDataManager.getHistoryFromUUID(player.getStringUUID());
                     PlayerReportsData reportsData = AdminCraft.playerDataManager.getReportDatasByUUID(player.getStringUUID());
-                    if (!(playerHistory.sanctionList.isEmpty() && reportsData != null && reportsData.reports().isEmpty())) {
-                        if (!playerHistory.sanctionList.isEmpty()) {
+                    if (!((playerHistory == null || playerHistory.sanctionList.isEmpty()) && (reportsData == null || reportsData.reports().isEmpty()))) {
+                        if (playerHistory!=null && !playerHistory.sanctionList.isEmpty()) {
                             for (SanctionData data : playerHistory.sanctionList) {
                                 if (data.expiresOn != null) {
                                     if (data.expiresOn.before(new Date())) {

@@ -83,7 +83,7 @@ public class PlayerDataManager {
         return historyEntries;
     }
 
-    public PlayerHistoryData getHistoryFromUUID(String playerUUID) {
+    public @Nullable PlayerHistoryData getHistoryFromUUID(String playerUUID) {
         for (PlayerHistoryData data: historyEntries) {
             if (data.uuid.equals(playerUUID)) return data;
         }
