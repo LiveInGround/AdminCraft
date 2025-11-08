@@ -70,6 +70,7 @@ public class AdminCraft {
         SanctionCommand.register(dispatcher);
         FreezeCommand.register(dispatcher);
         if (Config.enable_reports) {
+            LOGGER.debug("Enabling reports");
             ReportCommand.register(dispatcher);
         }
         TempBanCommand.register(dispatcher);
@@ -225,21 +226,21 @@ public class AdminCraft {
         }
         playerDataManager.addIPSData(player.getName().getString(), player.getStringUUID(), player.getIpAddress());
         if (player.hasPermissions(1) && Config.readme) {
-            player.sendSystemMessage(Component.literal("------------------------------").withStyle(ChatFormatting.AQUA));
+            player.sendSystemMessage(Component.literal("---------------------------------------").withStyle(ChatFormatting.AQUA));
             player.sendSystemMessage(Component.literal("Thank you for using AdminCraft!"));
             player.sendSystemMessage(Component.literal("For a better experience, you should take a look to our configuration files."));
             player.sendSystemMessage(Component.literal("Found a bug or need help using the mod ? Join our discord or our issue tracker:"));
             player.sendSystemMessage(Component.literal("https://discord.gg/uKpPsaYmgk").withStyle(ChatFormatting.BLUE, ChatFormatting.UNDERLINE));
             player.sendSystemMessage(Component.literal("https://github.com/LiveInGround/AdminCraft/issues").withStyle(ChatFormatting.BLUE, ChatFormatting.UNDERLINE));
             player.sendSystemMessage(Component.literal("Note: you can disable this message in the configuration."));
-            player.sendSystemMessage(Component.literal("------------------------------").withStyle(ChatFormatting.AQUA));
+            player.sendSystemMessage(Component.literal("---------------------------------------").withStyle(ChatFormatting.AQUA));
         }
         if (player.hasPermissions(1) && !Config._config_version.equals(AdminCraft._VERSION)) {
-            player.sendSystemMessage(Component.literal("------------------------------").withStyle(ChatFormatting.AQUA));
+            player.sendSystemMessage(Component.literal("---------------------------------------").withStyle(ChatFormatting.AQUA));
             player.sendSystemMessage(Component.literal("AdminCraft was recently updated to a new version (" + AdminCraft._VERSION + ")."));
             player.sendSystemMessage(Component.literal("It strongly recommended to check the configuration file to check there is no issue with it."));
             player.sendSystemMessage(Component.literal("You can disable this message by changing the 'configVersion' key to " + AdminCraft._VERSION + " in the configuration."));
-            player.sendSystemMessage(Component.literal("------------------------------").withStyle(ChatFormatting.AQUA));
+            player.sendSystemMessage(Component.literal("---------------------------------------").withStyle(ChatFormatting.AQUA));
         }
     }
 }

@@ -30,7 +30,6 @@ public class ReportCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("report")
-                .requires(CommandSourceStack::isPlayer)
                 .then(Commands.argument("player", EntityArgument.player())
                         .then(Commands.argument("reason", StringArgumentType.greedyString())
                                 .executes(ctx -> {

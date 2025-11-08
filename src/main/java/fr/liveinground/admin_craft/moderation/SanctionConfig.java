@@ -1,5 +1,6 @@
 package fr.liveinground.admin_craft.moderation;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -72,10 +72,12 @@ public class SanctionConfig {
         if (sanctionConfig.contains("reasons")) {
             AdminCraft.LOGGER.debug("'reasons' key detected");
             var reasons = sanctionConfig.get("reasons");
-            if (reasons instanceof Map<?, ?> map) {
+            if (reasons instanceof CommentedConfig commentedConfig) {
                 AdminCraft.LOGGER.debug("'reasons' key is instance of Map<?, ?>");
+                Map<String, Object> map = commentedConfig.valueMap();
                 for (var entry : map.entrySet()) {
-                    String reason = entry.getKey().toString();
+                    String reason = entry.getKey();
+                    AdminCraft.LOGGER.debug("Subkey '" + reason + "'"); // this never appear
                     Map<Integer, SanctionTemplate> sanctionsMap = new HashMap<>();
 
                     // Fallbacks
