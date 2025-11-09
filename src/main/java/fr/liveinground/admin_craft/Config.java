@@ -119,7 +119,7 @@ public class Config {
     // -- Reports --
     // -------------
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_REPORTS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_REPORTS;
     public static boolean enable_reports;
 
     private static final ForgeConfigSpec.BooleanValue USE_SANCTIONS_REASONS;

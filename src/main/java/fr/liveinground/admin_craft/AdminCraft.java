@@ -42,22 +42,23 @@ public class AdminCraft {
     public static final String _VERSION = "1.0.0";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final String SP_TAG = "inSpawnProtection";
+    public static SanctionConfig sanctionConfig;
 
     public static List<String> mutedPlayersUUID = new ArrayList<>();
     public static List<String> frozenPlayersUUID = new ArrayList<>();
     public static PlayerDataManager playerDataManager;
 
     public AdminCraft(FMLJavaModLoadingContext ctx) {
+        ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(MuteEventsHandler.class);
         MinecraftForge.EVENT_BUS.register(FreezeEventListener.class);
-
-        ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
 
     @SubscribeEvent
     public void onServerStarted(ServerAboutToStartEvent event) {
-        SanctionConfig.load(event.getServer().getServerDirectory().toPath().resolve("world").resolve("serverconfig"));
+        sanctionConfig = new SanctionConfig(event.getServer().getServerDirectory().toPath().resolve("world").resolve("serverconfig"));
+        sanctionConfig.load();
     }
 
     @SubscribeEvent
@@ -69,7 +70,7 @@ public class AdminCraft {
         AltCommand.register(dispatcher);
         SanctionCommand.register(dispatcher);
         FreezeCommand.register(dispatcher);
-        if (Config.enable_reports) {
+        if (Config.ENABLE_REPORTS.get()) {
             LOGGER.debug("Enabling reports");
             ReportCommand.register(dispatcher);
         }

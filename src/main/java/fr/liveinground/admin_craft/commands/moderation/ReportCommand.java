@@ -89,7 +89,7 @@ public class ReportCommand {
 
                                 PlayerReportsData data = AdminCraft.playerDataManager.getReportDatasByUUID(player.getStringUUID());
                                 if (data == null) {
-                                    ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " wasn't reported."), false);
+                                    ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " wasn't reported yet."), false);
                                     return 1;
                                 }
                                 StringBuilder list = new StringBuilder(player.getDisplayName().getString() + "'s reports");
