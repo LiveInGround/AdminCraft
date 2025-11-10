@@ -27,8 +27,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 public class SanctionConfig {
     private final Path file;
-    private final List<String> availableReasons = new ArrayList<>();
-    private final Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();
+    public final List<String> availableReasons = new ArrayList<>();
+    public final Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();
 
     public SanctionConfig(Path configDir) {
         this.file = configDir.resolve("admin_craft_sanctions.yml");
