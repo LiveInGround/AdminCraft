@@ -27,7 +27,7 @@ public class SanctionCommand {
 
     private static final SuggestionProvider<CommandSourceStack> REASON_SUGGESTIONS =
             (context, builder) -> {
-                List<String> reasons = AdminCraft.sanctionConfig.availableReasons;
+                List<String> reasons = AdminCraft.sanctionConfig.getAvailableReasons();
                 if (reasons == null || reasons.isEmpty()) reasons = Collections.emptyList();
                 return SharedSuggestionProvider.suggest(reasons, builder);
             };
@@ -39,11 +39,11 @@ public class SanctionCommand {
                                         .then(Commands.argument("reason", StringArgumentType.word()).suggests(REASON_SUGGESTIONS).executes(ctx -> {
                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                                             String reason = StringArgumentType.getString(ctx, "reason");
-                                            if (!AdminCraft.sanctionConfig.availableReasons.contains(reason)) {
+                                            if (!AdminCraft.sanctionConfig.getAvailableReasons().contains(reason)) {
                                                 ctx.getSource().sendFailure(Component.literal("This reason is not configured yet."));
                                                 return 1;
                                             }
-                                            Map<Integer, SanctionTemplate> sanctionMap = AdminCraft.sanctionConfig.sanctions.get(reason);
+                                            Map<Integer, SanctionTemplate> sanctionMap = AdminCraft.sanctionConfig.getSanctions().get(reason);
                                             PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
                                             int counter = 0;
                                             if (!(history==null || history.sanctionList.isEmpty())) {
@@ -54,6 +54,11 @@ public class SanctionCommand {
                                                 }
                                             }
 
+                                            if (sanctionMap.isEmpty()) {
+                                                ctx.getSource().sendFailure(Component.literal("This reason is not configured yet."));
+                                                return 1;
+                                            }
+                                            if (counter > sanctionMap.size()) counter = sanctionMap.size();
                                             boolean ok = false;
                                             SanctionTemplate template=null;
                                             while (!ok) {
