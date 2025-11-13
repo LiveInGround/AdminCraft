@@ -1,5 +1,7 @@
 package fr.liveinground.admin_craft;
 
+import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
+import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.block.Block;
@@ -51,6 +53,14 @@ public class Config {
 
     private static final ForgeConfigSpec.IntValue TEMPBAN_LEVEL;
     public static int tempban_level;
+
+    // ---------------
+    // -- Sanctions --
+    // ---------------
+
+    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SANCTION_TEMPLATES;
+    public static final List<String> availableReasons = new ArrayList<>();
+    public static final Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();
 
     // ----------------------
     // -- Spawn protection --
@@ -206,6 +216,16 @@ public class Config {
     }
 
     static {
+        BUILDER.push("presetSanctions");
+
+        SANCTION_TEMPLATES = BUILDER.comment("The sanction presets for the /sanction command. Must follow the format 'displayName@used reason@level->type:duration(if required)@level@...'.")
+                .comment("Exemple: 'Cheating@Using cheats to get unfair advantages@1->warn@2->tempban:5d@5:ban'")
+                .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
+                .define("sanctions", List.of("Cheating@Unfair advantage@1->tempban:1d@2->tempban:30d@3->ban",
+                        "spam@Spamming@1->warn@3->kick@4->tempmute:1d@5->mute"));
+    }
+
+    static {
         BUILDER.push("spawnProtection");
 
         ENABLE_SPAWN_PROTECTION = BUILDER.comment("Should the spawn protection being enabled?").define("enabled", true);
@@ -342,6 +362,55 @@ public class Config {
         warn_level = WARN_LEVEL.get();
         reports_level = REPORTS_LEVEL.get();
         tempban_level = TEMPBAN_LEVEL.get();
+
+        // ---------------
+        // -- Sanctions --
+        // ---------------
+
+        for (String entry: SANCTION_TEMPLATES.get()) {
+            try {
+                String[] parts = entry.split("@");
+                if (parts.length < 3) {
+                    AdminCraft.LOGGER.error("Invalid template: " + entry);
+                    continue;
+                }
+
+                String displayName = parts[0].trim();
+                String reason = parts[1].trim();
+
+                availableReasons.add(displayName);
+                Map<Integer, SanctionTemplate> levels = new HashMap<>();
+
+                for (int i = 2; i < parts.length; i++) {
+                    String segment = parts[i].trim();
+                    String[] levelSplit = segment.split("->");
+                    if (levelSplit.length != 2) continue;
+
+                    int level = Integer.parseInt(levelSplit[0].trim());
+                    String action = levelSplit[1].trim();
+
+                    String duration = null;
+                    Sanction type;
+
+                    if (action.contains(":")) {
+                        String[] actSplit = action.split(":");
+                        type = Sanction.valueOf(actSplit[0].trim().toUpperCase());
+                        duration = actSplit[1].trim();
+                    } else {
+                        type = Sanction.valueOf(action.trim().toUpperCase());
+                    }
+
+                    SanctionTemplate template = new SanctionTemplate(displayName, reason, type, duration);
+                    levels.put(level, template);
+                }
+
+                sanctions.put(displayName, levels);
+            } catch (Exception e) {
+                AdminCraft.LOGGER.error("Error parsing sanction template: " + entry);
+                AdminCraft.LOGGER.error(e.getMessage());
+                e.printStackTrace();
+            }
+        }
 
         // ----------------------
         // -- Spawn protection --

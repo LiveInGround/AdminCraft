@@ -26,6 +26,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 
 public class SanctionConfig {
+    /*
     private final Path file;
     private final List<String> availableReasons = new ArrayList<>();
     private final Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();
@@ -126,7 +127,7 @@ public class SanctionConfig {
                     message: "Cheating / Unfair advantage"
                     levels:
                       1: "tempban:1d"
-                      2: "tempban:3m"
+                      2: "tempban:60d"
                       3: "ban"
 
                   spam:
@@ -148,7 +149,7 @@ public class SanctionConfig {
 
     public Map<String, Map<Integer, SanctionTemplate>> getSanctions() {
         return Collections.unmodifiableMap(sanctions);
-    }
+    }*/
 
     public static boolean checkDuration(String input) {
         return (getDuration(input) != null);

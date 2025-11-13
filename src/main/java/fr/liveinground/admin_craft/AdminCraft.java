@@ -65,11 +65,12 @@ public class AdminCraft {
         MinecraftForge.EVENT_BUS.register(FreezeEventListener.class);
     }
 
+    /*
     @SubscribeEvent
     public void onServerStarted(ServerAboutToStartEvent event) {
         sanctionConfig = new SanctionConfig(event.getServer().getServerDirectory().toPath().resolve("world").resolve("serverconfig"));
         sanctionConfig.load();
-    }
+    }*/
 
     @SubscribeEvent
     public void onCommandRegister(RegisterCommandsEvent event) {

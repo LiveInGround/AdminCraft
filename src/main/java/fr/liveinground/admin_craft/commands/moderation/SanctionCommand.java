@@ -27,7 +27,7 @@ public class SanctionCommand {
 
     private static final SuggestionProvider<CommandSourceStack> REASON_SUGGESTIONS =
             (context, builder) -> {
-                List<String> reasons = AdminCraft.sanctionConfig.getAvailableReasons();
+                List<String> reasons = Config.availableReasons;
                 if (reasons == null || reasons.isEmpty()) reasons = Collections.emptyList();
                 return SharedSuggestionProvider.suggest(reasons, builder);
             };
@@ -39,11 +39,11 @@ public class SanctionCommand {
                                         .then(Commands.argument("reason", StringArgumentType.word()).suggests(REASON_SUGGESTIONS).executes(ctx -> {
                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                                             String reason = StringArgumentType.getString(ctx, "reason");
-                                            if (!AdminCraft.sanctionConfig.getAvailableReasons().contains(reason)) {
+                                            if (!Config.availableReasons.contains(reason)) {
                                                 ctx.getSource().sendFailure(Component.literal("This reason is not configured yet."));
                                                 return 1;
                                             }
-                                            Map<Integer, SanctionTemplate> sanctionMap = AdminCraft.sanctionConfig.getSanctions().get(reason);
+                                            Map<Integer, SanctionTemplate> sanctionMap = Config.sanctions.get(reason);
                                             PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
                                             int counter = 0;
                                             if (!(history==null || history.sanctionList.isEmpty())) {
