@@ -64,11 +64,11 @@ public class ReportCommand {
                                             });
                                         }
                                         ctx.getSource().sendSuccess(() -> Component.literal(Config.report_success).withStyle(ChatFormatting.GREEN), true);
+                                        return 1;
                                     } else {
                                         ctx.getSource().sendFailure(Component.literal("This command can only be run by players."));
+                                        return 1;
                                     }
-
-                                    return 1;
                                 })
                         )
                 )

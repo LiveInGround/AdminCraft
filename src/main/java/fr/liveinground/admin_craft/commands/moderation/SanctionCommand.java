@@ -13,12 +13,14 @@ import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.*;
@@ -134,7 +136,7 @@ public class SanctionCommand {
 
                     assert player != null;
 
-                    StringBuilder list = new StringBuilder(player.getName().getString() + "'s history:\n");
+                    MutableComponent output = Component.literal(player.getName().getString() + "'s history:\n").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD, ChatFormatting.UNDERLINE);
                     PlayerHistoryData playerHistory = AdminCraft.playerDataManager.getHistoryFromUUID(player.getStringUUID());
                     PlayerReportsData reportsData = AdminCraft.playerDataManager.getReportDatasByUUID(player.getStringUUID());
                     if (!((playerHistory == null || playerHistory.sanctionList.isEmpty()) && (reportsData == null || reportsData.reports().isEmpty()))) {
@@ -142,47 +144,60 @@ public class SanctionCommand {
                             for (SanctionData data : playerHistory.sanctionList) {
                                 if (data.expiresOn != null) {
                                     if (data.expiresOn.before(new Date())) {
-                                        list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%), expired on %expires%",
-                                                Map.of("type", data.sanctionType.name(),
-                                                        "reason", data.reason,
-                                                        "date", data.date.toString(),
-                                                        "expires", data.expiresOn.toString())));
+                                        output.append(Component.literal("- " + data.sanctionType.name() + ": ")
+                                                        .withStyle(ChatFormatting.DARK_RED))
+                                                .append(Component.literal(data.reason)
+                                                        .withStyle(ChatFormatting.YELLOW))
+                                                .append(Component.literal(" (" + data.date.toString() + "), ")
+                                                        .withStyle(ChatFormatting.RED))
+                                                .append(Component.literal("expired on " + data.expiresOn.toString())
+                                                        .withStyle(ChatFormatting.AQUA));
                                     } else {
-                                        list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%), %expires%",
-                                                Map.of("type", data.sanctionType.name(),
-                                                        "reason", data.reason,
-                                                        "date", data.date.toString(),
-                                                        "expires", SanctionConfig.getDurationAsStringFromDate(data.expiresOn))));
+                                        output.append(Component.literal("- " + data.sanctionType.name() + ": ")
+                                                        .withStyle(ChatFormatting.DARK_RED))
+                                                .append(Component.literal(data.reason)
+                                                        .withStyle(ChatFormatting.YELLOW))
+                                                .append(Component.literal(" (" + data.date.toString() + "), ")
+                                                        .withStyle(ChatFormatting.RED))
+                                                .append(Component.literal(SanctionConfig.getDurationAsStringFromDate(data.expiresOn))
+                                                        .withStyle(ChatFormatting.AQUA));
                                     }
                                 } else {
-                                    list.append(PlaceHolderSystem.replacePlaceholders("  - %type%: %reason% (%date%)",
-                                            Map.of("type", data.sanctionType.name(),
-                                                    "reason", data.reason,
-                                                    "date", data.date.toString())));
+
+                                    output.append(Component.literal("- " + data.sanctionType.name() + ": ")
+                                                    .withStyle(ChatFormatting.DARK_RED))
+                                            .append(Component.literal(data.reason)
+                                                    .withStyle(ChatFormatting.YELLOW))
+                                            .append(Component.literal(" (" + data.date.toString() + ")")
+                                                    .withStyle(ChatFormatting.RED));
                                 }
-                                list.append("\n");
+                                output.append("\n");
                             }
                         } else {
-                            list.append("This player was never sanctioned.\n");
+                            output.append(Component.literal("This player was never sanctioned.\n").withStyle(ChatFormatting.GREEN));
                         }
-                        list.append("Reports:\n");
+                        output.append(Component.literal("Reports:\n").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD, ChatFormatting.UNDERLINE));
                         if (reportsData != null && !reportsData.reports().isEmpty()) {
                             for (ReportData data: reportsData.reports()) {
-                                list.append(PlaceHolderSystem.replacePlaceholders("  - REPORT: %reason% (reported by %source%, %date%)",
-                                        Map.of("reason", data.reason(),
-                                                "source", data.sourceUUID(),
-                                                "date", data.date().toString())));
-                                list.append("\n");
+                                output.append(Component.literal("- REPORT: ")
+                                                .withStyle(ChatFormatting.DARK_RED))
+                                        .append(Component.literal(data.reason())
+                                                .withStyle(ChatFormatting.YELLOW))
+                                        .append(Component.literal(" (reported by " + data.sourceUUID() + ", ")
+                                                .withStyle(ChatFormatting.AQUA))
+                                        .append(Component.literal(data.date().toString())
+                                                .withStyle(ChatFormatting.RED))
+                                        .append(Component.literal(")\n").withStyle(ChatFormatting.AQUA));
                             }
                         } else {
-                            list.append("This player was never reported.");
+                            output.append(Component.literal("This player was never reported.\n").withStyle(ChatFormatting.GREEN));
                         }
                     } else {
-                        list.append("The player has no history.");
+                        output.append(Component.literal("This player has no history").withStyle(ChatFormatting.GREEN));
+
                     }
 
-                    String output = list.toString();
-                    ctx.getSource().sendSuccess(() -> Component.literal(output), false);
+                    ctx.getSource().sendSuccess(() -> output, false);
 
                     return 1;
                 }))
