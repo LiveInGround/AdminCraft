@@ -179,7 +179,7 @@ public class ReportCommand {
                 Map.ofEntries(
                         Map.entry("reason", reason),
                         Map.entry("targetName", reportedPlayer.getDisplayName().getString()),
-                        Map.entry("targetHealth", reportedPlayer.getHealth() + "/" + reportedPlayer.getMaxHealth()),
+                        Map.entry("targetHealth", Math.round(reportedPlayer.getHealth()) + "/" + reportedPlayer.getMaxHealth()),
                         Map.entry("targetUUID", reportedPlayer.getStringUUID()),
                         Map.entry("targetLevel", reportedPlayer.level().toString()),
                         Map.entry("targetX", String.valueOf(reportedPlayer.getOnPos().getX())),
@@ -187,7 +187,7 @@ public class ReportCommand {
                         Map.entry("targetZ", String.valueOf(reportedPlayer.getOnPos().getZ())),
 
                         Map.entry("sourceName", player.getDisplayName().getString()),
-                        Map.entry("sourceHealth", player.getHealth() + "/" + player.getMaxHealth()),
+                        Map.entry("sourceHealth", Math.round(player.getHealth()) + "/" + player.getMaxHealth()),
                         Map.entry("sourceUUID", player.getStringUUID()),
                         Map.entry("sourceLevel", player.level().toString()),
                         Map.entry("sourceX", String.valueOf(player.getOnPos().getX())),
