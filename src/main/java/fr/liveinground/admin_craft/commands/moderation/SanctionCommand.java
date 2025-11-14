@@ -106,7 +106,7 @@ public class SanctionCommand {
                                                     CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
                                                     break;
                                                 case WARN:
-                                                    CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().toString());
+                                                    CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().getDisplayName().getString());
                                                     break;
                                             }
 

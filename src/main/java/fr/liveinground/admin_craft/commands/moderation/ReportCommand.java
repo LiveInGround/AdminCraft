@@ -96,7 +96,7 @@ public class ReportCommand {
                                     return 1;
                                 }
                                 MutableComponent output = Component.literal("");
-                                output.append(Component.literal(player.getDisplayName().getString() + "'s reports"));
+                                output.append(Component.literal(player.getDisplayName().getString() + "'s reports\n"));
                                 for (ReportData d: data.reports()) {
                                     output.append(Component.literal("- REPORT: ")
                                                     .withStyle(ChatFormatting.DARK_RED))
@@ -163,7 +163,7 @@ public class ReportCommand {
 
                     { "name": "%sourceName% location", "value": "%sourceLevel%, %sourceX%, %sourceY%, %sourceZ%", "inline": false },
                     { "name": "%targetName% location", "value": "%targetLevel%, %targetX%, %targetY%, %targetZ%", "inline": false },
-                    { "name": "Distance", "value": "%distance%", "inline": false }
+                    { "name": "Distance", "value": "%distance% blocks", "inline": false }
 
                   ],
                   "footer": { "text": "AdminCraft - Report system" },
