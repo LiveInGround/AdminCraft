@@ -136,7 +136,8 @@ public class SanctionCommand {
 
                     assert player != null;
 
-                    MutableComponent output = Component.literal(player.getName().getString() + "'s history:\n").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD, ChatFormatting.UNDERLINE);
+                    MutableComponent output = Component.literal("");
+                    output.append(Component.literal(player.getName().getString() + "'s history:\n").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD, ChatFormatting.UNDERLINE));
                     PlayerHistoryData playerHistory = AdminCraft.playerDataManager.getHistoryFromUUID(player.getStringUUID());
                     PlayerReportsData reportsData = AdminCraft.playerDataManager.getReportDatasByUUID(player.getStringUUID());
                     if (!((playerHistory == null || playerHistory.sanctionList.isEmpty()) && (reportsData == null || reportsData.reports().isEmpty()))) {

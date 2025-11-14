@@ -15,8 +15,10 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -93,15 +95,21 @@ public class ReportCommand {
                                     ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " wasn't reported yet."), false);
                                     return 1;
                                 }
-                                StringBuilder list = new StringBuilder(player.getDisplayName().getString() + "'s reports");
+                                MutableComponent output = Component.literal("");
+                                output.append(Component.literal(player.getDisplayName().getString() + "'s reports"));
                                 for (ReportData d: data.reports()) {
-                                    list.append(PlaceHolderSystem.replacePlaceholders("  - REPORT: %reason% (reported by %source%, %date%)",
-                                            Map.of("reason", d.reason(),
-                                                    "source", d.sourceUUID(),
-                                                    "date", d.date().toString())));
+                                    output.append(Component.literal("- REPORT: ")
+                                                    .withStyle(ChatFormatting.DARK_RED))
+                                            .append(Component.literal(d.reason())
+                                                    .withStyle(ChatFormatting.YELLOW))
+                                            .append(Component.literal(" (reported by " + d.sourceUUID() + ", ")
+                                                    .withStyle(ChatFormatting.AQUA))
+                                            .append(Component.literal(d.date().toString())
+                                                    .withStyle(ChatFormatting.RED))
+                                            .append(Component.literal(")\n").withStyle(ChatFormatting.AQUA));
                                 }
 
-                                ctx.getSource().sendSuccess(() -> Component.literal(list.toString()), false);
+                                ctx.getSource().sendSuccess(() -> output, false);
 
                             } else {
                                 ctx.getSource().sendFailure(Component.literal("No player was found"));
@@ -193,6 +201,16 @@ public class ReportCommand {
 
         try (OutputStream os = connection.getOutputStream()) {
             os.write(json.getBytes(StandardCharsets.UTF_8));
+            int responseCode = connection.getResponseCode();
+            if (responseCode != 204 && responseCode != 200) {
+                InputStream error = connection.getErrorStream();
+                if (error != null) {
+                    String err = new String(error.readAllBytes(), StandardCharsets.UTF_8);
+                    AdminCraft.LOGGER.error("Webhook HTTP error (" + responseCode + "): " + err);
+                } else {
+                    AdminCraft.LOGGER.error("Webhook returned HTTP " + responseCode + " with no content.");
+                }
+            }
         }
     }
 }
