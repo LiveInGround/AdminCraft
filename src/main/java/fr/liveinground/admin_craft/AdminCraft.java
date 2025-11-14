@@ -17,6 +17,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -27,9 +28,11 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.StartupMessageManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -42,23 +45,32 @@ public class AdminCraft {
     public static final String _VERSION = "1.0.0";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final String SP_TAG = "inSpawnProtection";
+    public static SanctionConfig sanctionConfig;
 
     public static List<String> mutedPlayersUUID = new ArrayList<>();
     public static List<String> frozenPlayersUUID = new ArrayList<>();
     public static PlayerDataManager playerDataManager;
 
     public AdminCraft(FMLJavaModLoadingContext ctx) {
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            StartupMessageManager.addModMessage("AdminCraft mod can only be loaded on a server! " +
+                    "Please remove it from your 'mods' folder.");
+            LOGGER.error("AdminCraft mod can only be loaded on a server! " +
+                    "Please remove it from your 'mods' folder.");
+            return;
+        }
+        ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(MuteEventsHandler.class);
         MinecraftForge.EVENT_BUS.register(FreezeEventListener.class);
-
-        ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
     }
 
+    /*
     @SubscribeEvent
     public void onServerStarted(ServerAboutToStartEvent event) {
-        SanctionConfig.load(event.getServer().getServerDirectory().toPath().resolve("world").resolve("serverconfig"));
-    }
+        sanctionConfig = new SanctionConfig(event.getServer().getServerDirectory().toPath().resolve("world").resolve("serverconfig"));
+        sanctionConfig.load();
+    }*/
 
     @SubscribeEvent
     public void onCommandRegister(RegisterCommandsEvent event) {
@@ -69,10 +81,7 @@ public class AdminCraft {
         AltCommand.register(dispatcher);
         SanctionCommand.register(dispatcher);
         FreezeCommand.register(dispatcher);
-        if (Config.enable_reports) {
-            LOGGER.debug("Enabling reports");
-            ReportCommand.register(dispatcher);
-        }
+        ReportCommand.register(dispatcher);
         TempBanCommand.register(dispatcher);
         // StaffModeCommand.register(dispatcher);
     }

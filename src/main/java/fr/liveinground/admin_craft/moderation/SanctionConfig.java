@@ -1,7 +1,5 @@
 package fr.liveinground.admin_craft.moderation;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.file.FileConfig;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
@@ -10,8 +8,11 @@ import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -19,111 +20,136 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SanctionConfig {
-    static FileConfig sanctionConfig;
-    public static Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();    // Sanction config
-    public static List<String> availableReasons = new ArrayList<>();
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
-    public static void load(Path configDir) {
-        Path file = configDir.resolve("admin_craft_sanctions.toml");
-        AdminCraft.LOGGER.debug("Loading sanctions configuration (" + file + ")");
+
+public class SanctionConfig {
+    /*
+    private final Path file;
+    private final List<String> availableReasons = new ArrayList<>();
+    private final Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();
+
+    public SanctionConfig(Path configDir) {
+        this.file = configDir.resolve("admin_craft_sanctions.yml");
+    }
+
+    public void load() {
+        sanctions.clear();
+        availableReasons.clear();
 
         if (!Files.exists(file)) {
-            AdminCraft.LOGGER.debug("Files doesn't exist");
             try {
-                Files.createFile(file);
-
-                // Default config file
-                Files.writeString(file, """
-                # NOTE: The server has to restart to reload this file.
-                [reasons]
-                    [reasons.cheat]
-                        # This will be displayed in commands, must contain only ONE word (but you still can use underscores)!
-                        displayName = "Cheating"
-                
-                        # This is used as reason message
-                        message = "Cheating / Unfair advantage"
-                
-                        1 = "tempban:1d"    # the first one is mandatory
-                        2 = "tempban:3m"
-                        3 = "ban"
-
-                    [reasons.spam]
-                        displayName = "Spam"
-                        message = "Spamming is not allowed!"
-                        1 = "warn"
-                        2 = "kick"
-                        3 = "tempmute:1h"
-                        5 = "ban"
-                """);
-                AdminCraft.LOGGER.debug("File created and written");
+                createDefault();
             } catch (IOException e) {
-                AdminCraft.LOGGER.error(e.getMessage());
+                throw new RuntimeException("Failed to create default config", e);
             }
         }
 
-        sanctionConfig = FileConfig.builder(file).autoreload().autosave().build();
-        sanctionConfig.load();
-        AdminCraft.LOGGER.debug("File loaded");
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
 
-        sanctions.clear();
-        AdminCraft.LOGGER.debug("Previous data cleared");
+        try (InputStream in = Files.newInputStream(file)) {
+            Object root = yaml.load(in);
+            if (!(root instanceof Map<?, ?> map)) {
+                AdminCraft.LOGGER.error("Invalid YAML format in " + file);
+                return;
+            }
 
-        if (sanctionConfig.contains("reasons")) {
-            AdminCraft.LOGGER.debug("'reasons' key detected");
-            var reasons = sanctionConfig.get("reasons");
-            if (reasons instanceof CommentedConfig commentedConfig) {
-                AdminCraft.LOGGER.debug("'reasons' key is instance of Map<?, ?>");
-                Map<String, Object> map = commentedConfig.valueMap();
-                for (var entry : map.entrySet()) {
-                    String reason = entry.getKey();
-                    AdminCraft.LOGGER.debug("Subkey '" + reason + "'"); // this never appear
-                    Map<Integer, SanctionTemplate> sanctionsMap = new HashMap<>();
+            Object reasonsObj = map.get("reasons");
+            if (!(reasonsObj instanceof Map<?, ?> reasons)) {
+                System.err.println("'reasons' section is missing");
+                return;
+            }
 
-                    // Fallbacks
-                    String displayName = reason;
-                    if (displayName.contains(" ")) {
-                        AdminCraft.LOGGER.warn("A custom sanction reason contains a space, skipping...");
-                        continue;
-                    }
-                    String message = "";
+            for (Map.Entry<?, ?> entry : reasons.entrySet()) {
+                String key = entry.getKey().toString();
+                Object sectionObj = entry.getValue();
+                if (!(sectionObj instanceof Map<?, ?> section)) continue;
 
-                    if (entry.getValue() instanceof Map<?, ?> inner) {
-                        for (var innerEntry : inner.entrySet()) {
-                            String key = innerEntry.getKey().toString();
+                Object displayNameObj = section.get("displayName");
+                String displayName = (displayNameObj != null) ? displayNameObj.toString() : key;
+                Object messageObj = section.get("message");
+                String message = (messageObj != null) ? messageObj.toString() : "No message provided";
 
-                            if (key.equalsIgnoreCase("displayName")) {
-                                displayName = innerEntry.getValue().toString();
-                                availableReasons.add(displayName);
-                                AdminCraft.LOGGER.debug("New reason displayName added to list: " + displayName);
-                                continue;
-                            }
-                            if (key.equalsIgnoreCase("message")) {
-                                message = innerEntry.getValue().toString();
-                                continue;
-                            }
+                Map<Integer, SanctionTemplate> levelMap = new HashMap<>();
 
-                            try {
-                                int lvl = Integer.parseInt(key);
-                                String sanctionStr = innerEntry.getValue().toString();
-
-                                String[] parts = sanctionStr.split(":", 2);
-                                Sanction type = Sanction.valueOf(parts[0].toUpperCase());
-                                String duration = parts.length > 1 ? parts[1] : "";
-                                if (!checkDuration(duration)) continue;
-
-                                SanctionTemplate s = new SanctionTemplate(displayName, message, type, duration);
-                                sanctionsMap.put(lvl, s);
-                            } catch (NumberFormatException ex) {
-                                AdminCraft.LOGGER.warn("Invalid key in " + reason + ": " + key);
-                            }
+                Object levelsObj = section.get("levels");
+                if (levelsObj instanceof Map<?, ?> levels) {
+                    for (Map.Entry<?, ?> levelEntry : levels.entrySet()) {
+                        try {
+                            int level = Integer.parseInt(levelEntry.getKey().toString());
+                            String raw = levelEntry.getValue().toString();
+                            SanctionTemplate template = parseTemplate(displayName, message, raw);
+                            levelMap.put(level, template);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Invalid level in " + key + ": " + levelEntry.getKey());
                         }
                     }
-                        sanctions.put(reason, sanctionsMap);
                 }
+
+                sanctions.put(displayName, levelMap);
+                availableReasons.add(displayName);
             }
+
+            System.out.println("Sanctions loaded: " + availableReasons.size() + " reasons.");
+        } catch (IOException e) {
+            throw new RuntimeException("Issue when reading " + file, e);
         }
     }
+
+    private SanctionTemplate parseTemplate(String name, String message, String raw) {
+        if (raw == null) return new SanctionTemplate(name, message, Sanction.WARN, null);
+
+        String[] parts = raw.split(":", 2);
+        String typeStr = parts[0].toLowerCase();
+        String duration = parts.length > 1 ? parts[1] : null;
+
+        Sanction type = switch (typeStr) {
+            case "warn" -> Sanction.WARN;
+            case "kick" -> Sanction.KICK;
+            case "ban" -> Sanction.BAN;
+            case "tempban" -> Sanction.TEMPBAN;
+            case "tempmute" -> Sanction.TEMPMUTE;
+            default -> throw new IllegalStateException("Unexpected value: " + typeStr);
+        };
+
+        return new SanctionTemplate(name, message, type, duration);
+    }
+
+    private void createDefault() throws IOException {
+        Files.createDirectories(file.getParent());
+        try (OutputStream out = Files.newOutputStream(file, StandardOpenOption.CREATE_NEW)) {
+            String defaultYaml = """
+                reasons:
+                  cheat:
+                    displayName: "Cheating"
+                    message: "Cheating / Unfair advantage"
+                    levels:
+                      1: "tempban:1d"
+                      2: "tempban:60d"
+                      3: "ban"
+
+                  spam:
+                    displayName: "Spam"
+                    message: "Spamming is not allowed!"
+                    levels:
+                      1: "warn"
+                      2: "kick"
+                      3: "tempmute:1h"
+                      5: "ban"
+                """;
+            out.write(defaultYaml.getBytes());
+        }
+    }
+
+    public List<String> getAvailableReasons() {
+        return Collections.unmodifiableList(availableReasons);
+    }
+
+    public Map<String, Map<Integer, SanctionTemplate>> getSanctions() {
+        return Collections.unmodifiableMap(sanctions);
+    }*/
 
     public static boolean checkDuration(String input) {
         return (getDuration(input) != null);
