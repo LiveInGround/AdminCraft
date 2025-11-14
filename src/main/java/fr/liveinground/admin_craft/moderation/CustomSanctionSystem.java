@@ -41,7 +41,7 @@ public class CustomSanctionSystem {
     public static void mutePlayer(ServerPlayer player, String reason, @Nullable Date expiresOn) {
         if (!AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
             AdminCraft.playerDataManager.addMuteEntry(
-                    new PlayerMuteData(player.getName().toString(), player.getStringUUID(), reason, expiresOn)
+                    new PlayerMuteData(player.getName().getString(), player.getStringUUID(), reason, expiresOn)
             );
 
             String msg = PlaceHolderSystem.replacePlaceholders(Config.mute_message, Map.of("reason", reason));

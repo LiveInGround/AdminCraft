@@ -25,10 +25,12 @@ import java.util.*;
 
 public class SanctionCommand {
 
+    private static final String DUPLICATE_SANCTION = "Action denied: the player is already muted.\nThe process was stopped to prevent unintended stacking of sanctions.\nTo apply another type of sanction, please use the relevant command.";
+
     private static final SuggestionProvider<CommandSourceStack> REASON_SUGGESTIONS =
             (context, builder) -> {
                 List<String> reasons = Config.availableReasons;
-                if (reasons == null || reasons.isEmpty()) reasons = Collections.emptyList();
+                if (reasons.isEmpty()) reasons = Collections.emptyList();
                 return SharedSuggestionProvider.suggest(reasons, builder);
             };
 
@@ -45,7 +47,7 @@ public class SanctionCommand {
                                             }
                                             Map<Integer, SanctionTemplate> sanctionMap = Config.sanctions.get(reason);
                                             PlayerHistoryData history = AdminCraft.playerDataManager.getHistoryFromUUID(sanctionedPlayer.getStringUUID());
-                                            int counter = 0;
+                                            int counter = 1;
                                             if (!(history==null || history.sanctionList.isEmpty())) {
                                                 for (SanctionData data: history.sanctionList) {
                                                     if (data.reason.equals(sanctionMap.get(1).sanctionMessage())) {
@@ -87,9 +89,17 @@ public class SanctionCommand {
                                                     CustomSanctionSystem.kickPlayer(sanctionedPlayer, reason);
                                                     break;
                                                 case MUTE:
+                                                    if (AdminCraft.mutedPlayersUUID.contains(sanctionedPlayer.getStringUUID())) {
+                                                        ctx.getSource().sendFailure(Component.literal(DUPLICATE_SANCTION));
+                                                        return 1;
+                                                    }
                                                     CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, null);
                                                     break;
                                                 case TEMPMUTE:
+                                                    if (AdminCraft.mutedPlayersUUID.contains(sanctionedPlayer.getStringUUID())) {
+                                                        ctx.getSource().sendFailure(Component.literal(DUPLICATE_SANCTION));
+                                                        return 1;
+                                                    }
                                                     Date muteExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
                                                     CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
                                                     break;
