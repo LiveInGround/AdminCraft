@@ -9,7 +9,7 @@ public class FreezeEventListener {
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
 
     @SubscribeEvent
-    public static void onPlayerTickEvent(PlayerTickEvent event) {
+    public static void onPlayerTickEvent(PlayerTickEvent.Pre event) {
         Player player = event.getEntity();
         if (AdminCraft.frozenPlayersUUID.contains(player.getStringUUID())) {
             if (!player.getDeltaMovement().equals(ZERO)) {

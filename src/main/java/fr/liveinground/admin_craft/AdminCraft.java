@@ -86,7 +86,7 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onServerTick(ServerTickEvent event) {
+    public void onServerTick(ServerTickEvent.Post event) {
         if (Config.spawn_override) {
             BlockPos spawnPos = new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z);
             event.getServer().overworld().setDefaultSpawnPos(spawnPos, 0);
@@ -94,7 +94,7 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onExplode(ExplosionEvent event) {
+    public void onExplode(ExplosionEvent.Start event) {
         if (Config.sp_explosion_enabled) return;
         for (BlockPos pos: event.getExplosion().getToBlow()) {
             if (isInSP(event.getLevel(), pos)) {
@@ -210,7 +210,7 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent e) {
+    public void onPlayerTick(PlayerTickEvent.Post e) {
         Player player = e.getEntity();
         ServerPlayer serverPlayer = (ServerPlayer) player;
         if (isInSP(player.level(), player.getOnPos())) {

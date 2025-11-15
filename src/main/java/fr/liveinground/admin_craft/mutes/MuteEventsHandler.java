@@ -118,7 +118,7 @@ public class MuteEventsHandler {
     }
 
     @SubscribeEvent
-    public static void onTick(PlayerTickEvent e) {
+    public static void onTick(PlayerTickEvent.Post e) {
         if (AdminCraft.mutedPlayersUUID.contains(e.getEntity().getStringUUID())) {
             Date now = new Date();
             PlayerMuteData data = playerDataManager.getPlayerMuteDataByUUID(e.getEntity().getStringUUID());
