@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -141,7 +142,14 @@ public class ReportCommand {
     }
 
     private static void sendWebhookMessage(ServerPlayer reportedPlayer, ServerPlayer player, String reason) throws Exception {
-        URL url = new URL(Config.report_webhook);
+        URL url;
+        try {
+            URI uri = new URI(Config.report_webhook);
+            url = uri.toURL();
+        } catch (Exception e) {
+            AdminCraft.LOGGER.error("Error while sending webhook, ", e);
+            return;
+        }
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         connection.setRequestMethod("POST");

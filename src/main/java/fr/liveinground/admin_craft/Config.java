@@ -206,10 +206,14 @@ public class Config {
     public static String freeze_stop;
 
     static {
+        BUILDER.push("misc");
+
         README = BUILDER.comment("Enable the readme message for operators when joining the world").worldRestart().define("readme", true);
         _CONFIG_VERSION = BUILDER
                 .comment("This setting corresponds to the mod version, to check if the config is up to date. Change it when you update the mod, in order to disable the join message.")
                 .define("configVersion", AdminCraft._VERSION);
+
+        BUILDER.pop();
     }
 
     static {

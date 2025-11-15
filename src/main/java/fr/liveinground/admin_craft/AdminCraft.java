@@ -59,6 +59,7 @@ public class AdminCraft {
             return;
         }
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
+        modEventBus.register(Config.class);
         NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(MuteEventsHandler.class);
         NeoForge.EVENT_BUS.register(FreezeEventListener.class);
