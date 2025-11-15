@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -27,7 +28,7 @@ public class FreezeCommand {
 
     private static int freeze(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         AdminCraft.frozenPlayersUUID.add(player.getStringUUID());
-        // todo: send messages
+        player.sendSystemMessage(Component.literal(Config.freeze_start).withStyle(ChatFormatting.RED));
 
         ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " was frozen"), true);
         return 1;
@@ -35,8 +36,7 @@ public class FreezeCommand {
 
     private static int unfreeze(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         AdminCraft.frozenPlayersUUID.remove(player.getStringUUID());
-
-        // todo: send messages
+        player.sendSystemMessage(Component.literal(Config.freeze_stop).withStyle(ChatFormatting.GREEN));
 
         ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " was unfrozen"), true);
 

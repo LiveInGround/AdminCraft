@@ -196,9 +196,17 @@ public class Config {
     private static final ForgeConfigSpec.ConfigValue<String> REPORT_FAILED_SELF;
     public static String report_failed_self;
 
+    private static final ForgeConfigSpec.ConfigValue<String> FREEZE_START;
+    public static String freeze_start;
+
+    private static final ForgeConfigSpec.ConfigValue<String> FREEZE_STOP;
+    public static String freeze_stop;
+
     static {
         README = BUILDER.comment("Enable the readme message for operators when joining the world").worldRestart().define("readme", true);
-        _CONFIG_VERSION = BUILDER.comment("WARNING! CHANGE THIS SETTING MAY BREAK THE MOD. DO ONLY IF YOU KNOW WHAT YOU ARE DOING").define("configVersion", AdminCraft._VERSION);
+        _CONFIG_VERSION = BUILDER
+                .comment("This setting corresponds to the mod version, to check if the config is up to date. Change it when you update the mod, in order to disable the join message.")
+                .define("configVersion", AdminCraft._VERSION);
     }
 
     static {
@@ -313,6 +321,9 @@ public class Config {
         REPORT_WEBHOOK_ISSUE = BUILDER.comment("The message sent to the player if an issue occurred with webhook").define("webhookIssue", "An issue may have occurred during your report. Don't hesitate to contact the staff if no operator is online.");
         REPORT_FAILED_SELF = BUILDER.comment("The message sent to a player trying to report himself").define("selfReport", "You can't report yourself!");
 
+        FREEZE_START = BUILDER.comment("The message sent to the player when he is frozen").define("freezeStartMessage", "You have been frozen by an operator. Please wait for instructions and don't log out.");
+        FREEZE_STOP = BUILDER.comment("The message sent to the player when he is unfrozen").define("freezeStopMessage", "You are no more frozen. You can continue playing normally.");
+
         BUILDER.pop();
     }
 
@@ -406,9 +417,8 @@ public class Config {
 
                 sanctions.put(displayName, levels);
             } catch (Exception e) {
-                AdminCraft.LOGGER.error("Error parsing sanction template: " + entry);
-                AdminCraft.LOGGER.error(e.getMessage());
-                e.printStackTrace();
+                AdminCraft.LOGGER.error("Error parsing sanction template: {}", entry);
+                AdminCraft.LOGGER.error("Exception details:", e);
             }
         }
 
@@ -488,6 +498,9 @@ public class Config {
         report_success = REPORT_SUCCESS.get();
         webhook_issue_message = REPORT_WEBHOOK_ISSUE.get();
         report_failed_self = REPORT_FAILED_SELF.get();
+
+        freeze_start = FREEZE_START.get();
+        freeze_stop = FREEZE_STOP.get();
     }
 
     @SubscribeEvent
