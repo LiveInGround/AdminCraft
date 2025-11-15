@@ -70,10 +70,11 @@ public class MuteCommand {
                                 String msg = PlaceHolderSystem.replacePlaceholders(Config.unmute_success, Map.of("player", playerToUnmute.getName().getString()));
                                 Component messageToOperator = Component.literal(msg);
                                 ctx.getSource().sendSuccess(() -> messageToOperator, true);
+                                return 1;
                             } else {
                                 ctx.getSource().sendFailure(Component.literal("No player with this username was found."));
+                                return 1;
                             }
-                            return 1;
                         })
                 ));
 

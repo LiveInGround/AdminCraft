@@ -10,7 +10,6 @@ import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -18,21 +17,22 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.event.level.ExplosionEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.ExplosionEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.StartupMessageManager;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -51,16 +51,18 @@ public class AdminCraft {
     public static List<String> frozenPlayersUUID = new ArrayList<>();
     public static PlayerDataManager playerDataManager;
 
-    public AdminCraft(IEventBus modEventBus, ModContainer modContainer) {
+    public AdminCraft(FMLJavaModLoadingContext ctx) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
+            StartupMessageManager.addModMessage("AdminCraft mod can only be loaded on a server! " +
+                    "Please remove it from your 'mods' folder.");
             LOGGER.error("AdminCraft mod can only be loaded on a server! " +
                     "Please remove it from your 'mods' folder.");
             return;
         }
-        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
-        modEventBus.register(this);
-        modEventBus.register(MuteEventsHandler.class);
-        modEventBus.register(FreezeEventListener.class);
+        ctx.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
+        MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(MuteEventsHandler.class);
+        MinecraftForge.EVENT_BUS.register(FreezeEventListener.class);
     }
 
     /*
@@ -85,7 +87,7 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onServerTick(ServerTickEvent event) {
+    public void onServerTick(TickEvent.ServerTickEvent event) {
         if (Config.spawn_override) {
             BlockPos spawnPos = new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z);
             event.getServer().overworld().setDefaultSpawnPos(spawnPos, 0);
@@ -209,23 +211,26 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent e) {
-        Player player = e.getEntity();
-        ServerPlayer serverPlayer = (ServerPlayer) player;
-        if (isInSP(player.level(), player.getOnPos())) {
-            for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
-                player.addEffect(new MobEffectInstance(holder, Integer.MAX_VALUE, 255, false, false));            }
-            if (!player.getTags().contains(SP_TAG)) {
-                player.addTag(SP_TAG);
-                serverPlayer.displayClientMessage(Component.literal(Config.sp_enter_msg).withStyle(ChatFormatting.GREEN), true);
-            }
-        } else {
-            if (player.getTags().contains(SP_TAG)) {
-                player.removeTag(SP_TAG);
-                for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
-                    player.removeEffect(holder);
+    public void onPlayerTick(TickEvent.PlayerTickEvent e) {
+        if (e.phase.equals(TickEvent.Phase.END)) {
+            Player player = e.player;
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            if (isInSP(player.level(), player.getOnPos())) {
+                for (MobEffect effect : Config.sp_effects) {
+                    player.addEffect(new MobEffectInstance(effect, Integer.MAX_VALUE, 255, false, false));
                 }
-                serverPlayer.displayClientMessage(Component.literal(Config.sp_leave_msg).withStyle(ChatFormatting.RED), true);
+                if (!player.getTags().contains(SP_TAG)) {
+                    player.addTag(SP_TAG);
+                    serverPlayer.displayClientMessage(Component.literal(Config.sp_enter_msg).withStyle(ChatFormatting.GREEN), true);
+                }
+            } else {
+                if (player.getTags().contains(SP_TAG)) {
+                    player.removeTag(SP_TAG);
+                    for (MobEffect effect : Config.sp_effects) {
+                        e.player.removeEffect(effect);
+                    }
+                    serverPlayer.displayClientMessage(Component.literal(Config.sp_leave_msg).withStyle(ChatFormatting.RED), true);
+                }
             }
         }
     }
