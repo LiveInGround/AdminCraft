@@ -13,14 +13,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
-import net.minecraftforge.event.CommandEvent;
-import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.CommandEvent;
+import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -118,14 +118,12 @@ public class MuteEventsHandler {
     }
 
     @SubscribeEvent
-    public static void onTick(TickEvent.PlayerTickEvent e) {
-        if (e.phase == TickEvent.Phase.END && e.player.level().getGameTime() %20 == 0) {
-            if (AdminCraft.mutedPlayersUUID.contains(e.player.getStringUUID())) {
-                Date now = new Date();
-                PlayerMuteData data = playerDataManager.getPlayerMuteDataByUUID(e.player.getStringUUID());
-                if (data.expiresOn != null && data.expiresOn.before(now)) {
-                    CustomSanctionSystem.unMutePlayer((ServerPlayer) e.player);
-                }
+    public static void onTick(PlayerTickEvent e) {
+        if (AdminCraft.mutedPlayersUUID.contains(e.getEntity().getStringUUID())) {
+            Date now = new Date();
+            PlayerMuteData data = playerDataManager.getPlayerMuteDataByUUID(e.getEntity().getStringUUID());
+            if (data != null && data.expiresOn != null && data.expiresOn.before(now)) {
+                CustomSanctionSystem.unMutePlayer((ServerPlayer) e.getEntity());
             }
         }
     }
