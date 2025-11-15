@@ -25,6 +25,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -58,9 +59,9 @@ public class AdminCraft {
             return;
         }
         modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
-        modEventBus.register(this);
-        modEventBus.register(MuteEventsHandler.class);
-        modEventBus.register(FreezeEventListener.class);
+        NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(MuteEventsHandler.class);
+        NeoForge.EVENT_BUS.register(FreezeEventListener.class);
     }
 
     /*
