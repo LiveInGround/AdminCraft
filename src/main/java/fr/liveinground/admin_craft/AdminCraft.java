@@ -16,6 +16,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,7 +27,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.StartupMessageManager;
 import net.minecraftforge.fml.common.Mod;
@@ -89,8 +89,10 @@ public class AdminCraft {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (Config.spawn_override) {
+            event.getServer().overworld().getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS).set(0, event.getServer());
             BlockPos spawnPos = new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z);
             event.getServer().overworld().setDefaultSpawnPos(spawnPos, 0);
+
         }
     }
 
