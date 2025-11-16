@@ -1,7 +1,5 @@
 modLoader="javafml" #mandatory
 
-loaderVersion="${loader_version_range}" #mandatory
-
 license="${mod_license}"
 
 issueTrackerURL="https://github.com/LiveInGround/AdminCraft/issues"
