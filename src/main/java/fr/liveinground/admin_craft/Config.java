@@ -514,9 +514,9 @@ public class Config {
 
     @SubscribeEvent
     static void onReload(final ModConfigEvent.Reloading event) {
-        sp_effects.clear();
-        allowedBlocks.clear();
-        mute_forbidden_cmd.clear();
+        if (sp_effects != null) sp_effects.clear();
+        if (allowedBlocks != null) allowedBlocks.clear();
+        if (mute_forbidden_cmd != null) mute_forbidden_cmd.clear();
         onLoad(null);
     }
 
