@@ -80,7 +80,7 @@ public class MuteEventsHandler {
 
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
-        Path serverPath = event.getServer().getServerDirectory().toPath();
+        Path serverPath = event.getServer().getServerDirectory();
         playerDataManager = new PlayerDataManager(serverPath);
         for (PlayerMuteData playerData: playerDataManager.getMuteEntries()) {
             AdminCraft.mutedPlayersUUID.add(playerData.uuid);
