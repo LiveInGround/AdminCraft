@@ -3,7 +3,6 @@
   "minVersion": "0.8",
   "package": "fr.liveinground.admin_craft.mixins",
   "compatibilityLevel": "JAVA_21",
-  "refmap": "mixins.admin_craft.refmap.json",
   "mixins": [],
   "injectors": {
     "defaultRequire": 1
