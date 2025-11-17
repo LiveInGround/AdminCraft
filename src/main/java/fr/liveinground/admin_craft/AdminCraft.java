@@ -97,11 +97,11 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onExplode(ExplosionEvent.Start event) {
+    public void onExplode(ExplosionEvent.Detonate event) {
         if (Config.sp_explosion_enabled) return;
-        for (BlockPos pos: event.getExplosion().getToBlow()) {
+        for (BlockPos pos: event.getAffectedBlocks()) {
             if (isInSP(event.getLevel(), pos)) {
-                event.getExplosion().clearToBlow();
+                event.getAffectedBlocks().clear();
                 LOGGER.info("An explosion was cancelled in spawn protection.");
             }
         }
