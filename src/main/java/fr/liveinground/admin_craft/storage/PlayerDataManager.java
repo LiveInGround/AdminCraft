@@ -27,13 +27,12 @@ import java.util.List;
 public class PlayerDataManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private static final String ROOT = "AdminCraft_Storage";
+    public static final String ROOT = "AdminCraft_Storage";
 
     private static final String MUTE_FILE_NAME = "mutes.json";
     private static final String IPS_FILE_NAME = "ips.json";
     // private static final String STAFF_MODE_DATA = "staff_mode.json";
     private static final String SANCTION_HISTORY = "sanction_history.json";
-    // private static final String WORLD_CHANGES_DATABASE_FILE = "world_changes.db";
     private static final String REPORTS = "reports.json";
 
     private final Path mute_data_file;
