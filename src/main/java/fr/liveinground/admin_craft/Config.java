@@ -2,63 +2,66 @@ package fr.liveinground.admin_craft;
 
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Mod.EventBusSubscriber(modid = AdminCraft.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
+
 public class Config {
 
     private static final Pattern WEBHOOK_PATTERN = Pattern.compile(
             "^https://discord\\.com/api/webhooks/\\d+/[A-Za-z0-9\\-]+$"
     );
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    private static final ForgeConfigSpec.BooleanValue README;
+    private static final ModConfigSpec.BooleanValue README;
     public static boolean readme;
 
-    private static final ForgeConfigSpec.ConfigValue<String> _CONFIG_VERSION;
+    private static final ModConfigSpec.ConfigValue<String> _CONFIG_VERSION;
     public static String _config_version;
 
     // --------------------------
     // -- Commands permissions --
     // --------------------------
 
-    private static final ForgeConfigSpec.IntValue MUTE_LEVEL;
+    private static final ModConfigSpec.IntValue MUTE_LEVEL;
     public static int mute_level;
 
-    private static final ForgeConfigSpec.IntValue ALT_LEVEL;
+    private static final ModConfigSpec.IntValue ALT_LEVEL;
     public static int alt_level;
 
-    private static final ForgeConfigSpec.IntValue SANCTION_LEVEL;
+    private static final ModConfigSpec.IntValue SANCTION_LEVEL;
     public static int sanction_level;
 
-    private static final ForgeConfigSpec.IntValue FREEZE_LEVEL;
+    private static final ModConfigSpec.IntValue FREEZE_LEVEL;
     public static int freeze_level;
 
-    private static final ForgeConfigSpec.IntValue WARN_LEVEL;
+    private static final ModConfigSpec.IntValue WARN_LEVEL;
     public static int warn_level;
 
-    private static final ForgeConfigSpec.IntValue REPORTS_LEVEL;
+    private static final ModConfigSpec.IntValue REPORTS_LEVEL;
     public static int reports_level;
 
-    private static final ForgeConfigSpec.IntValue TEMPBAN_LEVEL;
+    private static final ModConfigSpec.IntValue TEMPBAN_LEVEL;
     public static int tempban_level;
 
     // ---------------
     // -- Sanctions --
     // ---------------
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SANCTION_TEMPLATES;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> SANCTION_TEMPLATES;
     public static final List<String> availableReasons = new ArrayList<>();
     public static final Map<String, Map<Integer, SanctionTemplate>> sanctions = new HashMap<>();
 
@@ -66,140 +69,140 @@ public class Config {
     // -- Spawn protection --
     // ----------------------
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
+    private static final ModConfigSpec.BooleanValue ENABLE_SPAWN_PROTECTION;
     public static boolean sp_enabled;
 
-    private static final ForgeConfigSpec.IntValue SP_OP_LEVEL;
+    private static final ModConfigSpec.IntValue SP_OP_LEVEL;
     public static int sp_op_level;
 
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
+    private static final ModConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
     public static int sp_center_x;
 
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
+    private static final ModConfigSpec.IntValue SPAWN_PROTECTION_CENTER_Z;
     public static int sp_center_z;
 
-    private static final ForgeConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
+    private static final ModConfigSpec.IntValue SPAWN_PROTECTION_RADIUS;
     public static int sp_radius;
 
-    private static final ForgeConfigSpec.BooleanValue ALLOW_PVP;
+    private static final ModConfigSpec.BooleanValue ALLOW_PVP;
     public static boolean sp_pvp_enabled;
 
-    private static final ForgeConfigSpec.BooleanValue ALLOW_EXPLOSION;
+    private static final ModConfigSpec.BooleanValue ALLOW_EXPLOSION;
     public static boolean sp_explosion_enabled;
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> ALLOWED_BLOCKS;
     public static Set<Block> allowedBlocks;
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> SP_EFFECTS;
     public static Set<MobEffect> sp_effects;
 
     // --------------------
     // -- Spawn override --
     // --------------------
 
-    private static final ForgeConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
+    private static final ModConfigSpec.BooleanValue ENABLE_SPAWN_OVERRIDE;
     public static boolean spawn_override;
 
-    private static final ForgeConfigSpec.IntValue SPAWN_X;
+    private static final ModConfigSpec.IntValue SPAWN_X;
     public static int spawn_x;
 
-    private static final ForgeConfigSpec.IntValue SPAWN_Y;
+    private static final ModConfigSpec.IntValue SPAWN_Y;
     public static int spawn_y;
 
-    private static final ForgeConfigSpec.IntValue SPAWN_Z;
+    private static final ModConfigSpec.IntValue SPAWN_Z;
     public static int spawn_z;
 
     // -----------------
     // -- Mute system --
     // -----------------
 
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> MUTE_FORBIDDEN_CMD;
     public static Set<String> mute_forbidden_cmd;
 
-    private static final ForgeConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
+    private static final ModConfigSpec.BooleanValue MUTE_PREVENT_SIGN_PLACING;
     public static boolean prevent_signs;
 
-    private static final ForgeConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
+    private static final ModConfigSpec.BooleanValue LOG_CANCELLED_EVENTS;
     public static boolean log_cancelled_events;
 
-    private static final ForgeConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
+    private static final ModConfigSpec.BooleanValue ALLOW_MESSAGES_TO_OPS;
     public static boolean allow_to_ops_msg;
 
     // -------------
     // -- Reports --
     // -------------
 
-    public static final ForgeConfigSpec.BooleanValue ENABLE_REPORTS;
+    public static final ModConfigSpec.BooleanValue ENABLE_REPORTS;
     public static boolean enable_reports;
 
-    private static final ForgeConfigSpec.BooleanValue USE_SANCTIONS_REASONS;
+    private static final ModConfigSpec.BooleanValue USE_SANCTIONS_REASONS;
     public static boolean use_sanction_reasons;
 
-    private static final ForgeConfigSpec.ConfigValue<String> REPORT_WEBHOOK;
+    private static final ModConfigSpec.ConfigValue<String> REPORT_WEBHOOK;
     public static String report_webhook;
 
     // --------------
     // -- Messages --
     // --------------
 
-    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
+    private static final ModConfigSpec.ConfigValue<String> SPAWN_PROTECTION_ENTER;
     public static String sp_enter_msg;
 
-    private static final ForgeConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
+    private static final ModConfigSpec.ConfigValue<String> SPAWN_PROTECTION_LEAVE;
     public static String sp_leave_msg;
 
-    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING;
+    private static final ModConfigSpec.ConfigValue<String> TIME_REMAINING;
     public static String time_remaining;
 
-    private static final ForgeConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
+    private static final ModConfigSpec.ConfigValue<String> TIME_REMAINING_SHORT;
     public static String time_remaining_short;
 
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE;
+    private static final ModConfigSpec.ConfigValue<String> MUTE_MESSAGE;
     public static String mute_message;
 
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
+    private static final ModConfigSpec.ConfigValue<String> MUTE_MESSAGE_NO_REASON;
     public static String mute_message_no_reason;
 
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_SUCCESS;
+    private static final ModConfigSpec.ConfigValue<String> MUTE_SUCCESS;
     public static String mute_success;
 
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
+    private static final ModConfigSpec.ConfigValue<String> MUTE_FAILED_ALREADY_MUTED;
     public static String mute_failed_already_muted;
 
-    private static final ForgeConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
+    private static final ModConfigSpec.ConfigValue<String> MUTE_MESSAGE_CANCELLED;
     public static String mute_message_cancelled;
 
-    private static final ForgeConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
+    private static final ModConfigSpec.ConfigValue<String> CANCEL_LOG_FORMAT;
     public static String cancel_log_format;
 
-    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
+    private static final ModConfigSpec.ConfigValue<String> UNMUTE_MESSAGE;
     public static String unmute_message;
 
-    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
+    private static final ModConfigSpec.ConfigValue<String> UNMUTE_SUCCESS;
     public static String unmute_success;
 
-    private static final ForgeConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
+    private static final ModConfigSpec.ConfigValue<String> UNMUTE_FAILED_NOT_MUTED;
     public static String unmute_failed_not_muted;
 
-    private static final ForgeConfigSpec.ConfigValue<String> WARN_TITLE;
+    private static final ModConfigSpec.ConfigValue<String> WARN_TITLE;
     public static String warn_title;
 
-    private static final ForgeConfigSpec.ConfigValue<String> WARN_MESSAGE;
+    private static final ModConfigSpec.ConfigValue<String> WARN_MESSAGE;
     public static String warn_message;
 
-    private static final ForgeConfigSpec.ConfigValue<String> REPORT_SUCCESS;
+    private static final ModConfigSpec.ConfigValue<String> REPORT_SUCCESS;
     public static String report_success;
 
-    private static final ForgeConfigSpec.ConfigValue<String> REPORT_WEBHOOK_ISSUE;
+    private static final ModConfigSpec.ConfigValue<String> REPORT_WEBHOOK_ISSUE;
     public static String webhook_issue_message;
 
-    private static final ForgeConfigSpec.ConfigValue<String> REPORT_FAILED_SELF;
+    private static final ModConfigSpec.ConfigValue<String> REPORT_FAILED_SELF;
     public static String report_failed_self;
 
-    private static final ForgeConfigSpec.ConfigValue<String> FREEZE_START;
+    private static final ModConfigSpec.ConfigValue<String> FREEZE_START;
     public static String freeze_start;
 
-    private static final ForgeConfigSpec.ConfigValue<String> FREEZE_STOP;
+    private static final ModConfigSpec.ConfigValue<String> FREEZE_STOP;
     public static String freeze_stop;
 
     static {
@@ -235,8 +238,6 @@ public class Config {
                 .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
                 .define("sanctions", List.of("Cheating@Unfair advantage@1->tempban:1d@2->tempban:30d@3->ban",
                         "spam@Spamming@1->warn@3->kick@4->tempmute:1d@5->mute"));
-
-        BUILDER.pop();
     }
 
     static {
@@ -333,7 +334,7 @@ public class Config {
         BUILDER.pop();
     }
 
-    static final ForgeConfigSpec SPEC = BUILDER.build();
+    static final ModConfigSpec SPEC = BUILDER.build();
 
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
@@ -341,7 +342,7 @@ public class Config {
         ResourceLocation rl = ResourceLocation.tryParse(blockName);
         if (rl == null) return false;
 
-        return ForgeRegistries.BLOCKS.containsKey(rl);
+        return BuiltInRegistries.BLOCK.containsKey(rl);
     }
 
     private static boolean validateEffectName(final Object obj) {
@@ -350,7 +351,7 @@ public class Config {
         ResourceLocation rl = ResourceLocation.tryParse(effectName);
         if (rl == null) return false;
 
-        return ForgeRegistries.MOB_EFFECTS.containsKey(rl);
+        return BuiltInRegistries.MOB_EFFECT.containsKey(rl);
     }
 
     private static boolean validateString(final Object obj) {
@@ -443,10 +444,10 @@ public class Config {
         sp_explosion_enabled = ALLOW_EXPLOSION.get();
 
         allowedBlocks = ALLOWED_BLOCKS.get().stream()
-                .map(blockName -> ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(blockName)))
+                .map(blockName -> BuiltInRegistries.BLOCK.get(ResourceLocation.tryParse(blockName)))
                 .collect(Collectors.toSet());
         sp_effects = SP_EFFECTS.get().stream()
-                .map(effectName -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.tryParse(effectName)))
+                .map(effectName -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.tryParse(effectName)))
                 .collect(Collectors.toSet());
 
         // --------------------
@@ -516,4 +517,25 @@ public class Config {
         mute_forbidden_cmd.clear();
         onLoad(null);
     }
+
+    public static Set<Holder<MobEffect>> loadEffects(Level level) {
+        return SP_EFFECTS.get().stream()
+                .map(ResourceLocation::tryParse)
+                .map(loc -> level.registryAccess()
+                        .lookupOrThrow(Registries.MOB_EFFECT)
+                        .getOrThrow(ResourceKey.create(Registries.MOB_EFFECT, loc))
+                )
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<Holder<Block>> loadBlocks(Level level) {
+        return SP_EFFECTS.get().stream()
+                .map(ResourceLocation::tryParse)
+                .map(loc -> level.registryAccess()
+                        .lookupOrThrow(Registries.BLOCK)
+                        .getOrThrow(ResourceKey.create(Registries.BLOCK, loc))
+                )
+                .collect(Collectors.toSet());
+    }
+
 }
