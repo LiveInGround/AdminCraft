@@ -238,6 +238,8 @@ public class Config {
                 .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
                 .define("sanctions", List.of("Cheating@Unfair advantage@1->tempban:1d@2->tempban:30d@3->ban",
                         "spam@Spamming@1->warn@3->kick@4->tempmute:1d@5->mute"));
+
+        BUILDER.pop();
     }
 
     static {
