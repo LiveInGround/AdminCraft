@@ -44,7 +44,7 @@ import java.util.List;
 public class AdminCraft {
 
     public static final String MODID = "admin_craft";
-    public static final String _VERSION = "1.0.0";
+    public static final String _VERSION = "1.0.1";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final String SP_TAG = "inSpawnProtection";
     public static SanctionConfig sanctionConfig;

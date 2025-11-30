@@ -238,6 +238,8 @@ public class Config {
                 .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
                 .define("sanctions", List.of("Cheating@Unfair advantage@1->tempban:1d@2->tempban:30d@3->ban",
                         "spam@Spamming@1->warn@3->kick@4->tempmute:1d@5->mute"));
+
+        BUILDER.pop();
     }
 
     static {
@@ -368,6 +370,14 @@ public class Config {
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
 
+        if (event.getConfig().getSpec() != SPEC) return;
+
+        if (sp_effects != null) sp_effects.clear();
+        if (allowedBlocks != null) allowedBlocks.clear();
+        if (mute_forbidden_cmd != null) mute_forbidden_cmd.clear();
+        availableReasons.clear();
+        sanctions.clear();
+
         readme = README.get();
         _config_version = _CONFIG_VERSION.get();
 
@@ -388,10 +398,11 @@ public class Config {
         // ---------------
 
         for (String entry: SANCTION_TEMPLATES.get()) {
+            AdminCraft.LOGGER.debug("Analysing sanction entry " + entry);
             try {
                 String[] parts = entry.split("@");
                 if (parts.length < 3) {
-                    AdminCraft.LOGGER.error("Invalid template: " + entry);
+                    AdminCraft.LOGGER.error("Invalid template (length < 3): " + entry);
                     continue;
                 }
 
@@ -510,14 +521,6 @@ public class Config {
 
         freeze_start = FREEZE_START.get();
         freeze_stop = FREEZE_STOP.get();
-    }
-
-    @SubscribeEvent
-    static void onReload(final ModConfigEvent.Reloading event) {
-        if (sp_effects != null) sp_effects.clear();
-        if (allowedBlocks != null) allowedBlocks.clear();
-        if (mute_forbidden_cmd != null) mute_forbidden_cmd.clear();
-        onLoad(null);
     }
 
     public static Set<Holder<MobEffect>> loadEffects(Level level) {
