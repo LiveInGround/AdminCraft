@@ -20,6 +20,7 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.nio.file.Path;
@@ -123,7 +124,7 @@ public class MuteEventsHandler {
             if (AdminCraft.mutedPlayersUUID.contains(e.player.getStringUUID())) {
                 Date now = new Date();
                 PlayerMuteData data = playerDataManager.getPlayerMuteDataByUUID(e.player.getStringUUID());
-                if (data.expiresOn != null && data.expiresOn.before(now)) {
+                if (data != null && data.expiresOn != null && data.expiresOn.before(now)) {
                     CustomSanctionSystem.unMutePlayer((ServerPlayer) e.player);
                 }
             }

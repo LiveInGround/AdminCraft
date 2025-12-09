@@ -230,7 +230,7 @@ public class Config {
                 .comment("Exemple: 'Cheating@Using cheats to get unfair advantages@1->warn@2->tempban:5d@5:ban'")
                 .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
                 .defineListAllowEmpty("sanctions", Arrays.asList("Cheating@Unfair advantage@1->tempban:1d@2->tempban:30d@3->ban",
-                        "spam@Spamming@1->warn@3->kick@4->tempmute:1d@5->mute"), () -> "", Config::validateSanction);
+                        "spam@Spamming@1->warn@3->kick@4->tempmute:1d@5->mute"), Config::validateSanction);
 
         BUILDER.pop();
     }
@@ -359,14 +359,14 @@ public class Config {
         if (parts.length < 3) {
             AdminCraft.LOGGER.warn("Invalid length for the current sanction ('{}'): Expecting at least 3 subsection but found {}", sanc, parts.length);
             return false;
-        };
+        }
         for (int i = 2; i < parts.length; i++) {
             String segment = parts[i].trim();
             String[] levelSplit = segment.split("->");
             if (levelSplit.length != 2) {
                 AdminCraft.LOGGER.warn("Invalid length for the segment '{}', found {} parts instead of 2", segment, levelSplit.length);
                 return false;
-            };
+            }
 
             String action = levelSplit[1].trim();
 
@@ -397,6 +397,13 @@ public class Config {
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent.Loading event) {
+        if (event.getConfig().getSpec() != SPEC) return;
+
+        if (sp_effects != null) sp_effects.clear();
+        if (allowedBlocks != null) allowedBlocks.clear();
+        if (mute_forbidden_cmd != null) mute_forbidden_cmd.clear();
+        availableReasons.clear();
+        sanctions.clear();
 
         readme = README.get();
         _config_version = _CONFIG_VERSION.get();
@@ -548,13 +555,5 @@ public class Config {
 
         freeze_start = FREEZE_START.get();
         freeze_stop = FREEZE_STOP.get();
-    }
-
-    @SubscribeEvent
-    static void onReload(final ModConfigEvent.Reloading event) {
-        sp_effects.clear();
-        allowedBlocks.clear();
-        mute_forbidden_cmd.clear();
-        onLoad(null);
     }
 }
