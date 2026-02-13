@@ -81,11 +81,11 @@ public class SanctionCommand {
                                             reason = template.sanctionMessage();
                                             switch (template.type()) {
                                                 case BAN:
-                                                    CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, null);
+                                                    CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer.getGameProfile(), reason, null);
                                                     break;
                                                 case TEMPBAN:
                                                     Date banExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
-                                                    CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer, reason, banExpiresOn);
+                                                    CustomSanctionSystem.banPlayer(ctx.getSource().getServer(), ctx.getSource().toString(), sanctionedPlayer.getGameProfile(), reason, banExpiresOn);
                                                     break;
                                                 case KICK:
                                                     CustomSanctionSystem.kickPlayer(sanctionedPlayer, reason);
@@ -95,7 +95,7 @@ public class SanctionCommand {
                                                         ctx.getSource().sendFailure(Component.literal(DUPLICATE_SANCTION));
                                                         return 1;
                                                     }
-                                                    CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, null);
+                                                    CustomSanctionSystem.mutePlayer(ctx.getSource().getServer(), sanctionedPlayer.getGameProfile(), reason, null);
                                                     break;
                                                 case TEMPMUTE:
                                                     if (AdminCraft.mutedPlayersUUID.contains(sanctionedPlayer.getStringUUID())) {
@@ -103,7 +103,7 @@ public class SanctionCommand {
                                                         return 1;
                                                     }
                                                     Date muteExpiresOn = SanctionConfig.getDurationAsDate(template.duration());
-                                                    CustomSanctionSystem.mutePlayer(sanctionedPlayer, reason, muteExpiresOn);
+                                                    CustomSanctionSystem.mutePlayer(ctx.getSource().getServer(), sanctionedPlayer.getGameProfile(), reason, muteExpiresOn);
                                                     break;
                                                 case WARN:
                                                     CustomSanctionSystem.warnPlayer(sanctionedPlayer, reason, ctx.getSource().getDisplayName().getString());

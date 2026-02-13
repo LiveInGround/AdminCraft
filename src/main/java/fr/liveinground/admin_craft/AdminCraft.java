@@ -1,11 +1,10 @@
 package fr.liveinground.admin_craft;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
-import fr.liveinground.admin_craft.commands.tools.AltCommand;
+import fr.liveinground.admin_craft.commands.tools.*;
 import fr.liveinground.admin_craft.commands.moderation.*;
-import fr.liveinground.admin_craft.commands.tools.EchestCommand;
-import fr.liveinground.admin_craft.commands.tools.InvseeCommand;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
@@ -13,6 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -35,9 +35,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Mod(AdminCraft.MODID)
@@ -87,6 +90,8 @@ public class AdminCraft {
         TempBanCommand.register(dispatcher);
         InvseeCommand.register(dispatcher);
         EchestCommand.register(dispatcher);
+        OfflineTeleportCommand.register(dispatcher);
+        OfflineTagCommand.register(dispatcher);
         // StaffModeCommand.register(dispatcher);
     }
 
@@ -261,5 +266,23 @@ public class AdminCraft {
             player.sendSystemMessage(Component.literal("It strongly recommended to check the configuration file to check there is no issue with it."));
             player.sendSystemMessage(Component.literal("You can disable this message by changing the 'configVersion' key to " + AdminCraft._VERSION + " in the configuration."));
         }
+    }
+
+    @Nullable
+    public static GameProfile getOneProfile(Collection<GameProfile> profiles) {
+        if (profiles.isEmpty()) return null;
+        for (GameProfile p: profiles) {
+            if (p != null) return p;
+        }
+        return null;
+    }
+
+    public static boolean isOnline(MinecraftServer server, GameProfile profile) {
+        return getOnlinePlayer(server, profile) != null;
+    }
+
+    @Nullable
+    public static ServerPlayer getOnlinePlayer(MinecraftServer server, GameProfile profile) {
+        return server.getPlayerList().getPlayer(profile.getId());
     }
 }

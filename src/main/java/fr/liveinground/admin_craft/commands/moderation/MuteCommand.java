@@ -10,6 +10,7 @@ import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -31,7 +32,7 @@ public class MuteCommand {
 
         dispatcher.register(Commands.literal("mute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
-                .then(Commands.argument("player", EntityArgument.player())
+                .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                            mute(ctx, null, null);
                            return 1;
@@ -80,7 +81,7 @@ public class MuteCommand {
 
         dispatcher.register(Commands.literal("tempmute")
                 .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
-                        .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .then(Commands.argument("duration", StringArgumentType.word())
                                         .executes(ctx -> {
                                             Date duration = SanctionConfig.getDurationAsDate(StringArgumentType.getString(ctx, "duration"));
@@ -108,18 +109,22 @@ public class MuteCommand {
     }
 
     private static void mute(@NotNull CommandContext<CommandSourceStack> ctx, @Nullable String reason, @Nullable Date duration) throws CommandSyntaxException {
-        ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+        GameProfile profile = AdminCraft.getOneProfile(GameProfileArgument.getGameProfiles(ctx, "player"));
+        if (profile == null) {
+            ctx.getSource().sendFailure(Component.literal("No player was found").withStyle(ChatFormatting.RED));
+            return;
+        }
 
         if (reason == null) {
             reason = "Muted by an operator.";
         }
-        if (AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
-            ctx.getSource().sendFailure(Component.literal(PlaceHolderSystem.replacePlaceholders(Config.mute_failed_already_muted, Map.of("player", player.getName().getString()))));
+        if (AdminCraft.mutedPlayersUUID.contains(String.valueOf(profile.getId()))) {
+            ctx.getSource().sendFailure(Component.literal(PlaceHolderSystem.replacePlaceholders(Config.mute_failed_already_muted, Map.of("player", profile.getName()))));
             return;
         }
-        CustomSanctionSystem.mutePlayer(player, reason, duration);
+        CustomSanctionSystem.mutePlayer(ctx.getSource().getServer(), profile, reason, duration);
 
-        String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", player.getName().getString(), "reason", reason));
+        String msgToOperator = PlaceHolderSystem.replacePlaceholders(Config.mute_success, Map.of("player", profile.getName(), "reason", reason));
         ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
     }
 }
