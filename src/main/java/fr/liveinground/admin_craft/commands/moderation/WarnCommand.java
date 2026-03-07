@@ -3,6 +3,7 @@ package fr.liveinground.admin_craft.commands.moderation;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.PermissionValue;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -14,7 +15,7 @@ public class WarnCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("warn")
-                .requires(commandSource -> commandSource.hasPermission(Config.warn_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(PermissionValue.fromOld(Config.warn_level).permission()))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
                     ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
                     CustomSanctionSystem.warnPlayer(sanctionedPlayer, null, ctx.getSource().getDisplayName().getString());

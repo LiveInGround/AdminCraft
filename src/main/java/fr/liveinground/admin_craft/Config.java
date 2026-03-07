@@ -6,7 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -343,7 +343,7 @@ public class Config {
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
 
-        ResourceLocation rl = ResourceLocation.tryParse(blockName);
+        Identifier rl = Identifier.tryParse(blockName);
         if (rl == null) return false;
 
         return BuiltInRegistries.BLOCK.containsKey(rl);
@@ -352,7 +352,7 @@ public class Config {
     private static boolean validateEffectName(final Object obj) {
         if (!(obj instanceof String effectName)) return false;
 
-        ResourceLocation rl = ResourceLocation.tryParse(effectName);
+        Identifier rl = Identifier.tryParse(effectName);
         if (rl == null) return false;
 
         return BuiltInRegistries.MOB_EFFECT.containsKey(rl);
@@ -502,10 +502,10 @@ public class Config {
         sp_explosion_enabled = ALLOW_EXPLOSION.get();
 
         allowedBlocks = ALLOWED_BLOCKS.get().stream()
-                .map(blockName -> BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(blockName)))
+                .map(blockName -> BuiltInRegistries.BLOCK.getValue(Identifier.tryParse(blockName)))
                 .collect(Collectors.toSet());
         sp_effects = SP_EFFECTS.get().stream()
-                .map(effectName -> BuiltInRegistries.MOB_EFFECT.getValue(ResourceLocation.tryParse(effectName)))
+                .map(effectName -> BuiltInRegistries.MOB_EFFECT.getValue(Identifier.tryParse(effectName)))
                 .collect(Collectors.toSet());
 
         // --------------------
@@ -570,7 +570,7 @@ public class Config {
 
     public static Set<Holder<MobEffect>> loadEffects(Level level) {
         return SP_EFFECTS.get().stream()
-                .map(ResourceLocation::tryParse)
+                .map(Identifier::tryParse)
                 .map(loc -> level.registryAccess()
                         .lookupOrThrow(Registries.MOB_EFFECT)
                         .getOrThrow(ResourceKey.create(Registries.MOB_EFFECT, loc))
@@ -580,7 +580,7 @@ public class Config {
 
     public static Set<Holder<Block>> loadBlocks(Level level) {
         return SP_EFFECTS.get().stream()
-                .map(ResourceLocation::tryParse)
+                .map(Identifier::tryParse)
                 .map(loc -> level.registryAccess()
                         .lookupOrThrow(Registries.BLOCK)
                         .getOrThrow(ResourceKey.create(Registries.BLOCK, loc))

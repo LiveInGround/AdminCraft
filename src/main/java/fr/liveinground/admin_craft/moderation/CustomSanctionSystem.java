@@ -1,5 +1,12 @@
 package fr.liveinground.admin_craft.moderation;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
@@ -9,28 +16,40 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 
-import javax.annotation.Nullable;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class CustomSanctionSystem {
     public static void banPlayer(MinecraftServer server, String source, ServerPlayer player, String reason, @Nullable Date expiresOn) {
         PlayerList playerList = server.getPlayerList();
         UserBanList banList = playerList.getBans();
-        if (banList.isBanned(player.getGameProfile())) {
+        if (banList.isBanned(player.nameAndId())) {
             return;
         }
-        UserBanListEntry banEntry = new UserBanListEntry(player.getGameProfile(), null, source, expiresOn, reason);
+        UserBanListEntry banEntry = new UserBanListEntry(player.nameAndId(), null, source, expiresOn, reason);
         banList.add(banEntry);
 
-        player.connection.disconnect(Component.literal("You are banned on this server:\n" + reason).withStyle(ChatFormatting.RED));
+        player.connection.disconnect(Component.translatable("multiplayer.disconnect.banned"));
 
         AdminCraft.playerDataManager.addSanction(player.getStringUUID(), Sanction.BAN, reason, expiresOn);
+    }
+
+    public static void banPlayer(MinecraftServer server, String source, Collection<NameAndId> player, String reason, @Nullable Date expiresOn) {
+        PlayerList playerList = server.getPlayerList();
+        UserBanList banList = playerList.getBans();
+        for (NameAndId profile: player) {
+            if (!banList.isBanned(profile)) {
+                UserBanListEntry banEntry = new UserBanListEntry(profile, null, source, expiresOn, reason);
+                banList.add(banEntry);
+                ServerPlayer serverPlayer = server.getPlayerList().getPlayer(profile.id());
+                if (serverPlayer != null) serverPlayer.connection.disconnect(Component.translatable("multiplayer.disconnect.banned"));
+            }
+            AdminCraft.playerDataManager.addSanction(profile.id().toString(), Sanction.BAN, reason, expiresOn);
+        }
+
     }
 
     public static void kickPlayer(ServerPlayer player, String reason) {

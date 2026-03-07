@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.WallSignBlock;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.CommandEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
@@ -29,7 +30,7 @@ import java.util.Date;
 import static fr.liveinground.admin_craft.AdminCraft.playerDataManager;
 
 public class MuteEventsHandler {
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onServerChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
 
@@ -41,7 +42,7 @@ public class MuteEventsHandler {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onCommandEvent(CommandEvent event) {
 
         String fullCmd = event.getParseResults().getReader().getString();
@@ -104,7 +105,7 @@ public class MuteEventsHandler {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (event.getEntity() instanceof ServerPlayer p) {
 

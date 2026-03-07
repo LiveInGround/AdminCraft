@@ -1,18 +1,26 @@
 package fr.liveinground.admin_craft.commands.moderation;
 
-import com.mojang.authlib.GameProfile;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.PermissionValue;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
-import fr.liveinground.admin_craft.moderation.*;
+import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
+import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.storage.types.reports.PlayerReportsData;
 import fr.liveinground.admin_craft.storage.types.reports.ReportData;
-import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
+import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -22,8 +30,7 @@ import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
-
-import java.util.*;
+import net.minecraft.server.players.NameAndId;
 
 public class SanctionCommand {
 
@@ -38,7 +45,7 @@ public class SanctionCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("sanction")
-                        .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
+                        .requires(commandSource -> commandSource.permissions().hasPermission(PermissionValue.fromOld(Config.sanction_level).permission()))
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("reason", StringArgumentType.word()).suggests(REASON_SUGGESTIONS).executes(ctx -> {
                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");
@@ -123,16 +130,16 @@ public class SanctionCommand {
         );
 
         dispatcher.register(Commands.literal("history")
-                .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(PermissionValue.fromOld(Config.sanction_level).permission()))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                 .executes(ctx -> {
-                    Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
+                    Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
                     if (profiles.isEmpty()) {
                         ctx.getSource().sendFailure(Component.literal("No player was found"));
                         return 1;
                     }
-                    GameProfile targetProfile = profiles.iterator().next();
-                    ServerPlayer player = ctx.getSource().getServer().getPlayerList().getPlayer(targetProfile.getId());
+                    NameAndId targetProfile = profiles.iterator().next();
+                    ServerPlayer player = ctx.getSource().getServer().getPlayerList().getPlayer(targetProfile.id());
 
                     assert player != null;
 

@@ -1,12 +1,21 @@
 package fr.liveinground.admin_craft.commands.moderation;
 
-import com.mojang.authlib.GameProfile;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.PermissionValue;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
@@ -14,14 +23,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 
 public class MuteCommand {
 
@@ -30,7 +34,7 @@ public class MuteCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("mute")
-                .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(PermissionValue.fromOld(Config.mute_level).permission()))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(ctx -> {
                            mute(ctx, null, null);
@@ -44,14 +48,14 @@ public class MuteCommand {
                         ))));
 
         dispatcher.register(Commands.literal("unmute")
-                .requires(source -> source.hasPermission(Config.mute_level))
+                .requires(source -> source.permissions().hasPermission(PermissionValue.fromOld(Config.mute_level).permission()))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
-                            Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
+                            Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
                             if (!profiles.isEmpty()) {
 
-                                GameProfile targetProfile = profiles.iterator().next();
-                                ServerPlayer playerToUnmute = ctx.getSource().getServer().getPlayerList().getPlayer(targetProfile.getId());
+                                NameAndId targetProfile = profiles.iterator().next();
+                                ServerPlayer playerToUnmute = ctx.getSource().getServer().getPlayerList().getPlayer(targetProfile.id());
 
                                 if (playerToUnmute == null) {
                                     ctx.getSource().sendFailure(Component.literal("No player with this username was found."));
@@ -78,7 +82,7 @@ public class MuteCommand {
                 ));
 
         dispatcher.register(Commands.literal("tempmute")
-                .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(PermissionValue.fromOld(Config.mute_level).permission()))
                         .then(Commands.argument("player", EntityArgument.player())
                                 .then(Commands.argument("duration", StringArgumentType.word())
                                         .executes(ctx -> {

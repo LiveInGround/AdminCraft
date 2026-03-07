@@ -1,19 +1,19 @@
 package fr.liveinground.admin_craft.mutes;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.PermissionValue;
+import fr.liveinground.admin_craft.PlaceHolderSystem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.ServerOpList;
 import net.minecraft.server.players.ServerOpListEntry;
-
-import fr.liveinground.admin_craft.AdminCraft;
-import fr.liveinground.admin_craft.PlaceHolderSystem;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.Map;
 
 public class Utils {
     public static List<ServerPlayer> getOnlineOperators() {
@@ -25,8 +25,8 @@ public class Utils {
 
         return onlinePlayers.stream()
                 .filter(player -> {
-                    ServerOpListEntry entry = opList.get(player.getGameProfile());
-                    return entry != null && entry.getLevel() >= 1; // niveau OP ≥ 1
+                    ServerOpListEntry entry = opList.get(player.nameAndId());
+                    return entry != null && entry.permissions().hasPermission(PermissionValue.MODERATORS.permission()); // niveau OP ≥ 1
                 })
                 .collect(Collectors.toList());
     }
