@@ -2,6 +2,8 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.118'
+    // Shadow Jar
+    id 'com.gradleup.shadow'
     id 'idea'
 }
 
@@ -169,6 +171,35 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 // To avoid having to run "generateModMetadata" manually, make it run on every project reload
 neoForge.ideSyncTask generateModMetadata
+
+
+shadowJar {
+    archiveBaseName.set(archives_base_name)
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    // Ici, tu déplace l'extension pour qu'elle est un dossier dans ton package, donc dans ton plugin.
+    // Sinon elle est partagée et ça fait des trucs chelous.
+    //relocate "com.mysql", "group.aelysium.rustyconnector.modules.mysql.shaded.com.mysql"
+
+    configurations = [project.configurations.shadow]
+}
+// Désactive le jar classique
+tasks.named('jar').configure {
+    enabled = false
+}
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xdoclint:none']
+}
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+// Overide par shadowJar
+tasks.build {
+    dependsOn shadowJar
+}
+
+
+jar.finalizedBy(shadowJar)
 
 // Example configuration to allow publishing using the maven-publish plugin
 publishing {
