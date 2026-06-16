@@ -1,14 +1,14 @@
 package fr.liveinground.admin_craft.discord;
 
+import com.hypherionmc.sdlink.core.discord.BotController;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.JDA;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.Permission;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.Guild;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.entities.Role;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.OptionType;
+import com.hypherionmc.sdlink.shaded.dv8tion.jda.api.interactions.commands.build.Commands;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +39,7 @@ public class DiscordBot {
     public static void start() {
         AdminCraft.LOGGER.info("Starting appeal bot...");
         if (Config.enable_appeals && !Config.bot_token.equals("configthisplease")) {
-            JDABuilder builder = JDABuilder.createDefault(Config.bot_token);
-            builder.addEventListeners(new BotListener());
-            jda = builder.build();
+            jda = BotController.INSTANCE.getJDA();
             guild = jda.getGuildById(Config.guild_id);
             if (guild == null) {
                 enabled = false;
@@ -55,6 +53,7 @@ public class DiscordBot {
                 return;
             }
             register_commands();
+            jda.addEventListener(new BotListener());
             try {
                 jda.awaitReady();
                 if (!guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR) && !guild.getSelfMember().hasPermission(Permission.MANAGE_CHANNEL, Permission.MESSAGE_SEND)) {
