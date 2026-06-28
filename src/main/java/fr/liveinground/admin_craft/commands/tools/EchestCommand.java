@@ -27,7 +27,7 @@ public class EchestCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("echest")
-                .requires(src -> src.hasPermission(Config.invsee_level) && src.isPlayer())
+                .requires(src -> src.permissions().hasPermission(Config.invsee_level) && src.isPlayer())
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             ServerPlayer operator = ctx.getSource().getPlayer();

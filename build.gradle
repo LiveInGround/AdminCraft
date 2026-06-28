@@ -158,12 +158,6 @@ shadowJar {
     configurations = [project.configurations.shadow]
 }
 
-// Disable classic jar
-
-tasks.named('jar').configure {
-    enabled = false
-}
-
 tasks.withType(JavaCompile) {
     options.compilerArgs += ['-Xdoclint:none']
 }
@@ -177,7 +171,15 @@ tasks.build {
     dependsOn shadowJar
 }
 
-jar.finalizedBy(shadowJar)
+tasks.shadowJar {
+    archiveClassifier.set('')
+}
+
+components.java {
+    withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.

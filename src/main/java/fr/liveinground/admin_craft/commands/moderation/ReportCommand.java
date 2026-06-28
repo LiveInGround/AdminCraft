@@ -80,7 +80,7 @@ public class ReportCommand {
         );
 
         dispatcher.register(Commands.literal("reports")
-                .requires(commandSource -> commandSource.hasPermission(Config.reports_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.reports_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
@@ -191,7 +191,7 @@ public class ReportCommand {
                         Map.entry("targetName", reportedPlayer.getDisplayName().getString()),
                         Map.entry("targetHealth", Math.round(reportedPlayer.getHealth()) + "/" + reportedPlayer.getMaxHealth()),
                         Map.entry("targetUUID", reportedPlayer.getStringUUID()),
-                        Map.entry("targetLevel", reportedPlayer.level().dimension().location().getPath()),
+                        Map.entry("targetLevel", reportedPlayer.level().dimension().identifier().getPath()),
                         Map.entry("targetX", String.valueOf(reportedPlayer.getOnPos().getX())),
                         Map.entry("targetY", String.valueOf(reportedPlayer.getOnPos().getY() + 1)),
                         Map.entry("targetZ", String.valueOf(reportedPlayer.getOnPos().getZ())),
@@ -199,7 +199,7 @@ public class ReportCommand {
                         Map.entry("sourceName", player.getDisplayName().getString()),
                         Map.entry("sourceHealth", Math.round(player.getHealth()) + "/" + player.getMaxHealth()),
                         Map.entry("sourceUUID", player.getStringUUID()),
-                        Map.entry("sourceLevel", player.level().dimension().location().getPath()),
+                        Map.entry("sourceLevel", player.level().dimension().identifier().getPath()),
                         Map.entry("sourceX", String.valueOf(player.getOnPos().getX())),
                         Map.entry("sourceY", String.valueOf(player.getOnPos().getY() + 1)),
                         Map.entry("sourceZ", String.valueOf(player.getOnPos().getZ())),

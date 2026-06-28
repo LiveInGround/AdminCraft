@@ -7,8 +7,10 @@ import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,55 +52,55 @@ public class Config {
     // --------------------------
 
     private static final ModConfigSpec.IntValue MUTE_LEVEL;
-    public static int mute_level;
+    public static Permission mute_level;
 
     private static final ModConfigSpec.IntValue ALT_LEVEL;
-    public static int alt_level;
+    public static Permission alt_level;
 
     private static final ModConfigSpec.IntValue SANCTION_LEVEL;
-    public static int sanction_level;
+    public static Permission sanction_level;
 
     private static final ModConfigSpec.IntValue FREEZE_LEVEL;
-    public static int freeze_level;
+    public static Permission freeze_level;
 
     private static final ModConfigSpec.IntValue WARN_LEVEL;
-    public static int warn_level;
+    public static Permission warn_level;
 
     private static final ModConfigSpec.IntValue REPORTS_LEVEL;
-    public static int reports_level;
+    public static Permission reports_level;
 
     private static final ModConfigSpec.IntValue TEMPBAN_LEVEL;
-    public static int tempban_level;
+    public static Permission tempban_level;
 
     private static final ModConfigSpec.IntValue BAN_LEVEL;
-    public static int ban_level;
+    public static Permission ban_level;
 
     private static final ModConfigSpec.IntValue INVSEE_LEVEL;
-    public static int invsee_level;
+    public static Permission invsee_level;
 
     private static final ModConfigSpec.IntValue OTP_LEVEL;
-    public static int otp_level;
+    public static Permission otp_level;
 
     private static final ModConfigSpec.IntValue OTAG_LEVEL;
-    public static int otag_level;
+    public static Permission otag_level;
 
     private static final ModConfigSpec.IntValue HISTORY_LEVEL;
-    public static int history_level;
+    public static Permission history_level;
 
     private static final ModConfigSpec.IntValue EDITDURATION_LEVEL;
-    public static int editduration_level;
+    public static Permission editduration_level;
 
     private static final ModConfigSpec.IntValue EDITAPPEAL_LEVEL;
-    public static int editappeal_level;
+    public static Permission editappeal_level;
 
     private static final ModConfigSpec.IntValue BANS_LEVEL;
-    public static int bans_level;
+    public static Permission bans_level;
 
     private static final ModConfigSpec.IntValue MUTES_LEVEL;
-    public static int mutes_level;
+    public static Permission mutes_level;
 
     private static final ModConfigSpec.IntValue PLAYER_INFO_LEVEL;
-    public static int player_info_level;
+    public static Permission player_info_level;
 
     // ---------------
     // -- Sanctions --
@@ -115,7 +118,7 @@ public class Config {
     public static boolean sp_enabled;
 
     private static final ModConfigSpec.IntValue SP_OP_LEVEL;
-    public static int sp_op_level;
+    public static Permission sp_op_level;
 
     private static final ModConfigSpec.IntValue SPAWN_PROTECTION_CENTER_X;
     public static int sp_center_x;
@@ -215,7 +218,7 @@ public class Config {
         _CONFIG_VERSION = BUILDER
                 .comment("This setting corresponds to the mod version, to check if the config is up to date. Change it when you update the mod, in order to disable the join message.")
                 .define("configVersion", AdminCraft._VERSION);
-        LOCALE = BUILDER.comment("The lang file the mod should use. Can be one of the supported languages: en_US, fr_FR.").worldRestart().define("locale", "en_US");
+        LOCALE = BUILDER.comment("The lang file the mod should use. Can be one of the supported languages: en_US, fr_FR, hu_HU.").worldRestart().define("locale", "en_US");
 
         BUILDER.pop();
     }
@@ -333,7 +336,7 @@ public class Config {
     private static boolean validateBlockName(final Object obj) {
         if (!(obj instanceof String blockName)) return false;
 
-        ResourceLocation rl = ResourceLocation.tryParse(blockName);
+        Identifier rl = Identifier.tryParse(blockName);
         if (rl == null) return false;
 
         return BuiltInRegistries.BLOCK.containsKey(rl);
@@ -342,7 +345,7 @@ public class Config {
     private static boolean validateEffectName(final Object obj) {
         if (!(obj instanceof String effectName)) return false;
 
-        ResourceLocation rl = ResourceLocation.tryParse(effectName);
+        Identifier rl = Identifier.tryParse(effectName);
         if (rl == null) return false;
 
         return BuiltInRegistries.MOB_EFFECT.containsKey(rl);
@@ -422,23 +425,23 @@ public class Config {
         // -- Commands permissions --
         // --------------------------
 
-        mute_level = MUTE_LEVEL.get();
-        alt_level = ALT_LEVEL.get();
-        sanction_level = SANCTION_LEVEL.get();
-        freeze_level = FREEZE_LEVEL.get();
-        warn_level = WARN_LEVEL.get();
-        reports_level = REPORTS_LEVEL.get();
-        tempban_level = TEMPBAN_LEVEL.get();
-        ban_level = BAN_LEVEL.get();
-        invsee_level = INVSEE_LEVEL.get();
-        otag_level = OTAG_LEVEL.get();
-        otp_level = OTP_LEVEL.get();
-        history_level = HISTORY_LEVEL.get();
-        editduration_level = EDITDURATION_LEVEL.get();
-        editappeal_level = EDITAPPEAL_LEVEL.get();
-        bans_level = BANS_LEVEL.get();
-        mutes_level = MUTES_LEVEL.get();
-        player_info_level = PLAYER_INFO_LEVEL.get();
+        mute_level = getPermissionFromInt(MUTE_LEVEL.get());
+        alt_level = getPermissionFromInt(ALT_LEVEL.get());
+        sanction_level = getPermissionFromInt(SANCTION_LEVEL.get());
+        freeze_level = getPermissionFromInt(FREEZE_LEVEL.get());
+        warn_level = getPermissionFromInt(WARN_LEVEL.get());
+        reports_level = getPermissionFromInt(REPORTS_LEVEL.get());
+        tempban_level = getPermissionFromInt(TEMPBAN_LEVEL.get());
+        ban_level = getPermissionFromInt(BAN_LEVEL.get());
+        invsee_level = getPermissionFromInt(INVSEE_LEVEL.get());
+        otag_level = getPermissionFromInt(OTAG_LEVEL.get());
+        otp_level = getPermissionFromInt(OTP_LEVEL.get());
+        history_level = getPermissionFromInt(HISTORY_LEVEL.get());
+        editduration_level = getPermissionFromInt(EDITDURATION_LEVEL.get());
+        editappeal_level = getPermissionFromInt(EDITAPPEAL_LEVEL.get());
+        bans_level = getPermissionFromInt(BANS_LEVEL.get());
+        mutes_level = getPermissionFromInt(MUTES_LEVEL.get());
+        player_info_level = getPermissionFromInt(PLAYER_INFO_LEVEL.get());
 
         // ---------------
         // -- Sanctions --
@@ -503,7 +506,7 @@ public class Config {
         // ----------------------
 
         sp_enabled = ENABLE_SPAWN_PROTECTION.get();
-        sp_op_level = SP_OP_LEVEL.get();
+        sp_op_level = getPermissionFromInt(SP_OP_LEVEL.get());
 
         sp_center_x = SPAWN_PROTECTION_CENTER_X.get();
         sp_center_z = SPAWN_PROTECTION_CENTER_Z.get();
@@ -513,10 +516,10 @@ public class Config {
         sp_explosion_enabled = ALLOW_EXPLOSION.get();
 
         allowedBlocks = ALLOWED_BLOCKS.get().stream()
-                .map(blockName -> BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(blockName)))
+                .map(blockName -> BuiltInRegistries.BLOCK.getValue(Identifier.tryParse(blockName)))
                 .collect(Collectors.toSet());
         sp_effects = SP_EFFECTS.get().stream()
-                .map(effectName -> BuiltInRegistries.MOB_EFFECT.getValue(ResourceLocation.tryParse(effectName)))
+                .map(effectName -> BuiltInRegistries.MOB_EFFECT.getValue(Identifier.tryParse(effectName)))
                 .collect(Collectors.toSet());
 
         // --------------------
@@ -564,11 +567,15 @@ public class Config {
 
     public static Set<Holder<MobEffect>> loadEffects(Level level) {
         return SP_EFFECTS.get().stream()
-                .map(ResourceLocation::tryParse)
+                .map(Identifier::tryParse).filter(Objects::nonNull)
                 .map(loc -> level.registryAccess()
                         .lookupOrThrow(Registries.MOB_EFFECT)
                         .getOrThrow(ResourceKey.create(Registries.MOB_EFFECT, loc))
                 )
                 .collect(Collectors.toSet());
+    }
+
+    private static Permission getPermissionFromInt(int level) {
+        return new Permission.HasCommandLevel(PermissionLevel.byId(level));
     }
 }

@@ -22,7 +22,7 @@ import java.util.Objects;
 public class PlayerInfoCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("playerinfo")
-                .requires(source -> source.hasPermission(Config.player_info_level))
+                .requires(source -> source.permissions().hasPermission(Config.player_info_level))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(ctx -> {
                                 ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
@@ -63,7 +63,7 @@ public class PlayerInfoCommand {
                                         GameType.SPECTATOR, "Spectator",
                                         GameType.SURVIVAL, "Survival").get(player.gameMode.getGameModeForPlayer()));
                                 BlockPos pos = player.getOnPos();
-                                addField(message, "World", player.level().dimension().location().getPath());
+                                addField(message, "World", player.level().dimension().registry().getPath());
                                 addField(message, "Position", PlaceHolderSystem.replacePlaceholders("%x% %y% %z%", Map.of(
                                         "x", String.valueOf(pos.getX()),
                                         "y", String.valueOf(pos.getY() + 1),

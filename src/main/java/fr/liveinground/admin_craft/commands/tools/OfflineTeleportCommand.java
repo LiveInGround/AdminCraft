@@ -28,7 +28,7 @@ import static net.minecraft.commands.CommandSourceStack.ERROR_NOT_PLAYER;
 public class OfflineTeleportCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("otp")
-                .requires(source -> source.hasPermission(Config.otp_level))
+                .requires(source -> source.permissions().hasPermission(Config.otp_level))
                 .then(Commands.argument("target", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             // /otp <target> (has to be run as a player)
@@ -95,7 +95,7 @@ public class OfflineTeleportCommand {
             }
         }
         source.sendSuccess(() -> Component.literal(PlaceHolderSystem.replacePlaceholders("Teleported %player% to %x%, %y%, %z%",
-                        Map.of("player", onlinePlayer.getDisplayName().getString(),
+                        Map.of("player", profile.name(),
                                 "x", String.valueOf(destination.x),
                                 "y", String.valueOf(destination.y),
                                 "z", String.valueOf(destination.z)))),

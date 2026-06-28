@@ -7,6 +7,8 @@ import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.ServerOpList;
 import net.minecraft.server.players.ServerOpListEntry;
@@ -25,7 +27,7 @@ public class Utils {
         return onlinePlayers.stream()
                 .filter(player -> {
                     ServerOpListEntry entry = opList.get(player.nameAndId());
-                    return entry != null && entry.getLevel() >= 1;
+                    return entry != null && entry.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.MODERATORS));
                 })
                 .collect(Collectors.toList());
     }

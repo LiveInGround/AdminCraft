@@ -32,7 +32,7 @@ public class EditAppealCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("editappeal")
-                .requires(source -> source.hasPermission(Config.editappeal_level))
+                .requires(source -> source.permissions().hasPermission(Config.editappeal_level))
                 .then(Commands.argument("id", StringArgumentType.string())
                         .suggests((ctx, builder) -> {
                             String remaining = builder.getRemaining();

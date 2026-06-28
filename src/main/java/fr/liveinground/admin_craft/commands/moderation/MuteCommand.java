@@ -30,7 +30,7 @@ public class MuteCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("mute")
-                .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.mute_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             mute(ctx, "Muted by an operator", null);
@@ -54,7 +54,7 @@ public class MuteCommand {
                                 }))));
 
         dispatcher.register(Commands.literal("unmute")
-                .requires(source -> source.hasPermission(Config.mute_level))
+                .requires(source -> source.permissions().hasPermission(Config.mute_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
@@ -82,7 +82,7 @@ public class MuteCommand {
                 ));
 
         dispatcher.register(Commands.literal("tempmute")
-                .requires(commandSource -> commandSource.hasPermission(Config.mute_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.mute_level))
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .then(Commands.argument("duration", StringArgumentType.word())
                                         .executes(ctx -> {

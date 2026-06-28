@@ -33,13 +33,15 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelData;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -56,6 +58,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -152,7 +155,7 @@ public class AdminCraft {
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
         if (Config.spawn_override) {
-            event.getServer().overworld().getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS).set(0, event.getServer());
+            event.getServer().overworld().getGameRules().set(GameRules.RESPAWN_RADIUS, 0, ServerHolder.getServer());
             BlockPos spawnPos = new BlockPos(Config.spawn_x, Config.spawn_y, Config.spawn_z);
             event.getServer().setRespawnData(LevelData.RespawnData.of(Level.OVERWORLD, spawnPos, 0, 0));
         }
@@ -171,7 +174,7 @@ public class AdminCraft {
 
     public static boolean isAllowed(Entity entity, Level level, BlockPos pos) {
         if (!isInSP(level, pos)) return true;
-        return entity instanceof ServerPlayer sp && sp.hasPermissions(Config.sp_op_level);
+        return entity instanceof ServerPlayer sp && sp.permissions().hasPermission(Config.sp_op_level);
     }
 
     @SubscribeEvent
@@ -223,7 +226,7 @@ public class AdminCraft {
     }
 
     @SubscribeEvent
-    public void onBlockBreak(BlockEvent.BreakEvent e) {
+    public void onBlockBreak(BreakBlockEvent e) {
         if (!(isAllowed(e.getPlayer(), (Level) e.getLevel(), e.getPos())) || frozenPlayersUUID.contains(e.getPlayer().getStringUUID())) {
             e.setCanceled(true);
         }
@@ -266,7 +269,7 @@ public class AdminCraft {
         }
 
         if (target instanceof Player) {
-            if (attacker.hasPermissions(Config.sp_op_level)) return;
+            if (attacker.permissions().hasPermission(Config.sp_op_level)) return;
 
             if (isInSP(attacker) || isInSP(target)) {
                 e.setCanceled(true);
@@ -281,17 +284,17 @@ public class AdminCraft {
         if (isInSP(player.level(), player.getOnPos())) {
             for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
                 player.addEffect(new MobEffectInstance(holder, Integer.MAX_VALUE, 255, false, false));            }
-            if (!player.getTags().contains(SP_TAG)) {
+            if (player.entityTags().contains(SP_TAG)) {
                 player.addTag(SP_TAG);
-                serverPlayer.displayClientMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_ENTER)).withStyle(ChatFormatting.GREEN), true);
+                serverPlayer.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_ENTER)).withStyle(ChatFormatting.GREEN), true);
             }
         } else {
-            if (player.getTags().contains(SP_TAG)) {
+            if (player.entityTags().contains(SP_TAG)) {
                 player.removeTag(SP_TAG);
                 for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
                     player.removeEffect(holder);
                 }
-                serverPlayer.displayClientMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_LEAVE)).withStyle(ChatFormatting.RED), true);
+                serverPlayer.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_LEAVE)).withStyle(ChatFormatting.RED), true);
             }
         }
     }
@@ -303,7 +306,7 @@ public class AdminCraft {
             playerDataManager.removeIPEntry(playerDataManager.getPlayerIPSDataByUUID(player.getStringUUID()));
         }
         playerDataManager.addIPSData(player.getName().getString(), player.getStringUUID(), player.getIpAddress());
-        if (player.hasPermissions(1) && Config.readme) {
+        if (player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.ADMINS)) && Config.readme) {
             player.sendSystemMessage(Component.literal("Thank you for using AdminCraft!").withStyle(ChatFormatting.AQUA));
             player.sendSystemMessage(Component.literal("For a better experience, you should take a look to our configuration files."));
             player.sendSystemMessage(Component.literal("Found a bug or need help using the mod ? Join our discord or our issue tracker:"));
@@ -311,7 +314,7 @@ public class AdminCraft {
             player.sendSystemMessage(Component.literal("https://github.com/LiveInGround/AdminCraft/issues").withStyle(ChatFormatting.BLUE, ChatFormatting.UNDERLINE));
             player.sendSystemMessage(Component.literal("Note: you can disable this message in the configuration."));
         }
-        if (player.hasPermissions(1) && !Config._config_version.equals(AdminCraft._VERSION)) {
+        if (player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.ADMINS)) && !Config._config_version.equals(AdminCraft._VERSION)) {
             player.sendSystemMessage(Component.literal("AdminCraft was recently updated to a new version (" + AdminCraft._VERSION + ").").withStyle(ChatFormatting.YELLOW));
             player.sendSystemMessage(Component.literal("It strongly recommended to check the configuration file to ensure there is no issue with it."));
             player.sendSystemMessage(Component.literal("You can disable this message by changing the 'configVersion' key to " + AdminCraft._VERSION + " in the configuration."));

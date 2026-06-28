@@ -35,7 +35,7 @@ public class SanctionCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("sanction")
-                        .requires(commandSource -> commandSource.hasPermission(Config.sanction_level))
+                        .requires(commandSource -> commandSource.permissions().hasPermission(Config.sanction_level))
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("reason", StringArgumentType.word()).suggests(REASON_SUGGESTIONS).executes(ctx -> {
                                             ServerPlayer sanctionedPlayer = EntityArgument.getPlayer(ctx, "player");

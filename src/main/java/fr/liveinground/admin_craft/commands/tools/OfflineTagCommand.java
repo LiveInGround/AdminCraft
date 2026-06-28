@@ -21,7 +21,7 @@ import java.util.Set;
 public class OfflineTagCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("otag")
-                .requires(source -> source.hasPermission(Config.otag_level))
+                .requires(source -> source.permissions().hasPermission(Config.otag_level))
                 .then(Commands.argument("target", GameProfileArgument.gameProfile())
                         .then(Commands.literal("add")
                                 .then(Commands.argument("tag", StringArgumentType.word())
@@ -148,7 +148,7 @@ public class OfflineTagCommand {
 
         ServerPlayer player = source.getServer().getPlayerList().getPlayer(profile.id());
         if (player != null) {
-            Set<String> tags = player.getTags();
+            Set<String> tags = player.entityTags();
             if (tags.isEmpty()) {
                 source.sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " has no tags"), false);
                 return 1;

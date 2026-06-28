@@ -20,7 +20,7 @@ import java.util.Date;
 public class TempBanCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("tempban")
-                .requires(commandSource -> commandSource.hasPermission(Config.tempban_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.tempban_level))
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .then(Commands.argument("duration", StringArgumentType.word())
                                         .executes(ctx -> {

@@ -26,7 +26,7 @@ import java.util.UUID;
 public class InvseeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("invsee")
-                .requires(commandSource -> commandSource.hasPermission(Config.invsee_level) && commandSource.isPlayer())
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.invsee_level) && commandSource.isPlayer())
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             ServerPlayer operator = ctx.getSource().getPlayer();

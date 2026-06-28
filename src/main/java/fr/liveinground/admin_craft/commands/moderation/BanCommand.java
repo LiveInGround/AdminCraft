@@ -21,7 +21,7 @@ import java.util.Date;
 public class BanCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("admincraft:ban")
-                .requires(source -> source.hasPermission(Config.ban_level))
+                .requires(source -> source.permissions().hasPermission(Config.ban_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             ban(ctx, "Banned by an operator");

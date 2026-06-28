@@ -22,9 +22,8 @@ public class EditDurationCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
-
         dispatcher.register(Commands.literal("editduration")
-                .requires(source -> source.hasPermission(Config.editduration_level))
+                .requires(source -> source.permissions().hasPermission(Config.editduration_level))
                 .then(Commands.argument("id", StringArgumentType.string())
                         .suggests((ctx, builder) -> {
                             String remaining = builder.getRemaining();

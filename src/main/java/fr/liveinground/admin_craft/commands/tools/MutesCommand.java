@@ -15,7 +15,7 @@ import java.util.Date;
 public class MutesCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("mutes")
-                .requires(source -> source.hasPermission(Config.mutes_level))
+                .requires(source -> source.permissions().hasPermission(Config.mutes_level))
                 .executes(ctx -> {
                     MutableComponent message = Component.literal("");
                     message.append(Component.literal("Banned players:\n").withStyle(ChatFormatting.GOLD));

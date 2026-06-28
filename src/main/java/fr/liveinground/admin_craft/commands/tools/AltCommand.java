@@ -1,11 +1,6 @@
 package fr.liveinground.admin_craft.commands.tools;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.mojang.brigadier.CommandDispatcher;
-
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
@@ -18,12 +13,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 public class AltCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("alts")
-                .requires(commandSource -> commandSource.hasPermission(Config.alt_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.alt_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile()).executes(ctx -> {
                     // Get the target player
                     Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");

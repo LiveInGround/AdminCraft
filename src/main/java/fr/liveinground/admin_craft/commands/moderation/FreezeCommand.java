@@ -17,7 +17,7 @@ public class FreezeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 
         dispatcher.register(Commands.literal("freeze")
-                .requires(commandSource -> commandSource.hasPermission(Config.freeze_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.freeze_level))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> {
                     ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
                     if (AdminCraft.frozenPlayersUUID.contains(player.getStringUUID())) {

@@ -15,7 +15,7 @@ import java.util.Date;
 public class BansCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("bans")
-                .requires(source -> source.hasPermission(Config.bans_level))
+                .requires(source -> source.permissions().hasPermission(Config.bans_level))
                 .executes(ctx -> {
                     UserBanList bans = ctx.getSource().getServer().getPlayerList().getBans();
                     MutableComponent message = Component.literal("");

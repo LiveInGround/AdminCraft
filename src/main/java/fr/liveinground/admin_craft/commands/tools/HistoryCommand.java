@@ -19,7 +19,7 @@ import java.util.List;
 public class HistoryCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("history")
-                .requires(commandSource -> commandSource.hasPermission(Config.history_level))
+                .requires(commandSource -> commandSource.permissions().hasPermission(Config.history_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
                         .executes(ctx -> {
                             Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
