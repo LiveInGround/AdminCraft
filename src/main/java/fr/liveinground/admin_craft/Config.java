@@ -253,7 +253,7 @@ public class Config {
         SANCTION_TEMPLATES = BUILDER.comment("The sanction presets for the /sanction command. Must follow the format 'displayName@used reason@level->type:durationOrPerm@level@...'.")
                 .comment("Exemple: 'Cheating@Using cheats to get unfair advantages@1->warn@2->ban:5d@5->ban:perm'")
                 .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
-                .defineListAllowEmpty("sanctions", Arrays.asList("Cheating@Unfair advantage@1->tempban:1d@2->tempban:30d@3->ban",
+                .defineListAllowEmpty("sanctions", Arrays.asList("Cheating@Unfair advantage@1->ban:1d@2->ban:30d@3->ban:perm",
                         "spam@Spamming@1->warn@3->kick@4->mute:1d@5->mute:perm"), () -> "", Config::validateSanction);
 
         BUILDER.pop();
