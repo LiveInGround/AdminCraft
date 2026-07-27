@@ -31,7 +31,7 @@ public class FreezeCommand {
     private static int freeze(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         AdminCraft.frozenPlayersUUID.add(player.getStringUUID());
         player.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.FREEZE_BEGINS)).withStyle(ChatFormatting.RED));
-
+        player.getFoodData().setSaturation(20);
         ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " was frozen"), true);
         return 1;
     }
