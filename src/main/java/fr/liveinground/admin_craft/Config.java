@@ -248,7 +248,7 @@ public class Config {
         BAN_LEVEL = BUILDER.comment("The OP level required to run the /ban command").worldRestart().defineInRange("ban", 3, 0, 4);
         INVSEE_LEVEL = BUILDER.comment("The OP level required to run the /invsee and /echest commands").worldRestart().defineInRange("invsee", 2, 0,4);
         OTP_LEVEL = BUILDER.comment("The OP level required to run the /otp command").worldRestart().defineInRange("otp", 2, 0, 4);
-        OTAG_LEVEL = BUILDER.comment("The OP level required to run the /otag command").worldRestart().defineInRange("otp", 2, 0, 4);
+        OTAG_LEVEL = BUILDER.comment("The OP level required to run the /otag command").worldRestart().defineInRange("otag", 2, 0, 4);
         HISTORY_LEVEL = BUILDER.comment("The OP level required to run the /history command").worldRestart().defineInRange("history", 2, 0, 4);
         EDITDURATION_LEVEL = BUILDER.comment("The OP level required to run the /editduration command").worldRestart().defineInRange("editduration", 3, 0, 4);
         EDITAPPEAL_LEVEL = BUILDER.comment("The OP level required to run the /editappeal command").worldRestart().defineInRange("editappeal", 3, 0, 4);
@@ -263,8 +263,8 @@ public class Config {
         BUILDER.push("presetSanctions");
 
         SANCTION_TEMPLATES = BUILDER.comment("The sanction presets for the /sanction command. Must follow the format 'displayName@used reason@level->type:durationOrPerm@level@...'.")
-                .comment("Exemple: 'Cheating@Using cheats to get unfair advantages@1->warn@2->ban:5d@5->ban:perm'")
-                .comment("This config key will be updated in hte future to be more intuitive, stay tuned!")
+                .comment("Example: 'Cheating@Using cheats to get unfair advantages@1->warn@2->ban:5d@5->ban:perm'")
+                .comment("This config key will be updated in the future to be more intuitive, stay tuned!")
                 .defineListAllowEmpty("sanctions", Arrays.asList("Cheating@Unfair advantage@1->ban:1d@2->ban:30d@3->ban:perm",
                         "spam@Spamming@1->warn@3->kick@4->mute:1d@5->mute:perm"), () -> "", Config::validateSanction);
 
@@ -274,7 +274,7 @@ public class Config {
     static {
         BUILDER.push("spawnProtection");
 
-        ENABLE_SPAWN_PROTECTION = BUILDER.comment("Should the spawn protection being enabled?").define("enabled", true);
+        ENABLE_SPAWN_PROTECTION = BUILDER.comment("Should the spawn protection be enabled?").define("enabled", true);
         SP_OP_LEVEL = BUILDER.comment("The OP level required to bypass spawn protection").defineInRange("bypassOPLevel", 1, 0, 4);
         SPAWN_PROTECTION_CENTER_X = BUILDER.comment("Center X coordinate of protection").defineInRange("centerX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
         SPAWN_PROTECTION_CENTER_Z = BUILDER.comment("Center Z coordinate of protection").defineInRange("centerZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -312,9 +312,9 @@ public class Config {
         BUILDER.push("muteSystem");
         
         MUTE_FORBIDDEN_CMD = BUILDER.comment("The list of commands the players can't use while muted").defineListAllowEmpty("muteForbiddenCommands", List.of("msg", "tell", "teammsg", "w", "say"), () -> "", Config::validateString);
-        MUTE_PREVENT_SIGN_PLACING = BUILDER.comment("Should the mod prevent muted players using signs ?").define("preventSigns", true);
-        LOG_CANCELLED_EVENTS = BUILDER.comment("Should the mod log cancelled events to ops and console ?").define("logCancelledEvent", true);
-        ALLOW_MESSAGES_TO_OPS = BUILDER.comment("Should the mod allow muted players to use commands to send messages to ops ?").define("allowMessagesToOps", true);
+        MUTE_PREVENT_SIGN_PLACING = BUILDER.comment("Should the mod prevent muted players from using signs?").define("preventSigns", true);
+        LOG_CANCELLED_EVENTS = BUILDER.comment("Should the mod log cancelled events to ops and console?").define("logCancelledEvent", true);
+        ALLOW_MESSAGES_TO_OPS = BUILDER.comment("Should the mod allow muted players to use commands to send messages to ops?").define("allowMessagesToOps", true);
 
         BUILDER.pop();
     }
@@ -322,8 +322,8 @@ public class Config {
     static {
         BUILDER.push("reports");
 
-        ENABLE_REPORTS = BUILDER.comment("Enable the /report command for every players").worldRestart().define("enable", true);
-        USE_SANCTIONS_REASONS = BUILDER.comment("Should the mod suggests the sanctions defined in admin_craft_sanctions.toml as report reasons?").worldRestart().define("sanctionReasons", true);
+        ENABLE_REPORTS = BUILDER.comment("Enable the /report command for every player").worldRestart().define("enable", true);
+        USE_SANCTIONS_REASONS = BUILDER.comment("Should the mod suggest the sanctions defined in admin_craft_sanctions.toml as report reasons?").worldRestart().define("sanctionReasons", true);
         REPORT_WEBHOOK = BUILDER.comment("Discord webhook to relay reports. Set to 'null' to disable").define("discordWebhook", "null");
 
         BUILDER.pop();
@@ -336,7 +336,7 @@ public class Config {
         BOT_TOKEN = BUILDER.comment("The discord bot token for the appeal system").worldRestart().define("discordToken", "configthisplease");
         GUILD_ID = BUILDER.comment("The Guild ID where the appeal system should work").worldRestart().define("guildID", "configthisplease");
         INVITE_LINK = BUILDER.comment("The invite link to the appeal server, displayed on sanction messages").worldRestart().define("invite", "https://discord.com/invite/yourinvite");
-        STAFF_ROLE_ID = BUILDER.comment("The role id allowing to manage appeal tickers").worldRestart().define("staffRoleID", "configthisplease");
+        STAFF_ROLE_ID = BUILDER.comment("The role id allowing to manage appeal tickets").worldRestart().define("staffRoleID", "configthisplease");
         DEFAULT_CAN_APPEAL = BUILDER.comment("Should players be able to appeal if nothing is provided in the command?").worldRestart().define("defaultCanAppeal", true);
         DEFAULT_APPEAL_DELAY = BUILDER.comment("The default appeal delay if nothing is provided in the command").comment("Can be a duration or 'null'").worldRestart().define("defaultAppealDelay", "null");
 
