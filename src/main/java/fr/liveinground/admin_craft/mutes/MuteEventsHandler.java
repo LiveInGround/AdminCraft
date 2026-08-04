@@ -28,10 +28,13 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static fr.liveinground.admin_craft.AdminCraft.playerDataManager;
 
 public class MuteEventsHandler {
+    private static final List<String> serverSources = List.of("@", "Server");
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onServerChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
@@ -48,7 +51,10 @@ public class MuteEventsHandler {
     public static void onCommandEvent(CommandEvent event) {
 
         String fullCmd = event.getParseResults().getReader().getString();
-        AdminCraft.LOGGER.info(event.getParseResults().getContext().getSource().getTextName() + " issued a server command: '/" + fullCmd + "'");
+        String sourceStr = event.getParseResults().getContext().getSource().getTextName();
+        if ((serverSources.contains(sourceStr) && Config.log_server_commands) || (Config.log_player_commands && !serverSources.contains(sourceStr))) {
+            AdminCraft.LOGGER.info("{} issued a server command: '/{}'", sourceStr, fullCmd);
+        }
         String[] args = fullCmd.split(" ");
 
         if (args.length > 0) {

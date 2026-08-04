@@ -47,6 +47,12 @@ public class Config {
     private static final ModConfigSpec.ConfigValue<String> LOCALE;
     public static String locale;
 
+    private static final ModConfigSpec.ConfigValue<Boolean> LOG_PLAYER_COMMANDS;
+    public static boolean log_player_commands;
+
+    private static final ModConfigSpec.ConfigValue<Boolean> LOG_SERVER_COMMANDS;
+    public static boolean log_server_commands;
+
     // --------------------------
     // -- Commands permissions --
     // --------------------------
@@ -219,6 +225,8 @@ public class Config {
                 .comment("This setting corresponds to the mod version, to check if the config is up to date. Change it when you update the mod, in order to disable the join message.")
                 .define("configVersion", AdminCraft._VERSION);
         LOCALE = BUILDER.comment("The lang file the mod should use. Can be one of the supported languages: en_US, fr_FR, hu_HU.").worldRestart().define("locale", "en_US");
+        LOG_SERVER_COMMANDS = BUILDER.comment("Should AdminCraft log server commands (console, command blocks, functions, mods...)?").worldRestart().define("logServerCommands", false);
+        LOG_PLAYER_COMMANDS = BUILDER.comment("Should AdminCraft log player's commands").worldRestart().define("logPlayerCommands", false);
 
         BUILDER.pop();
     }
@@ -420,6 +428,9 @@ public class Config {
         AdminCraft.ensureLangFilesExist();
 
         LangManager.reload(langDir);
+
+        log_server_commands = LOG_SERVER_COMMANDS.get();
+        log_player_commands = LOG_PLAYER_COMMANDS.get();
 
         // --------------------------
         // -- Commands permissions --
