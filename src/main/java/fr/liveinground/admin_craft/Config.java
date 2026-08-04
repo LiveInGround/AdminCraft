@@ -53,6 +53,9 @@ public class Config {
     private static final ModConfigSpec.ConfigValue<Boolean> LOG_SERVER_COMMANDS;
     public static boolean log_server_commands;
 
+    private static final ModConfigSpec.ConfigValue<Boolean> FREEZE_ALLOW_EXT_TP;
+    public static boolean freeze_allow_ext_tp;
+
     // --------------------------
     // -- Commands permissions --
     // --------------------------
@@ -227,6 +230,7 @@ public class Config {
         LOCALE = BUILDER.comment("The lang file the mod should use. Can be one of the supported languages: en_US, fr_FR, hu_HU.").worldRestart().define("locale", "en_US");
         LOG_SERVER_COMMANDS = BUILDER.comment("Should AdminCraft log server commands (console, command blocks, functions, mods...)?").worldRestart().define("logServerCommands", false);
         LOG_PLAYER_COMMANDS = BUILDER.comment("Should AdminCraft log player's commands").worldRestart().define("logPlayerCommands", false);
+        FREEZE_ALLOW_EXT_TP = BUILDER.comment("Should AdminCraft allow the teleportation of frozen players if initiated by an external source (other player's command, mod...)?").worldRestart().define("allowFreezeExternalTeleport", false);
 
         BUILDER.pop();
     }
@@ -431,6 +435,7 @@ public class Config {
 
         log_server_commands = LOG_SERVER_COMMANDS.get();
         log_player_commands = LOG_PLAYER_COMMANDS.get();
+        freeze_allow_ext_tp = FREEZE_ALLOW_EXT_TP.get();
 
         // --------------------------
         // -- Commands permissions --
