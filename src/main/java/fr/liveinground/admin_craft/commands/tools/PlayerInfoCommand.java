@@ -32,7 +32,7 @@ public class PlayerInfoCommand {
                                 boolean isFrozen = AdminCraft.frozenPlayersUUID.contains(nameAndId.id().toString());
 
                                 MutableComponent message = Component.literal("");
-                                message.append(Component.literal(nameAndId.name() + "'s informations:").withStyle(ChatFormatting.GOLD));
+                                message.append(Component.literal(nameAndId.name() + "'s informations:\n").withStyle(ChatFormatting.GOLD));
 
                                 Map<Boolean, Component> map = Map.of(
                                         true, Component.literal("Yes").withStyle(ChatFormatting.RED),
