@@ -5,7 +5,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +39,9 @@ public class PlayerDataLoader {
     }
 
     private static SimpleContainer loadInventoryFromNBT(CompoundTag tag, Level level) {
+        RegistryOps<Tag> registryOps = level.registryAccess()
+                .createSerializationContext(NbtOps.INSTANCE);
+
         SimpleContainer inv = new SimpleContainer(36);
 
         Optional<ListTag> olt = tag.getList("Inventory");
@@ -45,7 +50,8 @@ public class PlayerDataLoader {
             CompoundTag item = (CompoundTag) t;
             int slot = item.getByte("Slot").map(b -> b & 255).orElseThrow(() -> new IllegalStateException("Missing slot in nbt"));
             if (slot < inv.getContainerSize()) {
-                inv.setItem(slot, ((CompoundTag) t).read(String.valueOf(slot), ItemStack.CODEC).orElse(ItemStack.EMPTY));
+                ItemStack stack = ItemStack.CODEC.parse(registryOps, item).result().orElse(ItemStack.EMPTY);
+                inv.setItem(slot, stack);
             }
         }
         return inv;
@@ -59,6 +65,9 @@ public class PlayerDataLoader {
     }
 
     private static SimpleContainer loadEnderChestFromNBT(CompoundTag tag, Level level) {
+        RegistryOps<Tag> registryOps = level.registryAccess()
+                .createSerializationContext(NbtOps.INSTANCE);
+
         SimpleContainer ec = new SimpleContainer(27);
         Optional<ListTag> olt = tag.getList("EnderItems");
         ListTag list = olt.orElse(new ListTag());
@@ -67,7 +76,8 @@ public class PlayerDataLoader {
             int slot = item.getByte("Slot").map(b -> b & 255).orElseThrow(() -> new IllegalStateException("Missing slot in nbt"));
 
             if (slot < ec.getContainerSize()) {
-                ec.setItem(slot, ((CompoundTag) t).read(String.valueOf(slot), ItemStack.CODEC).orElse(ItemStack.EMPTY));
+                ItemStack stack = ItemStack.CODEC.parse(registryOps, item).result().orElse(ItemStack.EMPTY);
+                ec.setItem(slot, stack);
             }
         }
         return ec;
