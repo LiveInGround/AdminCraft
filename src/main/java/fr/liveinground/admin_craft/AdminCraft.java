@@ -244,15 +244,7 @@ public class AdminCraft {
     private static boolean isInSP(Entity entity) {
         Level level = entity.level();
         BlockPos pos = entity.getOnPos();
-        if (!Config.sp_enabled) return false;
-        if (level.dimension() == Level.OVERWORLD) {
-            int minX = Config.sp_center_x - Config.sp_radius;
-            int maxX = Config.sp_center_x + Config.sp_radius;
-            int minZ = Config.sp_center_z - Config.sp_radius;
-            int maxZ = Config.sp_center_z + Config.sp_radius;
-            return (pos.getX() >= minX && pos.getX() <= maxX && pos.getZ() >= minZ && pos.getZ() <= maxZ);
-        }
-        return false;
+        return isInSP(level, pos);
     }
 
     @SubscribeEvent
@@ -279,19 +271,20 @@ public class AdminCraft {
         Player player = e.getEntity();
         ServerPlayer serverPlayer = (ServerPlayer) player;
         if (isInSP(player.level(), player.getOnPos())) {
-            for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
-                player.addEffect(new MobEffectInstance(holder, Integer.MAX_VALUE, 255, false, false));            }
             if (!player.getTags().contains(SP_TAG)) {
+                for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
+                    player.addEffect(new MobEffectInstance(holder, Integer.MAX_VALUE, 255, false, false));
+                }
                 player.addTag(SP_TAG);
                 serverPlayer.displayClientMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_ENTER)).withStyle(ChatFormatting.GREEN), true);
             }
         } else {
             if (player.getTags().contains(SP_TAG)) {
-                player.removeTag(SP_TAG);
                 for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
                     player.removeEffect(holder);
                 }
                 serverPlayer.displayClientMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_LEAVE)).withStyle(ChatFormatting.RED), true);
+                player.removeTag(SP_TAG);
             }
         }
     }
