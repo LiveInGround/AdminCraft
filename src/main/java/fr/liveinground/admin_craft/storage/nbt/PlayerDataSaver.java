@@ -1,7 +1,15 @@
 package fr.liveinground.admin_craft.storage.nbt;
 
 import fr.liveinground.admin_craft.AdminCraft;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
@@ -37,6 +45,7 @@ public class PlayerDataSaver {
     }
 
     public static void saveInventory(ServerLevel level, UUID uuid, SimpleContainer container) throws IOException {
+        RegistryOps<Tag> registryOps = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 
         File playerDataDir = level.getServer()
                 .getWorldPath(LevelResource.PLAYER_DATA_DIR)
@@ -53,8 +62,14 @@ public class PlayerDataSaver {
 
         for (int i = 0; i < container.getContainerSize(); i++) {
             ItemStack stack = container.getItem(i);
-            Tag item = ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).result().orElse(new CompoundTag());
+            if (stack.isEmpty()) {
+                AdminCraft.LOGGER.debug("Skipping empty stack (inventory)");
+                continue;
+            }
+            Tag item = ItemStack.CODEC.encodeStart(registryOps, stack).result().orElseThrow(() -> new IllegalStateException("Failed to encode item " + stack.getItem() + " (slot " + stack.getEquipmentSlot() + ")"));
+            AdminCraft.LOGGER.debug("Encored inventory ItemStack into tag: {}", item);
             if (item instanceof CompoundTag compound) {
+                compound.putByte("Slot", (byte) i);
                 list.add(compound);
             } else {
                 AdminCraft.LOGGER.error("Encoding issue (inventory), item encoding for slot {} hasn't returned a CompoundTag.", stack.getEquipmentSlot());
@@ -85,6 +100,7 @@ public class PlayerDataSaver {
         }
     }
     public static void saveEnderChestInventory(ServerLevel level, UUID uuid, SimpleContainer container) throws IOException {
+        RegistryOps<Tag> registryOps = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 
         File playerDataDir = level.getServer()
                 .getWorldPath(LevelResource.PLAYER_DATA_DIR)
@@ -101,8 +117,14 @@ public class PlayerDataSaver {
 
         for (int i = 0; i < container.getContainerSize(); i++) {
             ItemStack stack = container.getItem(i);
-            Tag item = ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).result().orElse(new CompoundTag());
+            if (stack.isEmpty()) {
+                AdminCraft.LOGGER.debug("Skipping empty stack (enderchest)");
+                continue;
+            }
+            Tag item = ItemStack.CODEC.encodeStart(registryOps, stack).result().orElseThrow(() -> new IllegalStateException("Failed to encode item " + stack.getItem() + " (slot " + stack.getEquipmentSlot() + ")"));
+            AdminCraft.LOGGER.debug("Encored enderchest ItemStack into tag: {}", item);
             if (item instanceof CompoundTag compound) {
+                compound.putByte("Slot", (byte) i);
                 list.add(compound);
             } else {
                 AdminCraft.LOGGER.error("Encoding issue (enderchest), item encoding for slot {} hasn't returned a CompoundTag.", stack.getEquipmentSlot());
