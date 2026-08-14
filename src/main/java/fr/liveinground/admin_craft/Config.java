@@ -44,6 +44,12 @@ public class Config {
     private static final ModConfigSpec.ConfigValue<String> _CONFIG_VERSION;
     public static String _config_version;
 
+    private static final ModConfigSpec.ConfigValue<Boolean> CHECK_FOR_UPDATES;
+    public static boolean check_for_updates;
+
+    private static final ModConfigSpec.ConfigValue<Integer> UPDATE_DISPLAY_OP_LEVEL;
+    public static Permission update_display_op_level;
+
     private static final ModConfigSpec.ConfigValue<String> LOCALE;
     public static String locale;
 
@@ -227,6 +233,8 @@ public class Config {
         _CONFIG_VERSION = BUILDER
                 .comment("This setting corresponds to the mod version, to check if the config is up to date. Change it when you update the mod, in order to disable the join message.")
                 .define("configVersion", AdminCraft._VERSION);
+        CHECK_FOR_UPDATES = BUILDER.comment("Should AdminCraft check for updates on server start?").worldRestart().define("checkForUpdates", true);
+        UPDATE_DISPLAY_OP_LEVEL = BUILDER.comment("The OP level required to see update messages in game").worldRestart().defineInRange("updateOPLevel", 4, 0, 4);
         LOCALE = BUILDER.comment("The lang file the mod should use. Can be one of the supported languages: en_US, fr_FR, hu_HU.").worldRestart().define("locale", "en_US");
         LOG_SERVER_COMMANDS = BUILDER.comment("Should AdminCraft log server commands (console, command blocks, functions, mods...)?").worldRestart().define("logServerCommands", false);
         LOG_PLAYER_COMMANDS = BUILDER.comment("Should AdminCraft log player's commands").worldRestart().define("logPlayerCommands", false);
@@ -422,6 +430,8 @@ public class Config {
 
         readme = README.get();
         _config_version = _CONFIG_VERSION.get();
+        check_for_updates = CHECK_FOR_UPDATES.get();
+        update_display_op_level = getPermissionFromInt(UPDATE_DISPLAY_OP_LEVEL.get());
         locale = LOCALE.get();
 
         LangManager.setLanguage(locale);
