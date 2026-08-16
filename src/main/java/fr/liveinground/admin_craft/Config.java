@@ -4,6 +4,7 @@ import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionTemplate;
+import fr.liveinground.admin_craft.updates.UpdateChecker;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -431,6 +432,8 @@ public class Config {
         readme = README.get();
         _config_version = _CONFIG_VERSION.get();
         check_for_updates = CHECK_FOR_UPDATES.get();
+        if (check_for_updates)
+            UpdateChecker.checkForUpdates();
         update_display_op_level = getPermissionFromInt(UPDATE_DISPLAY_OP_LEVEL.get());
         locale = LOCALE.get();
 
