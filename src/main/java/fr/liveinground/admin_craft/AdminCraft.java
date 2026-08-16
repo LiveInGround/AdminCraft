@@ -24,12 +24,15 @@ import fr.liveinground.admin_craft.discord.DiscordBot;
 import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
+import fr.liveinground.admin_craft.mutes.Utils;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.updates.UpdateChecker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,6 +68,8 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -77,6 +82,8 @@ public class AdminCraft {
 
     public static final String MODID = "admin_craft";
     public static final String _VERSION = "1.1.1";
+    public static final String _MCVERSION = "26.1.2";
+    public static final String _MODLOADER = "neoforge";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final String SP_TAG = "inSpawnProtection";
 
@@ -296,19 +303,93 @@ public class AdminCraft {
             playerDataManager.removeIPEntry(playerDataManager.getPlayerIPSDataByUUID(player.getStringUUID()));
         }
         playerDataManager.addIPSData(player.getName().getString(), player.getStringUUID(), player.getIpAddress());
-        if (player.hasPermissions(1) && Config.readme) {
-            player.sendSystemMessage(Component.literal("Thank you for using AdminCraft!").withStyle(ChatFormatting.AQUA));
-            player.sendSystemMessage(Component.literal("For a better experience, you should take a look to our configuration files."));
-            player.sendSystemMessage(Component.literal("Found a bug or need help using the mod ? Join our discord or our issue tracker:"));
-            player.sendSystemMessage(Component.literal("https://discord.gg/uKpPsaYmgk").withStyle(ChatFormatting.BLUE, ChatFormatting.UNDERLINE));
-            player.sendSystemMessage(Component.literal("https://github.com/LiveInGround/AdminCraft/issues").withStyle(ChatFormatting.BLUE, ChatFormatting.UNDERLINE));
-            player.sendSystemMessage(Component.literal("Note: you can disable this message in the configuration."));
+
+        if (Utils.getOnlineOperators().contains(player)) {
+            if (Config.readme) {
+                player.sendSystemMessage(Component.literal("Thank you for using AdminCraft!").withStyle(ChatFormatting.AQUA));
+                player.sendSystemMessage(Component.literal("For a better experience, please take a look at the configuration files."));
+                player.sendSystemMessage(Component.literal("Found a bug or need help using the mod?"));
+                player.sendSystemMessage(Component.literal("Discord: ").append(
+                        Component.literal("Join our Discord")
+                                .withStyle(style -> {
+                                    try {
+                                        return style
+                                                .withColor(ChatFormatting.BLUE)
+                                                .withUnderlined(true)
+                                                .withClickEvent(
+                                                        new ClickEvent.OpenUrl(
+                                                                new URI("https://discord.gg/uKpPsaYmgk")
+                                                        )
+                                                );
+                                    } catch (URISyntaxException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                })));
+                player.sendSystemMessage(Component.literal("Issue tracker: ").append(
+                        Component.literal("GitHub Issues")
+                                .withStyle(style -> {
+                                    try {
+                                        return style
+                                                .withColor(ChatFormatting.BLUE)
+                                                .withUnderlined(true)
+                                                .withClickEvent(
+                                                        new ClickEvent.OpenUrl(
+                                                                new URI("https://github.com/LiveInGround/AdminCraft/issues")
+                                                        )
+                                                );
+                                    } catch (URISyntaxException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                })));
+                player.sendSystemMessage(Component.literal("Note: you can disable this message in the configuration.").withStyle(ChatFormatting.GRAY));
+            }
+            if (!Config._config_version.equals(AdminCraft._VERSION)) {
+                player.sendSystemMessage(Component.literal(
+                                "AdminCraft was recently updated to version "
+                                        + AdminCraft._VERSION
+                                        + "."
+                        ).withStyle(ChatFormatting.YELLOW)
+                );
+                player.sendSystemMessage(Component.literal(
+                                "It is strongly recommended to check the configuration file "
+                                        + "to ensure everything is configured correctly."
+                        )
+                );
+                player.sendSystemMessage(Component.literal(
+                                "You can disable this message by changing the "
+                                        + "'configVersion' key to "
+                                        + AdminCraft._VERSION
+                                        + " in the configuration."
+                        ).withStyle(ChatFormatting.GRAY)
+                );
+            }
         }
-        if (player.hasPermissions(1) && !Config._config_version.equals(AdminCraft._VERSION)) {
-            player.sendSystemMessage(Component.literal("AdminCraft was recently updated to a new version (" + AdminCraft._VERSION + ").").withStyle(ChatFormatting.YELLOW));
-            player.sendSystemMessage(Component.literal("It strongly recommended to check the configuration file to ensure there is no issue with it."));
-            player.sendSystemMessage(Component.literal("You can disable this message by changing the 'configVersion' key to " + AdminCraft._VERSION + " in the configuration."));
-        }
+        if (player.hasPermissions(Config.update_display_op_level) && Config.check_for_updates && !UpdateChecker.updateResult.up_to_date()) {
+            Component message = Component.literal(
+                            "A new version of AdminCraft is available: v"
+                                    + UpdateChecker.updateResult.last_version().version()
+                                    + ". You are currently using AdminCraft v"
+                                    + AdminCraft._VERSION
+                                    + ". "
+                    )
+                    .withStyle(ChatFormatting.GOLD).append(
+                            Component.literal("Download on Modrinth")
+                                    .withStyle(style -> {
+                                                try {
+                                                    return style
+                                                            .withColor(ChatFormatting.AQUA)
+                                                            .withUnderlined(true)
+                                                            .withClickEvent(
+                                                                    new ClickEvent.OpenUrl(new URI(UpdateChecker.DOWNLOAD_LINK))
+                                                            );
+                                                } catch (URISyntaxException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            }
+                                    )
+                    );
+
+            player.sendSystemMessage(message);        }
     }
 
     @Nullable
