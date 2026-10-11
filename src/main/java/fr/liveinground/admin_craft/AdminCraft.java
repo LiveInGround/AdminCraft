@@ -99,7 +99,7 @@ public class AdminCraft {
                     "Please remove it from your 'mods' folder.");
             return;
         }
-        modContainer.registerConfig(ModConfig.Type.SERVER, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.LOCAL, Config.SPEC);
         modEventBus.register(Config.class);
         NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(MuteEventsHandler.class);
