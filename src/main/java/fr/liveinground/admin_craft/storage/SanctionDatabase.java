@@ -31,7 +31,7 @@ public class SanctionDatabase {
 
     private static final Path DATABASE_PATH = FMLPaths.GAMEDIR.get()
             .resolve("AdminCraft_Storage")
-            .resolve("sanctions.db");
+            .resolve("storage.db");
 
     private static final String URL = "jdbc:sqlite:" + DATABASE_PATH.toAbsolutePath();
 
