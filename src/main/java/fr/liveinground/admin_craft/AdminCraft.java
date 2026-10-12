@@ -6,6 +6,7 @@ import fr.liveinground.admin_craft.commands.moderation.BanCommand;
 import fr.liveinground.admin_craft.commands.moderation.FreezeCommand;
 import fr.liveinground.admin_craft.commands.moderation.MuteCommand;
 import fr.liveinground.admin_craft.commands.moderation.ReportCommand;
+import fr.liveinground.admin_craft.commands.moderation.ReportsCommand;
 import fr.liveinground.admin_craft.commands.moderation.SanctionCommand;
 import fr.liveinground.admin_craft.commands.moderation.TempBanCommand;
 import fr.liveinground.admin_craft.commands.moderation.WarnCommand;
@@ -140,6 +141,7 @@ public class AdminCraft {
         SanctionCommand.register(dispatcher);
         FreezeCommand.register(dispatcher);
         ReportCommand.register(dispatcher);
+        ReportsCommand.register(dispatcher);
         TempBanCommand.register(dispatcher);
         InvseeCommand.register(dispatcher);
         EchestCommand.register(dispatcher);
