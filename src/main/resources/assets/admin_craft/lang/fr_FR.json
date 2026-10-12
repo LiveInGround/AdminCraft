@@ -2,6 +2,7 @@
   "ban.id.error": "Erreur interne, merci de contacter un admin pour un appel manuel.",
   "command.mute.fail.already_muted": "%player% est déjà muet",
   "command.mute.success": "%player% a été rendu muet : %reason%",
+  "command.report.failed.database": "Failed to register the report. Please contact a staff member directly.",
   "command.report.failed.self": "Vous ne pouvez pas vous signaler vous-même !",
   "command.report.failed.webhook": "Un problème est survenu pendant votre signalement. N'hésitez pas à contacter l'équipe si aucun opérateur n'est en ligne.",
   "command.report.success": "Signalement envoyé avec succès. Merci de votre vigilance.",
