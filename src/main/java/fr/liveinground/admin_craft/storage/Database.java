@@ -228,9 +228,13 @@ public class Database {
     }
 
     public static List<ReportData> listReportsOf(UUID player) {
-        return queryReports("SELECT * FROM reports WHERE reporteduuid = ?", stmt ->{
+        return queryReports("SELECT * FROM reports WHERE reporteduuid = ?;", stmt ->{
             stmt.setString(1, player.toString());
         });
+    }
+
+    public static List<ReportData> listReports() {
+        return queryReports("SELECT * FROM reports;", stmt -> {});
     }
 
     public static List<ReportData> listReportsFrom(UUID player) {

@@ -65,7 +65,7 @@ public class HistoryCommand {
         );
     }
 
-    private static void addField(MutableComponent component, String name, String value) {
+    public static void addField(MutableComponent component, String name, String value) {
         component.append(Component.literal("  - ").withStyle(ChatFormatting.GOLD));
         component.append(Component.literal(name + ": ").withStyle(ChatFormatting.YELLOW));
         component.append(Component.literal(value));
