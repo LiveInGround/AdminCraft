@@ -2,7 +2,7 @@ package fr.liveinground.admin_craft.commands.tools;
 
 import com.mojang.brigadier.CommandDispatcher;
 import fr.liveinground.admin_craft.Config;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -29,7 +29,7 @@ public class HistoryCommand {
                             }
                             NameAndId targetProfile = profiles.iterator().next();
 
-                            List<DatabaseSanctionData> history = SanctionDatabase.getHistory(targetProfile.id().toString());
+                            List<DatabaseSanctionData> history = Database.getHistory(targetProfile.id().toString());
                             if (history.isEmpty()) {
                                 ctx.getSource().sendSuccess(() -> Component.literal("This player was never sanctioned."), false);
                                 return 1;

@@ -1,7 +1,10 @@
 package fr.liveinground.admin_craft.storage.types.reports;
 
 
-import java.util.Date;
+import org.jetbrains.annotations.Nullable;
 
-public record ReportData(String targetUUID, String sourceUUID, String reason, Date date) {
+import java.util.Date;
+import java.util.UUID;
+
+public record ReportData(int id, ReportStatus status, UUID sourceUUID, UUID targetUUID, String reason, Date date, @Nullable UUID claimedUUID) {
 }

@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import net.minecraft.ChatFormatting;
@@ -28,7 +28,7 @@ public class EditDurationCommand {
                 .then(Commands.argument("id", StringArgumentType.string())
                         .suggests((ctx, builder) -> {
                             String remaining = builder.getRemaining();
-                            for (String id: SanctionDatabase.listIDs()) {
+                            for (String id: Database.listIDs()) {
                                 if (!remaining.contains(id)) builder.suggest('"' + id + '"');
                             }
                             return builder.buildFuture();
@@ -36,7 +36,7 @@ public class EditDurationCommand {
                         .then(Commands.argument("duration", StringArgumentType.word())
                                 .executes(ctx -> {
                                     String id = StringArgumentType.getString(ctx, "id");
-                                    DatabaseSanctionData data = SanctionDatabase.getSanctionData(id);
+                                    DatabaseSanctionData data = Database.getSanctionData(id);
                                     if (data == null) {
                                         ctx.getSource().sendFailure(Component.literal("No sanction was found with id " + id).withStyle(ChatFormatting.RED));
                                         return 1;

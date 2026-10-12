@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
@@ -36,7 +36,7 @@ public class EditAppealCommand {
                 .then(Commands.argument("id", StringArgumentType.string())
                         .suggests((ctx, builder) -> {
                             String remaining = builder.getRemaining();
-                            for (String id: SanctionDatabase.listIDs()) {
+                            for (String id: Database.listIDs()) {
                                 if (!remaining.contains(id)) builder.suggest('"' + id + '"');
                             }
                             return builder.buildFuture();
@@ -52,7 +52,7 @@ public class EditAppealCommand {
                                         })
                                         .executes(ctx -> {
                                             String id = StringArgumentType.getString(ctx, "id");
-                                            DatabaseSanctionData data = SanctionDatabase.getSanctionData(id);
+                                            DatabaseSanctionData data = Database.getSanctionData(id);
                                             if (data == null) {
                                                 ctx.getSource().sendFailure(Component.literal("No sanction was found with id " + id).withStyle(ChatFormatting.RED));
                                                 return 1;
@@ -68,7 +68,7 @@ public class EditAppealCommand {
                                                 return 1;
                                             }
 
-                                            if (SanctionDatabase.changeAppealStatus(id, status)) {
+                                            if (Database.changeAppealStatus(id, status)) {
                                                 ctx.getSource().sendSuccess(() -> Component.literal("Successfully changed appeal status for sanction id " + id + " to " + status), true);
                                             } else {
                                                 ctx.getSource().sendFailure(Component.literal("An unexpected issue occurred while updating the database.").withStyle(ChatFormatting.RED));
@@ -81,7 +81,7 @@ public class EditAppealCommand {
                                 .then(Commands.argument("delay", StringArgumentType.word())
                                         .executes(ctx -> {
                                             String id = StringArgumentType.getString(ctx, "id");
-                                            DatabaseSanctionData data = SanctionDatabase.getSanctionData(id);
+                                            DatabaseSanctionData data = Database.getSanctionData(id);
                                             if (data == null) {
                                                 ctx.getSource().sendFailure(Component.literal("No sanction was found with id " + id).withStyle(ChatFormatting.RED));
                                                 return 1;
@@ -96,7 +96,7 @@ public class EditAppealCommand {
                                                 ctx.getSource().sendFailure(Component.literal("Argument delay is invalid, please enter a valid duration. To disable appeal for this sanction, please use /editappeal <id> status NOT_ALLOWED.").withStyle(ChatFormatting.RED));
                                                 return 1;
                                             }
-                                            if (SanctionDatabase.editAppealDelay(id, newAppealDelay)) {
+                                            if (Database.editAppealDelay(id, newAppealDelay)) {
                                                 ctx.getSource().sendSuccess(() -> Component.literal("Successfully changed the appeal delay of the sanction id " + id + ", appeal will be available in: " + newAppealDelay), true);
                                             } else {
                                                 ctx.getSource().sendFailure(Component.literal("An unexpected error occurred.").withStyle(ChatFormatting.RED));

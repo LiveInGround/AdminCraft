@@ -1,7 +1,7 @@
 package fr.liveinground.admin_craft.mixins;
 
 import fr.liveinground.admin_craft.AdminCraft;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import net.minecraft.server.players.NameAndId;
@@ -30,20 +30,20 @@ public class PardonMixin {
             String reason = entry.getReason();
             Date created = entry.getCreated();
             AdminCraft.LOGGER.debug("Reason: {}; created: {}", reason, created);
-            banData = SanctionDatabase.getCurrentSanctions(p_443373_.id().toString()).stream().filter(
+            banData = Database.getCurrentSanctions(p_443373_.id().toString()).stream().filter(
                     data -> data.type().equals(Sanction.BAN)
                             && data.reason().equals(reason)
                             && Math.abs(data.date().getTime() - created.getTime()) < 5000   // avoid offset caused by a system lag
             ).findFirst();
         } else {
-            banData = SanctionDatabase.getCurrentSanctions(p_443373_.id().toString()).stream().filter(
+            banData = Database.getCurrentSanctions(p_443373_.id().toString()).stream().filter(
                     data -> data.type().equals(Sanction.BAN)
             ).findFirst();
         }
         if (banData.isEmpty()) {
             AdminCraft.LOGGER.warn("Couldn't find any suitable sanction in the database corresponding to {}'s ban, skipping database change while unbanning.", p_443373_.name());
         } else {
-            SanctionDatabase.removeSanction(banData.get().id());
+            Database.removeSanction(banData.get().id());
         }
     }
 }

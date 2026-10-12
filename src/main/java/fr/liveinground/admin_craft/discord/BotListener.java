@@ -5,7 +5,7 @@ import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -172,7 +172,7 @@ public class BotListener extends ListenerAdapter {
                             .queue();
                     return;
                 }
-                DatabaseSanctionData dataset = SanctionDatabase.getSanctionData(id);
+                DatabaseSanctionData dataset = Database.getSanctionData(id);
                 if (dataset == null) {
                     event.reply(LangManager.tr(TrKeys.DISCORD_STAFF_BUTTON_ERROR_SANCTION_NOT_FOUND, Map.of("id", id))).setEphemeral(true).queue();
                     return;
@@ -250,11 +250,11 @@ public class BotListener extends ListenerAdapter {
         if (event.getModalId().equals(DiscordBot.INFO_MODAL_ID)) {
             String id = Objects.requireNonNull(event.getValue("id")).getAsString();
             String ign = Objects.requireNonNull(event.getValue("ign")).getAsString();
-            if (SanctionDatabase.sanctionDoesntExists(id, ign)) {
+            if (Database.sanctionDoesntExists(id, ign)) {
                 event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_MODAL_INFO_FAILURE_NOT_FOUND)).setEphemeral(true).queue();
                 return;
             }
-            DatabaseSanctionData data = SanctionDatabase.getSanctionData(id, ign);
+            DatabaseSanctionData data = Database.getSanctionData(id, ign);
             if (data == null) {
                 event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_MODAL_INFO_FAILURE_NOT_FOUND)).setEphemeral(true).queue();
                 return;
@@ -281,7 +281,7 @@ public class BotListener extends ListenerAdapter {
                     expired = true;
                 }
             }
-            AppealStatus status = SanctionDatabase.getAppealStatus(id);
+            AppealStatus status = Database.getAppealStatus(id);
             if (status == null) {
                 AdminCraft.LOGGER.error("Couldn't get appeal status for sanction id {} getAppealStatus returned null: ", id);
                 event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_FAILURE)).setEphemeral(true).queue();
@@ -289,7 +289,7 @@ public class BotListener extends ListenerAdapter {
             }
             Date delay = null;
             if (status.equals(AppealStatus.DELAYED)) {
-                delay = SanctionDatabase.getAppealDelay(id);
+                delay = Database.getAppealDelay(id);
                 if (delay == null) {
                     AdminCraft.LOGGER.error("Could not get appeal delay for sanction id {}", id);
                     event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_FAILURE)).setEphemeral(true).queue();
@@ -297,7 +297,7 @@ public class BotListener extends ListenerAdapter {
                 }
                 if (delay.before(new Date())) {
                     status = AppealStatus.NOT_REQUESTED;
-                    SanctionDatabase.changeAppealStatus(id, status);
+                    Database.changeAppealStatus(id, status);
                 }
             }
             embed.addField(LangManager.tr(TrKeys.DISCORD_EMBED_INFO_APPEAL_STATUS), status.status(), false);
@@ -327,7 +327,7 @@ public class BotListener extends ListenerAdapter {
             }
             String appealReason = Objects.requireNonNull(event.getInteraction().getValue("reason")).getAsString();
 
-            DatabaseSanctionData data = SanctionDatabase.getSanctionData(id, ign);
+            DatabaseSanctionData data = Database.getSanctionData(id, ign);
             if (data == null) {
                 event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_FAILURE_NODATA)).setEphemeral(true).queue();
                 return;
@@ -365,7 +365,7 @@ public class BotListener extends ListenerAdapter {
                     Button.success(member.getId() + DiscordBot.ACCEPT_LIGHT_APPEAL_BUTTON_ID + id, LangManager.tr(TrKeys.DISCORD_STAFF_BUTTON_REDUCE_LABEL)),
                     Button.danger(member.getId() + DiscordBot.REFUSE_APPEAL_BUTTON_ID + id, LangManager.tr(TrKeys.DISCORD_STAFF_BUTTON_REFUSE_LABEL))
             ).queue(message -> message.pin().queue());
-            SanctionDatabase.changeAppealStatus(id, AppealStatus.IN_PROGRESS);
+            Database.changeAppealStatus(id, AppealStatus.IN_PROGRESS);
             event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_APPEAL_SUCCESS)).setEphemeral(true).queue();
         }
         String[] splitted = event.getModalId().split("_");
@@ -388,7 +388,7 @@ public class BotListener extends ListenerAdapter {
                 } else {
                     reason = reasonMapping.getAsString();
                 }
-                if (SanctionDatabase.changeAppealStatus(id, AppealStatus.REFUSED)) {
+                if (Database.changeAppealStatus(id, AppealStatus.REFUSED)) {
                     member.getUser().openPrivateChannel().queue(channel -> channel.sendMessage(
                             LangManager.tr(TrKeys.DISCORD_DM_APPEAL_DENIED, Map.of(
                                     "mention", member.getAsMention(),
@@ -414,7 +414,7 @@ public class BotListener extends ListenerAdapter {
                 }
             }
             if (modalID.equals(DiscordBot.STAFF_DURATION_MODAL_ID)) {
-                DatabaseSanctionData data = SanctionDatabase.getSanctionData(id);
+                DatabaseSanctionData data = Database.getSanctionData(id);
                 if (data == null) {
                     event.getHook().sendMessage(LangManager.tr(TrKeys.DISCORD_STAFF_BUTTON_ERROR_SANCTION_NOT_FOUND, Map.of("id", id))).setEphemeral(true).queue();
                     return;

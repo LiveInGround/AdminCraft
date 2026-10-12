@@ -1,6 +1,8 @@
 package fr.liveinground.admin_craft.storage;
 
 import fr.liveinground.admin_craft.AdminCraft;
+import fr.liveinground.admin_craft.storage.types.reports.ReportData;
+import fr.liveinground.admin_craft.storage.types.reports.ReportStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
@@ -23,8 +25,9 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-public class SanctionDatabase {
+public class Database {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -59,7 +62,7 @@ public class SanctionDatabase {
         }
         String id = builder.toString();
         String finalId = id;
-        if (!query("SELECT * FROM sanctions WHERE id = ?;", stmt -> stmt.setString(1, finalId)).isEmpty()) {
+        if (!querySanction("SELECT * FROM sanctions WHERE id = ?;", stmt -> stmt.setString(1, finalId)).isEmpty()) {
             id = generateID();
         }
         return id;
@@ -70,7 +73,7 @@ public class SanctionDatabase {
         void prepare(PreparedStatement stmt) throws SQLException;
     }
 
-    private static List<DatabaseSanctionData> query(String sql, StatementPreparer preparer) {
+    private static List<DatabaseSanctionData> querySanction(String sql, StatementPreparer preparer) {
         List<DatabaseSanctionData> results = new ArrayList<>();
         try (
                 Connection conn = connect();
@@ -117,6 +120,43 @@ public class SanctionDatabase {
         return results;
     }
 
+    private static List<ReportData> queryReports(String sql, StatementPreparer preparer) {
+        List<ReportData> results = new ArrayList<>();
+        try (
+                Connection conn = connect();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            preparer.prepare(stmt);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String claimedUUIDStr = rs.getString("claimeduuid");
+                    UUID claimedUUID;
+                    if (rs.wasNull()) {
+                        claimedUUID = null;
+                    } else {
+                        claimedUUID = UUID.fromString(claimedUUIDStr);
+                    }
+                    ReportData data = new ReportData(
+                            rs.getInt("id"),
+                            ReportStatus.valueOf(rs.getString("status")),
+                            UUID.fromString(rs.getString("reporteruuid")),
+                            UUID.fromString(rs.getString("reporteduuid")),
+                            rs.getString("reason"),
+                            new Date(rs.getLong("date")),
+                            claimedUUID
+                    );
+
+                    results.add(data);
+                }
+            }
+        } catch (SQLException e) {
+            AdminCraft.LOGGER.error("Issue while posting a query to the report table: ", e);
+        }
+
+        return results;
+    }
+
     private static boolean update(String sql, StatementPreparer preparer) {
 
         try (
@@ -136,7 +176,7 @@ public class SanctionDatabase {
     @Nullable
     private static Exception post(String sql) {
         try (
-                Connection connection = SanctionDatabase.connect();
+                Connection connection = Database.connect();
                 Statement statement = connection.createStatement()
         ) {
             statement.execute(sql);
@@ -159,13 +199,69 @@ public class SanctionDatabase {
                     appealStatus TEXT NOT NULL,
                     appealDate BIGINT,
                     removed INTEGER NOT NULL DEFAULT 0
-                    );""";
+                );
+                
+                CREATE TABLE IF NOT EXISTS reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    status TEXT DEFAULT UNRESOLVED,
+                    reporteruuid TEXT NOT NULL,
+                    reporteduuid TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    date BIGINT NOT NULL,
+                    claimeduuid TEXT
+                );""";
         Exception ans = post(init);
         if (ans == null) {
-            AdminCraft.LOGGER.info("Successfully connected to the sanction database");
+            AdminCraft.LOGGER.info("Successfully connected to the database");
         } else {
-            AdminCraft.LOGGER.error("Error while initialising sanction database: ", ans);
+            AdminCraft.LOGGER.error("Error while initialising the database: ", ans);
         }
+    }
+
+    public static boolean registerReport(UUID reporter, UUID reported, String reason) {
+        return update("INSERT INTO reports(reporteruuid, reporteduuid, reason, date) VALUES (?, ?, ?, ?);", stmt -> {
+            stmt.setString(1, reporter.toString());
+            stmt.setString(2, reported.toString());
+            stmt.setString(3, reason);
+            stmt.setLong(4, new Date().getTime());
+        });
+    }
+
+    public static List<ReportData> listReportsOf(UUID player) {
+        return queryReports("SELECT * FROM reports WHERE reporteduuid = ?", stmt ->{
+            stmt.setString(1, player.toString());
+        });
+    }
+
+    public static List<ReportData> listReportsFrom(UUID player) {
+        return queryReports("SELECT * FROM reports WHERE reporteruuid = ?", stmt ->{
+            stmt.setString(1, player.toString());
+        });
+    }
+
+    public static boolean updateReportStatus(int id, ReportStatus status, @Nullable UUID claimer) {
+        if (status.equals(ReportStatus.CLAIMED)) {
+            if (claimer == null) {
+                AdminCraft.LOGGER.error("Trying to claim report " + id + " without a provided staff!");
+                return false;
+            }
+            return update("UPDATE reports SET status = ?, claimeduuid = ? WHERE id = ?;", stmt -> {
+                stmt.setString(1, status.name());
+                stmt.setString(2, claimer.toString());
+                stmt.setInt(3, id);
+            });
+        } else {
+            return update("UPDATE reports SET status = ? WHERE id = ?;", stmt -> {
+                stmt.setString(1, status.name());
+                stmt.setInt(3, id);
+            });
+        }
+    }
+
+    public static boolean deleteReport(int id) {
+        return update("DELETE FROM reports WHERE ID = ?;", stmt -> {
+            stmt.setInt(1, id);
+        });
     }
 
     @Nullable
@@ -205,7 +301,7 @@ public class SanctionDatabase {
     }
 
     public static boolean sanctionDoesntExists(String id, String ign) {
-        return query(
+        return querySanction(
                 "SELECT * FROM sanctions WHERE id = ? AND ign = ?;",
                 stmt -> {
                     stmt.setString(1, id);
@@ -214,7 +310,7 @@ public class SanctionDatabase {
     }
 
     public static @Nullable AppealStatus getAppealStatus(String id) {
-        DatabaseSanctionData data = query(
+        DatabaseSanctionData data = querySanction(
                 "SELECT * FROM sanctions WHERE id = ?;",
                 stmt -> stmt.setString(1, id)
         ).stream().findFirst().orElse(null);
@@ -226,7 +322,7 @@ public class SanctionDatabase {
     public static Date getAppealDelay(String id) {
         AppealStatus status = getAppealStatus(id);
         if (status == null || !status.equals(AppealStatus.DELAYED)) return null;
-        DatabaseSanctionData data = query("SELECT * FROM sanctions WHERE id = ?;",
+        DatabaseSanctionData data = querySanction("SELECT * FROM sanctions WHERE id = ?;",
                 stmt -> stmt.setString(1, id)).stream().findFirst().orElse(null);
         if (data == null) return null;
         return data.appealDelay();
@@ -242,7 +338,7 @@ public class SanctionDatabase {
 
     @Nullable
     public static DatabaseSanctionData getSanctionData(String id, String ign) {
-        return query("SELECT * FROM sanctions WHERE id = ? AND ign = ?;",
+        return querySanction("SELECT * FROM sanctions WHERE id = ? AND ign = ?;",
                 stmt -> {
                     stmt.setString(1, id);
                     stmt.setString(2, ign);
@@ -251,13 +347,13 @@ public class SanctionDatabase {
 
     @Nullable
     public static DatabaseSanctionData getSanctionData(String id) {
-        return query("SELECT * FROM sanctions WHERE id = ?;",
+        return querySanction("SELECT * FROM sanctions WHERE id = ?;",
                 stmt -> stmt.setString(1, id)).stream().findFirst().orElse(null);
     }
 
     public static List<DatabaseSanctionData> getCurrentSanctions(String uuid) {
         Date now = new Date();
-        return query(
+        return querySanction(
                 "SELECT * FROM sanctions WHERE uuid = ? AND removed = 0;",
                 stmt -> stmt.setString(1, uuid)
         ).stream()
@@ -266,7 +362,7 @@ public class SanctionDatabase {
     }
 
     public static List<DatabaseSanctionData> getHistory(String uuid) {
-        return query(
+        return querySanction(
                 "SELECT * FROM sanctions WHERE uuid = ?;",
                 stmt -> stmt.setString(1, uuid)
         );
@@ -292,7 +388,7 @@ public class SanctionDatabase {
 
     public static List<String> listIDs() {
         List<String> ids = new ArrayList<>();
-        List<DatabaseSanctionData> sd = query("SELECT * FROM sanctions;", stmt -> {});
+        List<DatabaseSanctionData> sd = querySanction("SELECT * FROM sanctions;", stmt -> {});
         for (DatabaseSanctionData d: sd) {
             ids.add(d.id());
         }

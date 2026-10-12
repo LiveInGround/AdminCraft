@@ -25,8 +25,8 @@ import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.mutes.MuteEventsHandler;
 import fr.liveinground.admin_craft.mutes.Utils;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
 import fr.liveinground.admin_craft.updates.UpdateChecker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -102,7 +102,7 @@ public class AdminCraft {
         NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(MuteEventsHandler.class);
         NeoForge.EVENT_BUS.register(FreezeEventListener.class);
-        SanctionDatabase.start();
+        Database.start();
     }
 
     @SubscribeEvent

@@ -5,7 +5,7 @@ import fr.liveinground.admin_craft.discord.DiscordBot;
 import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
-import fr.liveinground.admin_craft.storage.SanctionDatabase;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
@@ -28,7 +28,7 @@ public class LoginMixin {
 
     @Inject(method = "canPlayerLogin", at = @At("HEAD"), cancellable = true)
     private void canPlayerLogin(SocketAddress address, NameAndId player, CallbackInfoReturnable<Component> cir) {
-        List<DatabaseSanctionData> punishments = SanctionDatabase.getCurrentSanctions(player.id().toString());
+        List<DatabaseSanctionData> punishments = Database.getCurrentSanctions(player.id().toString());
         if (!punishments.isEmpty()) {
             DatabaseSanctionData sanction = punishments.stream()
                     .filter(d ->

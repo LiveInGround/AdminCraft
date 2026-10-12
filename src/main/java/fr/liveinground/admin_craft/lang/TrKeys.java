@@ -58,6 +58,7 @@ public class TrKeys {
     public static final String REPORT_SUCCESS = "command.report.success";
     public static final String REPORT_FAILED_WEBHOOK = "command.report.failed.webhook";
     public static final String REPORT_FAILED_SELF = "command.report.failed.self";
+    public static final String REPORT_FAILED_DATABASE = "command.report.failed.database";
 
     // =========================
     // Freeze system

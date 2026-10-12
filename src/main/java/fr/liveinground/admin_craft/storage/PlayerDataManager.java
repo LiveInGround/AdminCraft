@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import fr.liveinground.admin_craft.AdminCraft;
-import fr.liveinground.admin_craft.storage.types.*;
-import fr.liveinground.admin_craft.storage.types.reports.PlayerReportsData;
-import fr.liveinground.admin_craft.storage.types.reports.ReportData;
+import fr.liveinground.admin_craft.storage.types.PlayerMuteData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
 import fr.liveinground.admin_craft.storage.types.sanction.SanctionData;
 import fr.liveinground.admin_craft.storage.types.tools.PlayerHistoryData;
@@ -43,7 +41,6 @@ public class PlayerDataManager {
     private final List<PlayerMuteData> muteEntries = new ArrayList<>();
     private final List<PlayerIPSData> ipsEntries = new ArrayList<>();
     private final List<PlayerHistoryData> historyEntries = new ArrayList<>();
-    private final List<PlayerReportsData> reportsEntries = new ArrayList<>();
 
     public PlayerDataManager(Path worldPath) {
         Path rootDir = worldPath.resolve(ROOT);
@@ -147,18 +144,6 @@ public class PlayerDataManager {
             System.err.println("Failed to load IPS datas: " + e.getMessage());
         }
 
-        // report system
-        try (Reader reader = Files.newBufferedReader(reports_data_file)) {
-            Type type = new TypeToken<List<PlayerReportsData>>(){}.getType();
-            List<PlayerReportsData> loaded = GSON.fromJson(reader, type);
-            if (loaded != null) {
-                reportsEntries.clear();
-                reportsEntries.addAll(loaded);
-            }
-        } catch (IOException e) {
-            System.err.println("Failed to load report datas: " + e.getMessage());
-        }
-
         // todo: staff mode data storage
 
         // todo: create the db system for world logging
@@ -221,29 +206,6 @@ public class PlayerDataManager {
     public void addIPSData(String name, String uuid, String ips) {
         ipsEntries.add(new PlayerIPSData(name, uuid, ips));
     }
-
-    @Nullable
-    public PlayerReportsData getReportDatasByUUID(String uuid) {
-        for (PlayerReportsData d: reportsEntries) {
-            if (d.playerUUID().equals(uuid)) {
-                return d;
-            }
-        }
-        return null;
-    }
-
-    public void addReport(String targetUUID, String sourceUUID, String reason) {
-        ReportData data = new ReportData(targetUUID, sourceUUID, reason, new Date());
-        PlayerReportsData d = getReportDatasByUUID(targetUUID);
-        if (d == null) {
-            List<ReportData> l = new ArrayList<>();
-            l.add(data);
-            d = new PlayerReportsData(targetUUID, l);
-            reportsEntries.add(d);
-        } else {
-            d.reports().add(data);
-        }
-    }
     
     public void save() {
         try {
@@ -252,9 +214,6 @@ public class PlayerDataManager {
             }
             try (Writer writer = Files.newBufferedWriter(ips_data_file)) {
                 GSON.toJson(ipsEntries, writer);
-            }
-            try (Writer writer = Files.newBufferedWriter(reports_data_file)) {
-                GSON.toJson(reportsEntries, writer);
             }
         } catch (IOException e) {
             System.err.println("Failed to save datas: " + e.getMessage());

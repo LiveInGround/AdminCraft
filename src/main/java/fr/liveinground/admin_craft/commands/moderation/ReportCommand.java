@@ -8,7 +8,7 @@ import fr.liveinground.admin_craft.PlaceHolderSystem;
 import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.mutes.Utils;
-import fr.liveinground.admin_craft.storage.types.reports.PlayerReportsData;
+import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -28,6 +28,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -49,7 +50,9 @@ public class ReportCommand {
                                             return 1;
                                         }
 
-                                        AdminCraft.playerDataManager.addReport(reportedPlayer.getStringUUID(), player.getStringUUID(), reason);
+                                        if (!Database.registerReport(player.getUUID(), reportedPlayer.getUUID(), reason)) {
+                                            player.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.REPORT_FAILED_DATABASE)).withStyle(ChatFormatting.RED));
+                                        }
 
                                         for (ServerPlayer operator: Utils.getOnlineOperators()) {
                                             operator.sendSystemMessage(Component.literal(PlaceHolderSystem.replacePlaceholders("%player% was reported by %source%: %reason%.",
@@ -93,14 +96,14 @@ public class ReportCommand {
                                     return 1;
                                 }
 
-                                PlayerReportsData data = AdminCraft.playerDataManager.getReportDatasByUUID(player.getStringUUID());
-                                if (data == null) {
+                                List<ReportData> data = Database.listReportsOf(player.getUUID());
+                                if (data.isEmpty()) {
                                     ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " wasn't reported yet."), false);
                                     return 1;
                                 }
                                 MutableComponent output = Component.literal("");
                                 output.append(Component.literal(player.getDisplayName().getString() + "'s reports\n"));
-                                for (ReportData d: data.reports()) {
+                                for (ReportData d: data) {
                                     output.append(Component.literal("- REPORT: ")
                                                     .withStyle(ChatFormatting.DARK_RED))
                                             .append(Component.literal(d.reason())
