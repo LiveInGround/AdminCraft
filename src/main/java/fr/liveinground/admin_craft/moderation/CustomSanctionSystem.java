@@ -46,21 +46,26 @@ public class CustomSanctionSystem {
             id = LangManager.tr(TrKeys.BAN_ID_ERROR);
         }
         if (serverPlayer != null) {
-            MutableComponent message = Component.literal("")
-                    .append(Component.literal(LangManager.tr(TrKeys.DISCONNECT_BANNED_TITLE) + "\n").withStyle(ChatFormatting.RED))
-                    .append(Component.literal(LangManager.tr(TrKeys.DISCONNECT_BANNED_ID)).withStyle(ChatFormatting.RED))
-                    .append(Component.literal(id + "\n").withStyle(ChatFormatting.YELLOW))
-                    .append(Component.literal(LangManager.tr(TrKeys.DISCONNECT_BANNED_REASON)).withStyle(ChatFormatting.RED))
-                    .append(Component.literal(reason).withStyle(ChatFormatting.YELLOW));
+            String trKey_header;
             if (expiresOn == null) {
-                message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_DURATION_PERMANENT)).withStyle(ChatFormatting.RED));
+                trKey_header = TrKeys.SANCTION_BANNED_PERM;
             } else {
-                message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_DURATION_EXPIRES_IN, Map.of("duration", SanctionConfig.getOnlyDurationAsStringFromDate(expiresOn)))).withStyle(ChatFormatting.RED));
+                trKey_header = TrKeys.SANCTION_BANNED_TEMP;
             }
+            MutableComponent message = Component.literal("")
+                    .append(LangManager.parse(trKey_header, Map.of(
+                        "id", id,
+                            "reason", reason,
+                            "duration", SanctionConfig.getOnlyDurationAsStringFromDate(expiresOn)
+                    )));
+
+
             if (!appealable || !DiscordBot.enabled) {
-                message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_APPEAL_NOT_ALLOWED)).withStyle(ChatFormatting.YELLOW));
+                message.append(LangManager.parse(TrKeys.SANCTION_BANNED_NOAPPEAL));
             } else {
-                message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_APPEAL_LINK, Map.of("link", Config.invite_link))).withStyle(ChatFormatting.YELLOW));
+                message.append(LangManager.parse(TrKeys.SANCTION_BANNED_APPEALABLE, Map.of(
+                        "link", Config.invite_link
+                )));
             }
 
             serverPlayer.connection.disconnect(message);
@@ -147,19 +152,16 @@ public class CustomSanctionSystem {
 
     public static void warnPlayer(ServerPlayer player, @Nullable String reason, @Nullable String operator) {
         if (operator == null) {
-            operator = "The Great Server";
+            operator = "Server";
         }
         if (reason == null) {
             reason = "Warned by an operator";
         }
-        Component title = Component.literal(LangManager.tr(TrKeys.WARN_TITLE)).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
-        Component message = Component.literal(LangManager.tr(TrKeys.WARN_MESSAGE, Map.of("operator", operator, "reason", reason)))
-                .withStyle(ChatFormatting.YELLOW);
 
-        player.sendSystemMessage(Component.literal("---------------------------------------------").withStyle(ChatFormatting.DARK_RED));
-        player.sendSystemMessage(title);
-        player.sendSystemMessage(message);
-        player.sendSystemMessage(Component.literal("---------------------------------------------").withStyle(ChatFormatting.DARK_RED));
+        player.sendSystemMessage(LangManager.parse(TrKeys.SANCTION_WARNED, Map.of(
+                "operator", operator,
+                "reason", reason
+        )));
 
         Database.registerSanction(player.getStringUUID(), player.getPlainTextName(), new SanctionData(Sanction.WARN, reason, new Date(), null), false, null);
         //AdminCraft.playerDataManager.addSanction(player.getStringUUID(), Sanction.WARN, reason, null);

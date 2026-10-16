@@ -8,13 +8,10 @@
   "command.report.success": "Report successfully submitted. Thank you for your vigilance.",
   "command.unmute.failed.not_muted": "%player% is not muted",
   "command.unmute.success": "%player% was unmuted",
-  "disconnect.banned.appeal_link": "Discord appeal: %link%",
-  "disconnect.banned.appeal_not_allowed": "This sanction can't be appealed",
-  "disconnect.banned.duration.expires_in": "This sanction will expire in %duration%",
-  "disconnect.banned.duration.permanent": "This sanction is permanent",
-  "disconnect.banned.id": "Sanction ID: ",
-  "disconnect.banned.reason": "Reason: ",
-  "disconnect.banned.title": "You are banned on this server",
+  "sanction.banned.temp": "<red>You are banned on this server\nSanction ID: <yellow> %id%\n<red>Reason: <yellow>%reason%\n<red>This sanction will expire in <yellow>%duration%",
+  "sanction.banned.perm": "<red>You are banned on this server\nSanction ID: <yellow> %id%\n<red>Reason: <yellow>%reason%\n<red>This sanction is permanent",
+  "sanction.banned.appealable": "Discord appeal: %link%",
+  "sanction.banned.noappeal": "<yellow>This sanction can't be appealed",
   "discord.appeal.success": "Your appeal was submitted successfully. To receive a notification when it gets an answer, it is highly recommended to allow direct messages from the guild.",
   "discord.button.appeal.label": "Appeal",
   "discord.command.post_embed.failure.permission": "You don't have the permission to run this command. Required node: **Administrator**.",
@@ -97,6 +94,5 @@
   "mute.message_cancelled_log": "[CANCELED] <%player% (muted)> %message%",
   "spawn.enter": "You are now in the spawn protection",
   "spawn.leave": "You are no longer in the spawn protection",
-  "warn.message": "You've been warned by %operator%: %reason%. Please check the rules!",
-  "warn.title": "YOU'VE BEEN WARNED!"
+  "sanction.warned": "<dark_red>---------------------------------------------\n<bold><red>YOU'VE BEEN WARNED!\n<reset><yellow>You've been warned by %operator%: %reason%. Please review the rules!\n<dark_red>---------------------------------------------"
 }

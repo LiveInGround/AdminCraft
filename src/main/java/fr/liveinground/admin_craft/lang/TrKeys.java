@@ -1,7 +1,8 @@
 package fr.liveinground.admin_craft.lang;
 
 public class TrKeys {
-    private TrKeys() {}
+    private TrKeys() {
+    }
 
     // =========================
     // Spawn protection
@@ -34,23 +35,6 @@ public class TrKeys {
 
     public static final String COMMAND_UNMUTE_SUCCESS = "command.unmute.success";
     public static final String COMMAND_UNMUTE_FAILED_NOT_MUTED = "command.unmute.failed.not_muted";
-
-    // =========================
-    // Disconnect messages
-    // =========================
-    public static final String DISCONNECT_BANNED_APPEAL_LINK = "disconnect.banned.appeal_link";
-    public static final String DISCONNECT_BANNED_APPEAL_NOT_ALLOWED = "disconnect.banned.appeal_not_allowed";
-    public static final String DISCONNECT_BANNED_DURATION_EXPIRES_IN = "disconnect.banned.duration.expires_in";
-    public static final String DISCONNECT_BANNED_DURATION_PERMANENT = "disconnect.banned.duration.permanent";
-    public static final String DISCONNECT_BANNED_ID = "disconnect.banned.id";
-    public static final String DISCONNECT_BANNED_REASON = "disconnect.banned.reason";
-    public static final String DISCONNECT_BANNED_TITLE = "disconnect.banned.title";
-
-    // =========================
-    // Warn system
-    // =========================
-    public static final String WARN_TITLE = "warn.title";
-    public static final String WARN_MESSAGE = "warn.message";
 
     // =========================
     // Report system
@@ -185,4 +169,14 @@ public class TrKeys {
     public static final String DISCORD_DISCUSSION_STARTS = "discord.discussion.starts";
 
     public static final String BAN_ID_ERROR = "ban.id.error";
+
+    // =========================
+    // Sanctions
+    // =========================
+    public static final String SANCTION_WARNED = "sanction.warned";
+
+    public static final String SANCTION_BANNED_PERM = "sanction.banned.perm";
+    public static final String SANCTION_BANNED_TEMP = "sanction.banned.temp";
+    public static final String SANCTION_BANNED_NOAPPEAL = "sanction.banned.noappeal";
+    public static final String SANCTION_BANNED_APPEALABLE = "sanction.banned.appealable";
 }
