@@ -19,7 +19,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ReportsCommand {
     private static final int reportsPerPage = 5;
@@ -60,9 +62,31 @@ public class ReportsCommand {
                         )
                 )
                 .then(Commands.literal("claim")
+                        .requires(CommandSourceStack::isPlayer)
                         .then(Commands.argument("id", IntegerArgumentType.integer(0))
                                 .executes(ctx -> {
-                                    //todo
+                                        int id = IntegerArgumentType.getInteger(ctx, "id");
+                                        ReportData data = Database.getReport(id);
+                                        if (data == null) {
+                                            ctx.getSource().sendFailure(Component.literal("No such report.").withStyle(ChatFormatting.RED));
+                                            return 1;
+                                        }
+                                        if (data.status() != ReportStatus.UNRESOLVED) {
+                                            ctx.getSource().sendFailure(Component.literal("This report can't be claimed (" + data.status() + ").").withStyle(ChatFormatting.RED));
+                                            return 1;
+                                        }
+                                        String uuid;
+                                        if (ctx.getSource().isPlayer()) {
+                                            uuid = Objects.requireNonNull(ctx.getSource().getPlayer()).getStringUUID();
+                                        } else {
+                                            throw new IllegalStateException();
+                                        }
+                                        if (Database.updateReportStatus(id, ReportStatus.CLAIMED, UUID.fromString(uuid))) {
+                                            ctx.getSource().sendSuccess(() -> Component.literal("Claimed report #" + id), true);
+                                        } else {
+                                            ctx.getSource().sendFailure(Component.literal("Something went wrong with the database, try again.").withStyle(ChatFormatting.RED));
+                                        }
+
                                     return 1;
                                 })
                         )

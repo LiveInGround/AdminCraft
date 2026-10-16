@@ -243,6 +243,18 @@ public class Database {
         });
     }
 
+    @Nullable
+    public static ReportData getReport(int id) {
+        List<ReportData> datas = queryReports("SELECT * FROM reports WHERE id = ?", stmt -> {
+            stmt.setInt(1, id);
+        });
+        if (datas.isEmpty()) {
+            return null;
+        } else {
+            return datas.getFirst();
+        }
+    }
+
     public static boolean updateReportStatus(int id, ReportStatus status, @Nullable UUID claimer) {
         if (status.equals(ReportStatus.CLAIMED)) {
             if (claimer == null) {
