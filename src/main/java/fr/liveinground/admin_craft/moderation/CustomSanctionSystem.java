@@ -73,22 +73,6 @@ public class CustomSanctionSystem {
         return id;
         //AdminCraft.playerDataManager.addSanction(String.valueOf(player.id()), Sanction.BAN, reason, expiresOn);
     }
-    /*
-    public static String banPlayer(MinecraftServer server, String source, Collection<NameAndId> player, String reason, @Nullable Date expiresOn, boolean appealable, @Nullable Date appealDelay) {
-        PlayerList playerList = server.getPlayerList();
-        UserBanList banList = playerList.getBans();
-        for (NameAndId profile: player) {
-            if (!banList.isBanned(profile)) {
-                UserBanListEntry banEntry = new UserBanListEntry(profile, null, source, expiresOn, reason);
-                banList.add(banEntry);
-                ServerPlayer serverPlayer = server.getPlayerList().getPlayer(profile.id());
-                if (serverPlayer != null) serverPlayer.connection.disconnect(Component.translatable("multiplayer.disconnect.banned"));
-            }
-            return SanctionDatabase.registerSanction(profile.id().toString(), profile.name(), new SanctionData(Sanction.BAN, reason, new Date(), expiresOn), appealable, appealDelay);
-            //AdminCraft.playerDataManager.addSanction(profile.id().toString(), Sanction.BAN, reason, expiresOn);
-        }
-        return null;
-    }*/
 
     public static void kickPlayer(ServerPlayer player, String reason) {
         player.connection.disconnect(Component.literal(reason).withStyle(ChatFormatting.RED));
