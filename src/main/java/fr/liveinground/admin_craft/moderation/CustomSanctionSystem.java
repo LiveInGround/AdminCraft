@@ -90,7 +90,7 @@ public class CustomSanctionSystem {
                 if (expiresOn == null) {
                     msg.append(LangManager.parse(TrKeys.SANCTION_MUTED_PERM, Map.of("reason", reason, "id", id)));
                 } else {
-                    msg.append(LangManager.parse(TrKeys.SANCTION_MUTED_PERM, Map.of("reason", reason, "id", id, "duration", SanctionConfig.getDurationAsStringFromDate(expiresOn))));
+                    msg.append(LangManager.parse(TrKeys.SANCTION_MUTED_TEMP, Map.of("reason", reason, "id", id, "duration", SanctionConfig.getDurationAsStringFromDate(expiresOn))));
                 }
                 msg.append(Component.literal("\n"));
                 if (DiscordBot.enabled && appealable) {
@@ -187,7 +187,7 @@ public class CustomSanctionSystem {
             AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(player.name(), player.id().toString(), Objects.requireNonNull(oldData).reason, newExpires));
             ServerPlayer serverPlayer = ServerHolder.getServer().getPlayerList().getPlayer(player.id());
             if (serverPlayer != null) {
-                serverPlayer.sendSystemMessage(Component.literal("Your mute duration has been changed. It will now expire in " + SanctionConfig.getDurationAsStringFromDate(newExpires)).withStyle(ChatFormatting.GREEN));
+                serverPlayer.sendSystemMessage(LangManager.parse(TrKeys.SANCTION_MUTED_DURATION_CHANGE, Map.of("duration", SanctionConfig.getDurationAsStringFromDate(newExpires))));
             }
         }
     }

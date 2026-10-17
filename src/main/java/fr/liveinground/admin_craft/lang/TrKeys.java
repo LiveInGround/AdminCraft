@@ -175,6 +175,7 @@ public class TrKeys {
 
     public static final String SANCTION_MUTED_PERM = "sanction.muted.perm";
     public static final String SANCTION_MUTED_TEMP = "sanction.muted.temp";
+    public static final String SANCTION_MUTED_DURATION_CHANGE = "sanction.muted.duration_change";
     public static final String SANCTION_UNMUTED = "sanction.unmuted";
 
 
