@@ -22,8 +22,6 @@ public class TrKeys {
     public static final String MUTE_MESSAGE_CANCELLED = "mute.message_cancelled";
     public static final String MUTE_MESSAGE_CANCELLED_LOG = "mute.message_cancelled_log";
 
-    public static final String MUTE_ENDS = "mute.ends";
-
     // =========================
     // Commands - mute/unmute
     // =========================
@@ -177,6 +175,8 @@ public class TrKeys {
 
     public static final String SANCTION_MUTED_PERM = "sanction.muted.perm";
     public static final String SANCTION_MUTED_TEMP = "sanction.muted.temp";
+    public static final String SANCTION_UNMUTED = "sanction.unmuted";
+
 
     public static final String SANCTION_NOAPPEAL = "sanction.noappeal";
     public static final String SANCTION_APPEALABLE = "sanction.appealable";

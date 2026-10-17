@@ -125,8 +125,7 @@ public class CustomSanctionSystem {
                 ServerPlayer serverPlayer = ServerHolder.getServer().getPlayerList().getPlayer(player.id());
 
                 if (serverPlayer != null) {
-                    Component messageComponent = Component.literal(LangManager.tr(TrKeys.MUTE_ENDS)).withStyle(ChatFormatting.GREEN);
-                    serverPlayer.sendSystemMessage(messageComponent);
+                    serverPlayer.sendSystemMessage(LangManager.parse(TrKeys.SANCTION_UNMUTED));
                 }
             } catch (IllegalStateException e) {
                 AdminCraft.LOGGER.error("Failed to display a message to the unmuted player {}", player.name(), e);

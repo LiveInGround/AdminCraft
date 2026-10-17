@@ -89,7 +89,7 @@
   "freeze.ends": "You are no longer frozen. You can continue playing normally.",
   "misc.time_remaining": "Time remaining: %days% days, %hours% hours, and %minutes% minutes",
   "misc.time_remaining.short": "Time remaining: %days%d %hours%h %minutes%m",
-  "mute.ends": "You are no longer muted!",
+  "sanction.unmuted": "<green>You are no longer muted!",
   "mute.message_cancelled": "You can't send messages while muted!",
   "mute.message_cancelled_log": "[CANCELED] <%player% (muted)> %message%",
   "spawn.enter": "You are now in the spawn protection",
