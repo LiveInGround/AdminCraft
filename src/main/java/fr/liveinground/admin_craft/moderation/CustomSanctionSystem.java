@@ -58,12 +58,12 @@ public class CustomSanctionSystem {
                             "reason", reason,
                             "duration", SanctionConfig.getOnlyDurationAsStringFromDate(expiresOn)
                     )));
-
+            message.append(Component.literal("\n"));
 
             if (!appealable || !DiscordBot.enabled) {
-                message.append(LangManager.parse(TrKeys.SANCTION_BANNED_NOAPPEAL));
+                message.append(LangManager.parse(TrKeys.SANCTION_NOAPPEAL));
             } else {
-                message.append(LangManager.parse(TrKeys.SANCTION_BANNED_APPEALABLE, Map.of(
+                message.append(LangManager.parse(TrKeys.SANCTION_APPEALABLE, Map.of(
                         "link", Config.invite_link
                 )));
             }
@@ -82,23 +82,23 @@ public class CustomSanctionSystem {
 
     public static String mutePlayer(MinecraftServer server, NameAndId player, String reason, @Nullable Date expiresOn, boolean appealable, @Nullable Date appealDelay) {
         if (!AdminCraft.mutedPlayersUUID.contains(String.valueOf(player))) {
-            //AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(player.name(), player.id().toString(), reason, expiresOn));
             String id = Database.registerSanction(player.id().toString(), player.name(), new SanctionData(Sanction.MUTE, reason, new Date(), expiresOn), appealable, appealDelay);
             if (id == null) return null;
             ServerPlayer serverPlayer = AdminCraft.getOnlinePlayer(server, player);
             if (serverPlayer != null) {
-                String msg;
-                if (DiscordBot.enabled) {
-                    msg = LangManager.tr(TrKeys.MUTE_BEGINS_REASON, Map.of("reason", reason, "id", id, "link", Config.invite_link));
+                MutableComponent msg = Component.empty();
+                if (expiresOn == null) {
+                    msg.append(LangManager.parse(TrKeys.SANCTION_MUTED_PERM, Map.of("reason", reason, "id", id)));
                 } else {
-                    msg = LangManager.tr(TrKeys.MUTE_BEGINS_REASON_NOAPPEAL, Map.of("reason", reason));
+                    msg.append(LangManager.parse(TrKeys.SANCTION_MUTED_PERM, Map.of("reason", reason, "id", id, "duration", SanctionConfig.getDurationAsStringFromDate(expiresOn))));
                 }
-                serverPlayer.sendSystemMessage(Component.literal(msg).withStyle(ChatFormatting.RED));
-
-                if (expiresOn != null) {
-                    String timeMsg = SanctionConfig.getDurationAsStringFromDate(expiresOn);
-                    serverPlayer.sendSystemMessage(Component.literal(timeMsg).withStyle(ChatFormatting.YELLOW));
+                msg.append(Component.literal("\n"));
+                if (DiscordBot.enabled && appealable) {
+                    msg.append(LangManager.parse(TrKeys.SANCTION_APPEALABLE, Map.of("link", Config.invite_link)));
+                } else {
+                    msg.append(LangManager.parse(TrKeys.SANCTION_NOAPPEAL));
                 }
+                serverPlayer.sendSystemMessage(msg);
             }
             AdminCraft.playerDataManager.addMuteEntry(new PlayerMuteData(player.name(), player.id().toString(), reason, expiresOn));
             return id;
