@@ -115,6 +115,9 @@ public class Config {
     private static final ModConfigSpec.IntValue PLAYER_INFO_LEVEL;
     public static int player_info_level;
 
+    private static final ModConfigSpec.IntValue CHAT_CHANNEL_LEVEL;
+    public static int chatChannelLevel;
+
     // ---------------
     // -- Sanctions --
     // ---------------
@@ -224,6 +227,14 @@ public class Config {
     private static final ModConfigSpec.ConfigValue<String> DEFAULT_APPEAL_DELAY;
     public static String default_appeal_delay;
 
+    // -------------------------
+    // -- Chat Channel System --
+    // -------------------------
+
+    private static final ModConfigSpec.BooleanValue ENABLE_CHAT_CHANNELS;
+    public static boolean enableChatChannels;
+
+
     static {
         BUILDER.push("misc");
 
@@ -261,6 +272,7 @@ public class Config {
         BANS_LEVEL = BUILDER.comment("The OP level required to run the /bans command").worldRestart().defineInRange("bans", 3, 0, 4);
         MUTES_LEVEL = BUILDER.comment("The OP level required to run the /mutes command").worldRestart().defineInRange("mutes", 3, 0, 4);
         PLAYER_INFO_LEVEL = BUILDER.comment("The OP level required to run the /playerinfo command").worldRestart().defineInRange("playerinfo", 3, 0, 4);
+        CHAT_CHANNEL_LEVEL = BUILDER.comment("The OP level required to run the /chat command").worldRestart().defineInRange("chatChannel", 0, 0, 4);
 
         BUILDER.pop();
     }
@@ -347,6 +359,12 @@ public class Config {
         DEFAULT_APPEAL_DELAY = BUILDER.comment("The default appeal delay if nothing is provided in the command").comment("Can be a duration or 'null'").worldRestart().define("defaultAppealDelay", "null");
 
         BUILDER.pop();
+    }
+
+    static {
+        BUILDER.push("chatChannels").comment("The general configuration for everything related to chat channels.");
+
+        ENABLE_CHAT_CHANNELS = BUILDER.comment("Enable the whole chat channel system").worldRestart().define("enableChatChannels", true);
     }
 
     static final ModConfigSpec SPEC = BUILDER.build();
@@ -468,6 +486,7 @@ public class Config {
         bans_level = BANS_LEVEL.get();
         mutes_level = MUTES_LEVEL.get();
         player_info_level = PLAYER_INFO_LEVEL.get();
+        chatChannelLevel = CHAT_CHANNEL_LEVEL.get();
 
         // ---------------
         // -- Sanctions --
@@ -589,6 +608,12 @@ public class Config {
         if (!default_appeal_delay.equals("null") && SanctionConfig.getDurationAsDate(default_appeal_delay) == null) {
             AdminCraft.LOGGER.warn("The configured default appeal delay is invalid, so no delay will be applied. Please set a correct duration or set 'null' to disable this warning.");
         }
+
+        // -------------------------
+        // -- Chat Channel System --
+        // -------------------------
+
+        enableChatChannels = ENABLE_CHAT_CHANNELS.get();
     }
 
     public static Set<Holder<MobEffect>> loadEffects(Level level) {
