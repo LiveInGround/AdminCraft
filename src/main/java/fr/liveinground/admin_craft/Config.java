@@ -68,55 +68,55 @@ public class Config {
     // --------------------------
 
     private static final ModConfigSpec.IntValue MUTE_LEVEL;
-    public static Permission mute_level;
+    public static Permission mute_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue ALT_LEVEL;
-    public static Permission alt_level;
+    public static Permission alt_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue SANCTION_LEVEL;
-    public static Permission sanction_level;
+    public static Permission sanction_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue FREEZE_LEVEL;
-    public static Permission freeze_level;
+    public static Permission freeze_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue WARN_LEVEL;
-    public static Permission warn_level;
+    public static Permission warn_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue REPORTS_LEVEL;
-    public static Permission reports_level;
+    public static Permission reports_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue TEMPBAN_LEVEL;
-    public static Permission tempban_level;
+    public static Permission tempban_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue BAN_LEVEL;
-    public static Permission ban_level;
+    public static Permission ban_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue INVSEE_LEVEL;
-    public static Permission invsee_level;
+    public static Permission invsee_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue OTP_LEVEL;
-    public static Permission otp_level;
+    public static Permission otp_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue OTAG_LEVEL;
-    public static Permission otag_level;
+    public static Permission otag_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue HISTORY_LEVEL;
-    public static Permission history_level;
+    public static Permission history_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue EDITDURATION_LEVEL;
-    public static Permission editduration_level;
+    public static Permission editduration_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue EDITAPPEAL_LEVEL;
-    public static Permission editappeal_level;
+    public static Permission editappeal_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue BANS_LEVEL;
-    public static Permission bans_level;
+    public static Permission bans_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue MUTES_LEVEL;
-    public static Permission mutes_level;
+    public static Permission mutes_level = getPermissionFromInt(4);
 
     private static final ModConfigSpec.IntValue PLAYER_INFO_LEVEL;
-    public static Permission player_info_level;
+    public static Permission player_info_level = getPermissionFromInt(4);
 
     // ---------------
     // -- Sanctions --
