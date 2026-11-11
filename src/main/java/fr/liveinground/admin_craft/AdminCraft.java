@@ -2,6 +2,7 @@ package fr.liveinground.admin_craft;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
+import fr.liveinground.admin_craft.commands.ChatCommand;
 import fr.liveinground.admin_craft.commands.moderation.BanCommand;
 import fr.liveinground.admin_craft.commands.moderation.FreezeCommand;
 import fr.liveinground.admin_craft.commands.moderation.MuteCommand;
@@ -119,10 +120,11 @@ public class AdminCraft {
 
     @SubscribeEvent
     public void onServerStarted(ServerStartingEvent event) {
-        AdminCraft.LOGGER.info("Starting services...");
+        AdminCraft.LOGGER.info("Starting AdminCraft...");
         if (Config.enable_appeals) {
             DiscordBot.start();
         }
+        AdminCraft.LOGGER.info("AdminCraft started!");
     }
 
     @SubscribeEvent
@@ -165,6 +167,7 @@ public class AdminCraft {
         MutesCommand.register(dispatcher);
         PlayerInfoCommand.register(dispatcher);
         BanCommand.register(dispatcher);
+        ChatCommand.register(dispatcher);
 
         // StaffModeCommand.register(dispatcher);
     }
@@ -480,6 +483,7 @@ public class AdminCraft {
                 player.sendSystemMessage(msg);
             }
         }
+        LOGGER.info("[CHAT] {}", msg);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)

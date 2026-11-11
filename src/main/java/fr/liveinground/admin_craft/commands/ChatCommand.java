@@ -44,7 +44,7 @@ public class ChatCommand {
                                 uuid = new UUID(0L, 0L);
                             }
                             ChatChannel channel;
-                            String channelStr = StringArgumentType.getString(ctx, "channel");
+                            String channelStr = StringArgumentType.getString(ctx, "channel").toUpperCase();
                             try {
                                 channel = ChatChannel.valueOf(channelStr);
                             } catch (IllegalArgumentException e) {

@@ -168,7 +168,7 @@ public class ReportsCommand {
         }
         List<ReportData> data = Database.listReportsOf(profile.id());
         MutableComponent output = Component.empty();
-        output.append(LangManager.format("<gold>Reports by <aqua>" + profile.name() + "<gold>: \n"));
+        output.append(LangManager.parse("<gold>Reports by <aqua>" + profile.name() + "<gold>: \n"));
         output.append(listReports(data, page, "reports from " + profile.name()));
         ctx.getSource().sendSuccess(() -> output, false);
     }
@@ -176,7 +176,7 @@ public class ReportsCommand {
     private static void list(CommandContext<CommandSourceStack> ctx, int page) {
         List<ReportData> data = Database.listReports().stream().filter(report -> report.status() == ReportStatus.UNRESOLVED).toList();
         MutableComponent output = Component.empty();
-        output.append(LangManager.format("<gold>Reports: \n"));
+        output.append(LangManager.parse("<gold>Reports: \n"));
         output.append(listReports(data, page, "reports list"));
         ctx.getSource().sendSuccess(() -> output, false);
     }
@@ -189,7 +189,7 @@ public class ReportsCommand {
             return;
         }
         List<ReportData> data = Database.listReportsOf(profile.id());
-        output.append(LangManager.format("<gold>Reports for %aqua%" + profile.name() + "<gold>: \n"));
+        output.append(LangManager.parse("<gold>Reports for <aqua>" + profile.name() + "<gold>: \n"));
         output.append(listReports(data, page, "reports list player " + profile.name()));
         ctx.getSource().sendSuccess(() -> output, false);
     }
@@ -227,9 +227,9 @@ public class ReportsCommand {
             Style style = Style.EMPTY;
             style.withClickEvent(new ClickEvent.RunCommand("reports info " + report.id()));
             MutableComponent rComponent = Component.empty().withStyle();
-            rComponent.append(LangManager.format(" <dark_gray>* ["));
+            rComponent.append(LangManager.parse(" <dark_gray>* ["));
             rComponent.append(Component.literal(report.status().name()).withStyle(getStatusColor(report.status())));
-            rComponent.append(LangManager.format("<dark_gray>] <gold>" + report.sourceUUID() + "<dark_red> reported <gold>" + report.targetUUID() + "<dark_red>: <yellow>" + report.reason() + "\n"));
+            rComponent.append(LangManager.parse("<dark_gray>] <gold>" + report.sourceUUID() + "<dark_red> reported <gold>" + report.targetUUID() + "<dark_red>: <yellow>" + report.reason() + "\n"));
             output.append(rComponent);
         }
         Style style1 = Style.EMPTY;
