@@ -6,10 +6,8 @@ import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.moderation.SanctionConfig;
 import fr.liveinground.admin_craft.storage.Database;
-import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.DatabaseSanctionData;
 import fr.liveinground.admin_craft.storage.types.sanction.Sanction;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.players.NameAndId;
@@ -38,21 +36,26 @@ public class LoginMixin {
                     .orElse(null);
 
             if (sanction != null) {
-                MutableComponent message = Component.literal("")
-                        .append(Component.literal(LangManager.tr(TrKeys.DISCONNECT_BANNED_TITLE) + "\n").withStyle(ChatFormatting.RED))
-                        .append(Component.literal(LangManager.tr(TrKeys.DISCONNECT_BANNED_ID)).withStyle(ChatFormatting.RED))
-                        .append(Component.literal(sanction.id() + "\n").withStyle(ChatFormatting.YELLOW))
-                        .append(Component.literal(LangManager.tr(TrKeys.DISCONNECT_BANNED_REASON)).withStyle(ChatFormatting.RED))
-                        .append(Component.literal(sanction.reason()).withStyle(ChatFormatting.YELLOW));
+                String trKey_header;
                 if (sanction.expiresOn() == null) {
-                    message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_DURATION_PERMANENT)).withStyle(ChatFormatting.RED));
+                    trKey_header = TrKeys.SANCTION_BANNED_PERM;
                 } else {
-                    message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_DURATION_EXPIRES_IN, Map.of("duration", SanctionConfig.getOnlyDurationAsStringFromDate(sanction.expiresOn())))).withStyle(ChatFormatting.RED));
+                    trKey_header = TrKeys.SANCTION_BANNED_TEMP;
                 }
-                if (sanction.status().equals(AppealStatus.NOT_ALLOWED) || !DiscordBot.enabled) {
-                    message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_APPEAL_NOT_ALLOWED)).withStyle(ChatFormatting.YELLOW));
+                MutableComponent message = Component.literal("")
+                        .append(LangManager.parse(trKey_header, Map.of(
+                                "id", sanction.id(),
+                                "reason", sanction.reason(),
+                                "duration", SanctionConfig.getOnlyDurationAsStringFromDate(sanction.expiresOn())
+                        )));
+                message.append(Component.literal("\n"));
+
+                if (!sanction.canBeAppealed() || !DiscordBot.enabled) {
+                    message.append(LangManager.parse(TrKeys.SANCTION_NOAPPEAL));
                 } else {
-                    message.append(Component.literal("\n" + LangManager.tr(TrKeys.DISCONNECT_BANNED_APPEAL_LINK, Map.of("link", Config.invite_link))).withStyle(ChatFormatting.YELLOW));
+                    message.append(LangManager.parse(TrKeys.SANCTION_APPEALABLE, Map.of(
+                            "link", Config.invite_link
+                    )));
                 }
 
                 cir.setReturnValue(message);

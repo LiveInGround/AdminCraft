@@ -222,10 +222,13 @@ public class Database {
     @Nullable
     private static Exception post(String sql) {
         try (
-                Connection connection = Database.connect();
-                Statement statement = connection.createStatement()
+            Connection connection = Database.connect();
+            Statement statement = connection.createStatement()
         ) {
-            statement.execute(sql);
+            for (String query : sql.split(";")) {
+                if (query.isBlank()) continue;
+                statement.execute(query);
+            }
             return null;
         } catch (Exception e) {
             return e;
@@ -463,7 +466,7 @@ public class Database {
 
     public static ChatPlayerPreference getPlayerCurrentChannel(UUID uuid) {
         try {
-            return queryPlayerChannel("SELECT * FROM channels WHERE playeruuid = ?", stmt -> {
+            return queryPlayerChannel("SELECT * FROM channels WHERE playeruuid = ?;", stmt -> {
                 stmt.setString(1, uuid.toString());
             }).getFirst();
         } catch (NoSuchElementException ignored) {
@@ -495,7 +498,7 @@ public class Database {
     }
 
     public static boolean registerFreeze(UUID uuid) {
-        if (!queryFreeze("SELECT * FROM freezes WHERE uuid = ?", stmt -> {stmt.setString(1, uuid.toString());})
+        if (!queryFreeze("SELECT * FROM freezes WHERE uuid = ?;", stmt -> {stmt.setString(1, uuid.toString());})
                 .isEmpty()) {
             AdminCraft.LOGGER.warn("Attempting to register a freeze on an already frozen player!");
             return false;
@@ -504,15 +507,15 @@ public class Database {
     }
 
     public static List<Freeze> getFreezes() {
-        return queryFreeze("SELECT * FROM freezes", stmt -> {});
+        return queryFreeze("SELECT * FROM freezes;", stmt -> {});
     }
 
     public static boolean removeFreeze(UUID uuid) {
-        if (queryFreeze("SELECT * FROM freezes WHERE uuid = ?", stmt -> {stmt.setString(1, uuid.toString());})
+        if (queryFreeze("SELECT * FROM freezes WHERE uuid = ?;", stmt -> {stmt.setString(1, uuid.toString());})
                 .isEmpty()) {
             AdminCraft.LOGGER.warn("Attempting to remove a freeze on a not frozen player!");
             return false;
         }
-        return update("DELETE FROM freezes WHERE uuid = ?", stmt -> stmt.setString(1, uuid.toString()));
+        return update("DELETE FROM freezes WHERE uuid = ?;", stmt -> stmt.setString(1, uuid.toString()));
     }
 }

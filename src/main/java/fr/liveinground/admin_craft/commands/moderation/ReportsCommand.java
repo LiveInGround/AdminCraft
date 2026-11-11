@@ -14,16 +14,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.players.NameAndId;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 public class ReportsCommand {
@@ -36,23 +36,23 @@ public class ReportsCommand {
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
                                 .then(Commands.argument("page", IntegerArgumentType.integer(1))
                                     .executes(ctx -> {
-                                        list(ctx, GameProfileArgument.getGameProfiles(ctx, "player"), IntegerArgumentType.getInteger(ctx, "page"));
+                                        list(ctx, IntegerArgumentType.getInteger(ctx, "page"), GameProfileArgument.getGameProfiles(ctx, "player"));
                                         return 1;
                                     })
                                 )
                                 .executes(ctx -> {
-                                    list(ctx, GameProfileArgument.getGameProfiles(ctx, "player"), 1);
+                                    list(ctx, 1, GameProfileArgument.getGameProfiles(ctx, "player"));
                                     return 1;
                                 })
                         )
                         .then(Commands.argument("page", IntegerArgumentType.integer(1))
                             .executes(ctx -> {
-                                list(ctx, null, IntegerArgumentType.getInteger(ctx, "page"));
+                                list(ctx, IntegerArgumentType.getInteger(ctx, "page"));
                                 return 1;
                             })
                         )
                         .executes(ctx -> {
-                            list(ctx, null, 1);
+                            list(ctx, 1);
                             return 1;
                         })
                 )
@@ -146,6 +146,27 @@ public class ReportsCommand {
         );
     }
 
+    private static void list(CommandContext<CommandSourceStack> ctx, int page) {
+        List<ReportData> data = Database.listReports().stream().filter(report -> report.status() == ReportStatus.UNRESOLVED).toList();
+        MutableComponent output = Component.empty();
+        output.append(LangManager.format("<gold>Reports: \n"));
+        output.append(listReports(data, page, "reports list"));
+        ctx.getSource().sendSuccess(() -> output, false);
+    }
+
+    private static void list(CommandContext<CommandSourceStack> ctx, int page, Collection<NameAndId> idCollection) {
+        MutableComponent output = Component.empty();
+        NameAndId profile = idCollection.stream().findFirst().orElse(null);
+        if (profile == null) {
+            ctx.getSource().sendFailure(LangManager.parse(TrKeys.PLAYER_NOT_FOUND));
+            return;
+        }
+        List<ReportData> data = Database.listReportsOf(profile.id());
+        output.append(LangManager.format("<gold>Reports for %aqua%" + profile.name() + "<gold>: \n"));
+        output.append(listReports(data, page, "reports list " + profile.name()));
+        ctx.getSource().sendSuccess(() -> output, false);
+    }
+
     private static void complete(CommandContext<CommandSourceStack> ctx, ReportStatus status) {
         int id = IntegerArgumentType.getInteger(ctx, "id");
         ReportData reportData = Database.getReport(id);
@@ -161,6 +182,37 @@ public class ReportsCommand {
         ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.REPORTS_COMPLETED_SUCCESS, Map.of("id", String.valueOf(id), "status", status.name())), true);
     }
 
+    private static Component listReports(List<ReportData> reports, int page, String cmd) {
+        assert page >= 1;
+        int totalPages = Math.max(1, (reports.size() + reportsPerPage - 1) / reportsPerPage);
+
+        page = Math.clamp(page, 1, totalPages);
+
+        int index_min = (page - 1) * reportsPerPage;
+        int index_max = Math.min(index_min + reportsPerPage, reports.size());
+
+        MutableComponent output = Component.empty();
+        for (int i = index_min; i < index_max; i++) {
+            ReportData report = reports.get(i);
+            Style style = Style.EMPTY;
+            style.withClickEvent(new ClickEvent.RunCommand("reports info " + report.id()));
+            MutableComponent rComponent = Component.empty().withStyle();
+            rComponent.append(LangManager.format(" <dark_gray>* ["));
+            rComponent.append(Component.literal(report.status().name()).withStyle(getStatusColor(report.status())));
+            rComponent.append(LangManager.format("<dark_gray>] <gold>" + report.sourceUUID() + "<dark_red> reported <gold>" + report.targetUUID() + "<dark_red>: <yellow>" + report.reason() + "\n"));
+            output.append(rComponent);
+        }
+        Style style1 = Style.EMPTY;
+        style1.withClickEvent(new ClickEvent.RunCommand(cmd + " " + (page - 1)));
+        output.append(Component.literal(" < ").withStyle(ChatFormatting.GOLD).withStyle(style1));
+        output.append(Component.literal(page + "/" + totalPages).withStyle(ChatFormatting.AQUA));
+        Style style2 = Style.EMPTY;
+        style2.withClickEvent(new ClickEvent.RunCommand(cmd + " " + (page + 1)));
+        output.append(Component.literal(" > ").withStyle(ChatFormatting.GOLD).withStyle(style2));
+        return output;
+    }
+
+    /*
     private static void list(CommandContext<CommandSourceStack> ctx, @Nullable Collection<NameAndId> profiles, int page) {
         assert page >= 1;
         List<ReportData> data;
@@ -207,7 +259,7 @@ public class ReportsCommand {
         output.append(Component.literal("\nPage " + page + " on " + totalPages));
 
         ctx.getSource().sendSuccess(() -> output, false);
-    }
+    }*/
 
     private static Component reportInfo(ReportData report) {
         MutableComponent output = Component.empty();

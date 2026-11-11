@@ -1,6 +1,6 @@
 package fr.liveinground.admin_craft;
 
-import Freezecom.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import fr.liveinground.admin_craft.commands.moderation.BanCommand;
 import fr.liveinground.admin_craft.commands.moderation.FreezeCommand;

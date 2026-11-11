@@ -99,6 +99,7 @@
   "reports.not_found": "<red>Report not found: #%id%",
   "reports.unclaim.not_claimed": "<red>Failed to unclaim: this report isn't claimed!",
   "reports.unclaim.success": "Unclaimed report #%id%",
+  "reports.unknown_player": "<red>Failure: player not found",
   "sanction.appealable": "<yellow>Discord appeal: %link%",
   "sanction.banned.perm": "<red>You are banned on this server\nSanction ID: <yellow> %id%\n<red>Reason: <yellow>%reason%\n<red>This sanction is permanent",
   "sanction.banned.temp": "<red>You are banned on this server\nSanction ID: <yellow> %id%\n<red>Reason: <yellow>%reason%\n<red>This sanction will expire in <yellow>%duration%",
