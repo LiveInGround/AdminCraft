@@ -48,6 +48,7 @@ public class TrKeys {
     public static final String REPORTS_UNCLAIM_SUCCESS = "reports.unclaim.success";
     public static final String REPORTS_COMPLETED_SUCCESS = "reports.completed.success";
     public static final String REPORTS_COMPLETED_FAILED = "reports.completed.already_completed";
+    public static final String REPORTS_EMPTY = "reports.empty";
 
     // =========================
     // Freeze system

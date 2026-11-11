@@ -210,6 +210,9 @@ public class ReportsCommand {
     }
 
     private static Component listReports(List<ReportData> reports, int page, String cmd) {
+        if (reports.isEmpty()) {
+            return LangManager.parse(TrKeys.REPORTS_EMPTY);
+        }
         assert page >= 1;
         int totalPages = Math.max(1, (reports.size() + reportsPerPage - 1) / reportsPerPage);
 
