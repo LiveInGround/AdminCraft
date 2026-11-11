@@ -29,6 +29,7 @@ import fr.liveinground.admin_craft.mutes.Utils;
 import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import fr.liveinground.admin_craft.storage.types.chat.ChatChannel;
+import fr.liveinground.admin_craft.storage.types.chat.ChatPlayerPreference;
 import fr.liveinground.admin_craft.updates.UpdateChecker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -49,6 +50,7 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -58,6 +60,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -473,5 +476,15 @@ public class AdminCraft {
                 player.sendSystemMessage(msg);
             }
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void onChatMessage(ServerChatEvent event) {
+        if (event.isCanceled() || !Config.enableChatChannels) {
+            return;
+        }
+        ChatPlayerPreference pref = Database.getPlayerCurrentChannel(event.getPlayer().getUUID());
+        sendMessageInChannel(event.getUsername(), event.getRawText(), pref.channel(), event.getPlayer().position(), event.getPlayer().getTeam());
+        event.setCanceled(true);
     }
 }
