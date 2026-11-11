@@ -466,7 +466,7 @@ public class AdminCraft {
         };
 
         Component msg = LangManager.parse(key, Map.of(
-                "displayname", source,
+                "displayName", source,
                 "message", message,
                 "team", team != null ? team.getName() : ""
         ));
@@ -483,7 +483,7 @@ public class AdminCraft {
                 player.sendSystemMessage(msg);
             }
         }
-        LOGGER.info("[CHAT] {}", msg);
+        LOGGER.info("[CHAT] {}", msg.getString());
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)

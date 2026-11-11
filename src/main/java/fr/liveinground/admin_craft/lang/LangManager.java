@@ -3,13 +3,16 @@ package fr.liveinground.admin_craft.lang;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.PlainTextContents;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class LangManager {
 
@@ -130,7 +133,6 @@ public class LangManager {
                 }
 
                 result.append(replacement.copy());
-
                 cursor = index + placeholder.length();
             }
         } else {
@@ -146,12 +148,27 @@ public class LangManager {
     }
 
     public static Component parse(String key, Map<String, String> placeholders) {
-        Component translated = format(tr(key));
+        String value = tr(key);
+        Map<String, String> safeValues = new HashMap<>();
+
         for (var entry : placeholders.entrySet()) {
-            translated = replace(translated, "%" + entry.getKey() + "%", Component.literal(entry.getValue()));
+            String token = "§§PLACEHOLDER_" + UUID.randomUUID() + "§§";
+            safeValues.put(token, entry.getValue());
+            value = value.replace(
+                    "%" + entry.getKey() + "%",
+                    token
+            );
         }
 
-        return translated;
+        Component result = format(value);
+        for (var entry : safeValues.entrySet()) {
+            result = replace(
+                    result,
+                    entry.getKey(),
+                    Component.literal(entry.getValue())
+            );
+        }
+        return result;
     }
 
     public static Component parse(String key) {
