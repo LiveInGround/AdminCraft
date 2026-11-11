@@ -56,11 +56,11 @@ public class ReportsCommand {
                                     return 1;
                                 })
                             )
-                            .executes(ctx -> {
-                                list(ctx, 1);
-                                return 1;
-                            })
                         )
+                        .executes(ctx -> {
+                            list(ctx, 1);
+                            return 1;
+                        })
                 )
                 .then(Commands.literal("from")
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
