@@ -168,17 +168,28 @@ public class TrKeys {
     // =========================
     // Sanctions
     // =========================
+
     public static final String SANCTION_WARNED = "sanction.warned";
 
     public static final String SANCTION_BANNED_PERM = "sanction.banned.perm";
     public static final String SANCTION_BANNED_TEMP = "sanction.banned.temp";
-
     public static final String SANCTION_MUTED_PERM = "sanction.muted.perm";
     public static final String SANCTION_MUTED_TEMP = "sanction.muted.temp";
     public static final String SANCTION_MUTED_DURATION_CHANGE = "sanction.muted.duration_change";
     public static final String SANCTION_UNMUTED = "sanction.unmuted";
 
-
     public static final String SANCTION_NOAPPEAL = "sanction.noappeal";
     public static final String SANCTION_APPEALABLE = "sanction.appealable";
+
+    // =========================
+    // Chat
+    // =========================
+    public static final String CHAT_INVALID_CHANNEL = "chat.invalid_channel";
+    public static final String CHAT_NO_PERM = "chat.no_permission";
+    public static final String CHAT_SWITCHED_CHANNEL = "chat.switched_channel";
+    public static final String CHAT_CURRENT = "chat.current";
+    public static final String CHAT_CHANNEL_GLOBAL = "chat.channel.global";
+    public static final String CHAT_CHANNEL_LOCAL = "chat.channel.local";
+    public static final String CHAT_CHANNEL_STAFF = "chat.channel.staff";
+    public static final String CHAT_CHANNEL_TEAM = "chat.channel.team";
 }

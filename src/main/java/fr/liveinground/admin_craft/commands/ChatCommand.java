@@ -4,13 +4,17 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.Config;
+import fr.liveinground.admin_craft.lang.LangManager;
+import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.chat.ChatChannel;
 import fr.liveinground.admin_craft.storage.types.chat.ChatPlayerPreference;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -44,12 +48,17 @@ public class ChatCommand {
                             try {
                                 channel = ChatChannel.valueOf(channelStr);
                             } catch (IllegalArgumentException e) {
-                                //todo: create translation string to tell the user that his command failed miserably >:)
-                                ctx.getSource().sendFailure(Component.empty());
+                                ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_INVALID_CHANNEL, Map.of("channel", channelStr)));
+                                return 1;
+                            }
+                            if ((channel.equals(ChatChannel.STAFF) && !(ctx.getSource().hasPermission(Config.staffChatLevel) && Config.enableStaffChat))
+                                    || channel.equals(ChatChannel.LOCAL) && !Config.enableLocalChat) {
+                                //deny access if the correct perm is missing or if the chat is disabled
+                                ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_NO_PERM));
                                 return 1;
                             }
                             Database.updateChatPreference(uuid, channel);
-                            //todo: send success message
+                            ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.CHAT_SWITCHED_CHANNEL, Map.of("channel", channelStr)), false);
                             return 1;
                         })
                         .then(Commands.argument("message", StringArgumentType.greedyString())
@@ -59,12 +68,27 @@ public class ChatCommand {
                                     try {
                                         channel = ChatChannel.valueOf(channelStr);
                                     } catch (IllegalArgumentException e) {
-                                        //todo: create translation string to tell the user that his command failed miserably >:)
-                                        ctx.getSource().sendFailure(Component.empty());
+                                        ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_INVALID_CHANNEL, Map.of("channel", channelStr)));
+                                        return 1;
+                                    }
+                                    if ((channel.equals(ChatChannel.STAFF) && !(ctx.getSource().hasPermission(Config.staffChatLevel) && Config.enableStaffChat))
+                                    || channel.equals(ChatChannel.LOCAL) && !Config.enableLocalChat) {
+                                        //deny access if the correct perm is missing or if the chat is disabled
+                                        ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_NO_PERM));
                                         return 1;
                                     }
 
-                                    AdminCraft.sendMessageInChannel(ctx.getSource().getTextName(), StringArgumentType.getString(ctx, "message"), channel);
+                                    CommandSourceStack source = ctx.getSource();
+                                    Vec3 pos;
+                                    PlayerTeam team;
+                                    if (ctx.getSource().isPlayer()) {
+                                        pos = Objects.requireNonNull(source.getPlayer()).position();
+                                        team = source.getPlayer().getTeam();
+                                    } else {
+                                        pos = new Vec3(0, 0, 0);
+                                        team = null;
+                                    }
+                                    AdminCraft.sendMessageInChannel(ctx.getSource().getTextName(), StringArgumentType.getString(ctx, "message"), channel, pos, team);
                                     return 1;
                                 })
                         )
@@ -79,9 +103,7 @@ public class ChatCommand {
                         uuid = new UUID(0L, 0L);
                     }
                     ChatPlayerPreference pref = Database.getPlayerCurrentChannel(uuid);
-
-                    //todo: display selected channel
-                    //todo: create translation string for the message
+                    ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.CHAT_CURRENT, Map.of("channel", pref.channel().name())), false);
                     return 1;
                 })
         );

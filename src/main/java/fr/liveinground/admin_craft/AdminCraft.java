@@ -46,6 +46,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -78,6 +80,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Mod(AdminCraft.MODID)
 public class AdminCraft {
@@ -443,7 +446,32 @@ public class AdminCraft {
         }
     }
 
-    public static void sendMessageInChannel(String source, String message, ChatChannel channel) {
-        //todo
+
+    public static void sendMessageInChannel(String source, String message, ChatChannel channel, Vec3 sourcePos, @Nullable PlayerTeam team) {
+        String key = switch (channel) {
+            case GLOBAL -> TrKeys.CHAT_CHANNEL_GLOBAL;
+            case LOCAL -> TrKeys.CHAT_CHANNEL_LOCAL;
+            case TEAM -> TrKeys.CHAT_CHANNEL_TEAM;
+            case STAFF -> TrKeys.CHAT_CHANNEL_STAFF;
+        };
+
+        Component msg = LangManager.parse(key, Map.of(
+                "displayname", source,
+                "message", message,
+                "teamName", team != null ? team.getName() : ""
+        ));
+
+        for (ServerPlayer player : ServerHolder.getServer().getPlayerList().getPlayers()) {
+            boolean shouldReceive = switch (channel) {
+                case GLOBAL -> true;
+                case LOCAL -> player.position().distanceTo(sourcePos) <= Config.localChatRange;
+                case TEAM -> team != null && team.equals(player.getTeam());
+                case STAFF -> player.hasPermissions(Config.staffChatLevel);
+            };
+
+            if (shouldReceive) {
+                player.sendSystemMessage(msg);
+            }
+        }
     }
 }

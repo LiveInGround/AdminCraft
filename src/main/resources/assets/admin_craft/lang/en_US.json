@@ -95,5 +95,13 @@
   "sanction.warned": "<dark_red>---------------------------------------------\n<bold><red>YOU'VE BEEN WARNED!\n<reset><yellow>You've been warned by %operator%: %reason%. Please review the rules!\n<dark_red>---------------------------------------------",
   "sanction.muted.duration_change": "<yellow>Your mute duration has been changed. It will now expire in <gold>%duration%.",
   "spawn.enter": "You are now in the spawn protection",
-  "spawn.leave": "You are no longer in the spawn protection"
+  "spawn.leave": "You are no longer in the spawn protection",
+  "chat.invalid_channel": "<red>Unknown channel <gold>%channel%",
+  "chat.no_permission": "<red>You are not allowed to use this channel.",
+  "chat.switched_channel": "<green>Switched to channel <gold>%channel%",
+  "chat.current": "<green>You are currently posting messages on the <gold>%channel%<green> channel.",
+  "chat.channel.global": "<%displayName%> %message%",
+  "chat.channel.local": "<gray>[L]<reset> <%displayName%> %message%",
+  "chat.channel.staff": "<red>[S]<reset> <%displayName%> %message%",
+  "chat.channel.team": "<green>[T]<reset> <%displayName%> %message%"
 }
