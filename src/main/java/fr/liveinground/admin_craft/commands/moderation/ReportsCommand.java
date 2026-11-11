@@ -33,33 +33,47 @@ public class ReportsCommand {
         dispatcher.register(Commands.literal("reports")
                 .requires(commandSource -> commandSource.hasPermission(Config.reports_level))
                 .then(Commands.literal("list")
-                        .then(Commands.argument("player", GameProfileArgument.gameProfile())
-                                .then(Commands.argument("page", IntegerArgumentType.integer(1))
-                                    .executes(ctx -> {
-                                        list(ctx, IntegerArgumentType.getInteger(ctx, "page"), GameProfileArgument.getGameProfiles(ctx, "player"));
-                                        return 1;
-                                    })
+                        .then(Commands.literal("player")
+                                .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                                        .then(Commands.literal("page")
+                                                .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                                                        .executes(ctx -> {
+                                                            list(ctx, IntegerArgumentType.getInteger(ctx, "page"), GameProfileArgument.getGameProfiles(ctx, "player"));
+                                                            return 1;
+                                                        })
+                                                )
+                                        )
+                                        .executes(ctx -> {
+                                            list(ctx, 1, GameProfileArgument.getGameProfiles(ctx, "player"));
+                                            return 1;
+                                        })
                                 )
+                        )
+                        .then(Commands.literal("page")
+                            .then(Commands.argument("page", IntegerArgumentType.integer(1))
                                 .executes(ctx -> {
-                                    list(ctx, 1, GameProfileArgument.getGameProfiles(ctx, "player"));
+                                    list(ctx, IntegerArgumentType.getInteger(ctx, "page"));
                                     return 1;
                                 })
-                        )
-                        .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                            )
                             .executes(ctx -> {
-                                list(ctx, IntegerArgumentType.getInteger(ctx, "page"));
+                                list(ctx, 1);
                                 return 1;
                             })
                         )
-                        .executes(ctx -> {
-                            list(ctx, 1);
-                            return 1;
-                        })
                 )
                 .then(Commands.literal("from")
                         .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                                .then(Commands.literal("page")
+                                        .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                                                .executes(ctx -> {
+                                                    listFrom(ctx, IntegerArgumentType.getInteger(ctx, "page"), GameProfileArgument.getGameProfiles(ctx, "player"));
+                                                    return 1;
+                                                })
+                                        )
+                                )
                                 .executes(ctx -> {
-                                    //todo
+                                    listFrom(ctx, 1, GameProfileArgument.getGameProfiles(ctx, "player"));
                                     return 1;
                                 })
                         )
@@ -146,6 +160,19 @@ public class ReportsCommand {
         );
     }
 
+    private static void listFrom(CommandContext<CommandSourceStack> ctx, int page, Collection<NameAndId> idCollection) {
+        NameAndId profile = idCollection.stream().findFirst().orElse(null);
+        if (profile == null) {
+            ctx.getSource().sendFailure(LangManager.parse(TrKeys.PLAYER_NOT_FOUND));
+            return;
+        }
+        List<ReportData> data = Database.listReportsOf(profile.id());
+        MutableComponent output = Component.empty();
+        output.append(LangManager.format("<gold>Reports by <aqua>" + profile.name() + "<gold>: \n"));
+        output.append(listReports(data, page, "reports from " + profile.name()));
+        ctx.getSource().sendSuccess(() -> output, false);
+    }
+
     private static void list(CommandContext<CommandSourceStack> ctx, int page) {
         List<ReportData> data = Database.listReports().stream().filter(report -> report.status() == ReportStatus.UNRESOLVED).toList();
         MutableComponent output = Component.empty();
@@ -163,7 +190,7 @@ public class ReportsCommand {
         }
         List<ReportData> data = Database.listReportsOf(profile.id());
         output.append(LangManager.format("<gold>Reports for %aqua%" + profile.name() + "<gold>: \n"));
-        output.append(listReports(data, page, "reports list " + profile.name()));
+        output.append(listReports(data, page, "reports list player " + profile.name()));
         ctx.getSource().sendSuccess(() -> output, false);
     }
 
@@ -203,11 +230,11 @@ public class ReportsCommand {
             output.append(rComponent);
         }
         Style style1 = Style.EMPTY;
-        style1.withClickEvent(new ClickEvent.RunCommand(cmd + " " + (page - 1)));
+        style1.withClickEvent(new ClickEvent.RunCommand(cmd + " page " + (page - 1)));
         output.append(Component.literal(" < ").withStyle(ChatFormatting.GOLD).withStyle(style1));
         output.append(Component.literal(page + "/" + totalPages).withStyle(ChatFormatting.AQUA));
         Style style2 = Style.EMPTY;
-        style2.withClickEvent(new ClickEvent.RunCommand(cmd + " " + (page + 1)));
+        style2.withClickEvent(new ClickEvent.RunCommand(cmd + " page " + (page + 1)));
         output.append(Component.literal(" > ").withStyle(ChatFormatting.GOLD).withStyle(style2));
         return output;
     }
