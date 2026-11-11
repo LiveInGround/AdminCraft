@@ -63,17 +63,15 @@ public class MuteCommand {
                                 NameAndId targetProfile = profiles.iterator().next();
 
                                 if (!AdminCraft.mutedPlayersUUID.contains(targetProfile.id().toString())) {
-                                    String msg = LangManager.tr(TrKeys.COMMAND_UNMUTE_FAILED_NOT_MUTED, Map.of("player", targetProfile.name()));
-                                    Component messageToOperator = Component.literal(msg);
-                                    ctx.getSource().sendFailure(messageToOperator);
+                                    Component msg = LangManager.parse(TrKeys.COMMAND_UNMUTE_FAILED_NOT_MUTED, Map.of("player", targetProfile.name()));
+                                    ctx.getSource().sendFailure(msg);
                                     return 1;
                                 }
 
                                 CustomSanctionSystem.unMutePlayer(targetProfile);
 
-                                String msg = LangManager.tr(TrKeys.COMMAND_UNMUTE_SUCCESS, Map.of("player", targetProfile.name()));
-                                Component messageToOperator = Component.literal(msg);
-                                ctx.getSource().sendSuccess(() -> messageToOperator, true);
+                                Component msg = LangManager.parse(TrKeys.COMMAND_UNMUTE_SUCCESS, Map.of("player", targetProfile.name()));
+                                ctx.getSource().sendSuccess(() -> msg, true);
                             } else {
                                 ctx.getSource().sendFailure(Component.literal("No player with this username was found."));
                             }
@@ -120,7 +118,7 @@ public class MuteCommand {
             return;
         }
         if (AdminCraft.mutedPlayersUUID.contains(String.valueOf(profile.id()))) {
-            ctx.getSource().sendFailure(Component.literal(LangManager.tr(TrKeys.COMMAND_MUTE_FAIL_ALREADY_MUTED, Map.of("player", profile.name()))));
+            ctx.getSource().sendFailure(LangManager.parse(TrKeys.COMMAND_MUTE_FAIL_ALREADY_MUTED, Map.of("player", profile.name())));
             return;
         }
         Date sanctionDuration = SanctionConfig.getDurationAsDate(duration);
@@ -159,7 +157,7 @@ public class MuteCommand {
             return;
         }
 
-        String msgToOperator = LangManager.tr(TrKeys.COMMAND_MUTE_SUCCESS, Map.of("player", profile.name(), "reason", reason));
-        ctx.getSource().sendSuccess(() -> Component.literal(msgToOperator), true);
+        Component msgToOperator = LangManager.parse(TrKeys.COMMAND_MUTE_SUCCESS, Map.of("player", profile.name(), "reason", reason));
+        ctx.getSource().sendSuccess(() -> msgToOperator, true);
     }
 }

@@ -121,7 +121,7 @@ public class ReportsCommand {
     private static void list(CommandContext<CommandSourceStack> ctx, @Nullable Collection<NameAndId> profiles, int page) {
         assert page >= 1;
         List<ReportData> data;
-        Optional<NameAndId> oprofile = null;
+        Optional<NameAndId> oprofile;
         MutableComponent output;
 
         if (profiles == null) {

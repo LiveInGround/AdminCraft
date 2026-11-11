@@ -296,14 +296,14 @@ public class AdminCraft {
                     player.addEffect(new MobEffectInstance(holder, Integer.MAX_VALUE, 255, false, false));
                 }
                 player.addTag(SP_TAG);
-                serverPlayer.displayClientMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_ENTER)).withStyle(ChatFormatting.GREEN), true);
+                serverPlayer.displayClientMessage(LangManager.parse(TrKeys.SPAWN_ENTER), true);
             }
         } else {
             if (player.getTags().contains(SP_TAG)) {
                 for (Holder<MobEffect> holder : Config.loadEffects(player.level())) {
                     player.removeEffect(holder);
                 }
-                serverPlayer.displayClientMessage(Component.literal(LangManager.tr(TrKeys.SPAWN_LEAVE)).withStyle(ChatFormatting.RED), true);
+                serverPlayer.displayClientMessage(LangManager.parse(TrKeys.SPAWN_LEAVE), true);
                 player.removeTag(SP_TAG);
             }
         }

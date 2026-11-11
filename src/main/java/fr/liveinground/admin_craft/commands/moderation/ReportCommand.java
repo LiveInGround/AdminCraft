@@ -46,12 +46,12 @@ public class ReportCommand {
                                         String reason = StringArgumentType.getString(ctx, "reason");
 
                                         if (player.equals(reportedPlayer)) {
-                                            ctx.getSource().sendFailure(Component.literal(LangManager.tr(TrKeys.REPORT_FAILED_SELF)));
+                                            ctx.getSource().sendFailure(LangManager.parse(TrKeys.REPORT_FAILED_SELF));
                                             return 1;
                                         }
 
                                         if (!Database.registerReport(player.getUUID(), reportedPlayer.getUUID(), reason)) {
-                                            player.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.REPORT_FAILED_DATABASE)).withStyle(ChatFormatting.RED));
+                                            player.sendSystemMessage(LangManager.parse(TrKeys.REPORT_FAILED_DATABASE));
                                         }
 
                                         for (ServerPlayer operator: Utils.getOnlineOperators()) {
@@ -67,16 +67,15 @@ public class ReportCommand {
                                                     sendWebhookMessage(reportedPlayer, player, reason);
                                                 } catch (Exception e) {
                                                     AdminCraft.LOGGER.error("An error occurred while posting a report into Discord Webhooks:", e);
-                                                    player.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.REPORT_FAILED_WEBHOOK)).withStyle(ChatFormatting.YELLOW));
+                                                    player.sendSystemMessage(LangManager.parse(TrKeys.REPORT_FAILED_WEBHOOK));
                                                 }
                                             });
                                         }
-                                        ctx.getSource().sendSuccess(() -> Component.literal(LangManager.tr(TrKeys.REPORT_SUCCESS)).withStyle(ChatFormatting.GREEN), true);
-                                        return 1;
+                                        ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.REPORT_SUCCESS), false);
                                     } else {
                                         ctx.getSource().sendFailure(Component.literal("This command can only be run by players."));
-                                        return 1;
                                     }
+                                    return 1;
                                 })
                         )
                 )

@@ -8,7 +8,6 @@ import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.moderation.CustomSanctionSystem;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import fr.liveinground.admin_craft.storage.types.PlayerMuteData;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +25,6 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -41,7 +39,7 @@ public class MuteEventsHandler {
         ServerPlayer player = event.getPlayer();
 
         if (AdminCraft.mutedPlayersUUID.contains(player.getStringUUID())) {
-            Component messageComponent = Component.literal(LangManager.tr(TrKeys.MUTE_MESSAGE_CANCELLED)).withStyle(ChatFormatting.RED);
+            Component messageComponent = LangManager.parse(TrKeys.MUTE_MESSAGE_CANCELLED);
             player.sendSystemMessage(messageComponent);
             Utils.logCancelledMessage(player, event.getRawText());
             event.setCanceled(true);
@@ -80,7 +78,7 @@ public class MuteEventsHandler {
                         }
                         Utils.logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
                         event.setCanceled(true);
-                        Component messageComponent = Component.literal(LangManager.tr(TrKeys.MUTE_MESSAGE_CANCELLED)).withStyle(ChatFormatting.RED);
+                        Component messageComponent = LangManager.parse(TrKeys.MUTE_MESSAGE_CANCELLED);
                         sender.sendSystemMessage(messageComponent);
 
                     }

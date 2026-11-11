@@ -7,7 +7,6 @@ import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.storage.Database;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -32,7 +31,7 @@ public class FreezeCommand {
     private static int freeze(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         AdminCraft.frozenPlayersUUID.add(player.getStringUUID());
         Database.registerFreeze(player.getUUID());
-        player.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.FREEZE_BEGINS)).withStyle(ChatFormatting.RED));
+        player.sendSystemMessage(LangManager.parse(TrKeys.FREEZE_BEGINS));
         player.getFoodData().setSaturation(20);
         ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " was frozen"), true);
         return 1;
@@ -41,7 +40,7 @@ public class FreezeCommand {
     private static int unfreeze(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         AdminCraft.frozenPlayersUUID.remove(player.getStringUUID());
         Database.removeFreeze(player.getUUID());
-        player.sendSystemMessage(Component.literal(LangManager.tr(TrKeys.FREEZE_ENDS)).withStyle(ChatFormatting.GREEN));
+        player.sendSystemMessage(LangManager.parse(TrKeys.FREEZE_ENDS));
 
         ctx.getSource().sendSuccess(() -> Component.literal(player.getDisplayName().getString() + " was unfrozen"), true);
 

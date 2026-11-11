@@ -32,10 +32,10 @@ public class Utils {
 
     public static void logCancelledMessage(ServerPlayer player, String message) {
         if (Config.log_cancelled_events) {
-            String logMessage = LangManager.tr(TrKeys.MUTE_MESSAGE_CANCELLED_LOG, Map.of("player", player.getDisplayName().getString(), "message", message));
-            AdminCraft.LOGGER.info(logMessage);
+            Component logMessage = LangManager.parse(TrKeys.MUTE_MESSAGE_CANCELLED_LOG, Map.of("player", player.getDisplayName().getString(), "message", message));
+            AdminCraft.LOGGER.info(logMessage.getString());
             for (ServerPlayer p: getOnlineOperators()) {
-                p.sendSystemMessage(Component.literal(logMessage));
+                p.sendSystemMessage(logMessage);
             }
         }
     }
