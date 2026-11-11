@@ -1,6 +1,6 @@
 package fr.liveinground.admin_craft;
 
-import com.mojang.brigadier.CommandDispatcher;
+import Freezecom.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import fr.liveinground.admin_craft.commands.moderation.BanCommand;
 import fr.liveinground.admin_craft.commands.moderation.FreezeCommand;
@@ -30,6 +30,7 @@ import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import fr.liveinground.admin_craft.storage.types.chat.ChatChannel;
 import fr.liveinground.admin_craft.storage.types.chat.ChatPlayerPreference;
+import fr.liveinground.admin_craft.storage.types.freeze.Freeze;
 import fr.liveinground.admin_craft.updates.UpdateChecker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -111,11 +112,14 @@ public class AdminCraft {
         NeoForge.EVENT_BUS.register(MuteEventsHandler.class);
         NeoForge.EVENT_BUS.register(FreezeEventListener.class);
         Database.start();
+        for (Freeze f: Database.getFreezes()) {
+            frozenPlayersUUID.add(f.uuid().toString());
+        }
     }
 
     @SubscribeEvent
     public void onServerStarted(ServerStartingEvent event) {
-        AdminCraft.LOGGER.info("Server is starting...");
+        AdminCraft.LOGGER.info("Starting services...");
         if (Config.enable_appeals) {
             DiscordBot.start();
         }
@@ -461,7 +465,7 @@ public class AdminCraft {
         Component msg = LangManager.parse(key, Map.of(
                 "displayname", source,
                 "message", message,
-                "teamName", team != null ? team.getName() : ""
+                "team", team != null ? team.getName() : ""
         ));
 
         for (ServerPlayer player : ServerHolder.getServer().getPlayerList().getPlayers()) {

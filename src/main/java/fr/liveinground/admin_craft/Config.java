@@ -60,6 +60,9 @@ public class Config {
     private static final ModConfigSpec.ConfigValue<Boolean> FREEZE_ALLOW_EXT_TP;
     public static boolean freeze_allow_ext_tp;
 
+    private static final ModConfigSpec.ConfigValue<Boolean> FREEZE_ALLOW_COMMANDS;
+    public static boolean freeze_allow_commands;
+
     // --------------------------
     // -- Commands permissions --
     // --------------------------
@@ -260,6 +263,7 @@ public class Config {
         LOG_SERVER_COMMANDS = BUILDER.comment("Should AdminCraft log server commands (console, command blocks, functions, mods...)?").worldRestart().define("logServerCommands", false);
         LOG_PLAYER_COMMANDS = BUILDER.comment("Should AdminCraft log player's commands").worldRestart().define("logPlayerCommands", false);
         FREEZE_ALLOW_EXT_TP = BUILDER.comment("Should AdminCraft allow the teleportation of frozen players if initiated by an external source (other player's command, mod...)?").worldRestart().define("allowFreezeExternalTeleport", false);
+        FREEZE_ALLOW_COMMANDS = BUILDER.comment("Should AdminCraft allow the use of commands by frozen players?").worldRestart().define("allowCommands", false);
 
         BUILDER.pop();
     }
@@ -480,6 +484,7 @@ public class Config {
         log_server_commands = LOG_SERVER_COMMANDS.get();
         log_player_commands = LOG_PLAYER_COMMANDS.get();
         freeze_allow_ext_tp = FREEZE_ALLOW_EXT_TP.get();
+        freeze_allow_commands = FREEZE_ALLOW_COMMANDS.get();
 
         // --------------------------
         // -- Commands permissions --

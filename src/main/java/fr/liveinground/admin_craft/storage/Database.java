@@ -3,6 +3,7 @@ package fr.liveinground.admin_craft.storage;
 import fr.liveinground.admin_craft.AdminCraft;
 import fr.liveinground.admin_craft.storage.types.chat.ChatChannel;
 import fr.liveinground.admin_craft.storage.types.chat.ChatPlayerPreference;
+import fr.liveinground.admin_craft.storage.types.freeze.Freeze;
 import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import fr.liveinground.admin_craft.storage.types.reports.ReportStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
@@ -84,6 +85,11 @@ public class Database {
                 CREATE TABLE IF NOT EXISTS channels (
                     playeruuid TEXT PRIMARY KEY NOT NULL,
                     channel TEXT DEFAULT 'GLOBAL'
+                );
+                
+                CREATE TABLE IF NOT EXISTS freezes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    uuid TEXT
                 );""";
         Exception ans = post(init);
         if (ans == null) {
@@ -435,18 +441,10 @@ public class Database {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    String playerStringUUID = rs.getString("playeruuid");
-                    UUID playerUUID;
-                    if (rs.wasNull()) {
-                        playerUUID = null;
-                    } else {
-                        playerUUID = UUID.fromString(playerStringUUID);
-                    }
                     ChatPlayerPreference data = new ChatPlayerPreference(
-                            playerUUID,
+                            UUID.fromString(rs.getString("playeruuid")),
                             ChatChannel.valueOf(rs.getString("channel"))
                     );
-
                     results.add(data);
                 }
             }
@@ -471,5 +469,50 @@ public class Database {
         } catch (NoSuchElementException ignored) {
             return new ChatPlayerPreference(uuid, ChatChannel.GLOBAL);
         }
+    }
+
+    private static List<Freeze> queryFreeze(String sql, StatementPreparer preparer) {
+        List<Freeze> results = new ArrayList<>();
+        try (
+                Connection conn = connect();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            preparer.prepare(stmt);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Freeze data = new Freeze(
+                            rs.getInt("id"),
+                            UUID.fromString(rs.getString("uuid"))
+                    );
+                    results.add(data);
+                }
+            }
+        } catch (SQLException e) {
+            AdminCraft.LOGGER.error("Issue while posting a query to the freezes table: ", e);
+        }
+        return results;
+    }
+
+    public static boolean registerFreeze(UUID uuid) {
+        if (!queryFreeze("SELECT * FROM freezes WHERE uuid = ?", stmt -> {stmt.setString(1, uuid.toString());})
+                .isEmpty()) {
+            AdminCraft.LOGGER.warn("Attempting to register a freeze on an already frozen player!");
+            return false;
+        }
+        return update("INSERT INTO freezes (uuid) VALUES (?);", stmt -> stmt.setString(1, uuid.toString()));
+    }
+
+    public static List<Freeze> getFreezes() {
+        return queryFreeze("SELECT * FROM freezes", stmt -> {});
+    }
+
+    public static boolean removeFreeze(UUID uuid) {
+        if (queryFreeze("SELECT * FROM freezes WHERE uuid = ?", stmt -> {stmt.setString(1, uuid.toString());})
+                .isEmpty()) {
+            AdminCraft.LOGGER.warn("Attempting to remove a freeze on a not frozen player!");
+            return false;
+        }
+        return update("DELETE FROM freezes WHERE uuid = ?", stmt -> stmt.setString(1, uuid.toString()));
     }
 }

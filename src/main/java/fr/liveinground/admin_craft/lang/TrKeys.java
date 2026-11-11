@@ -44,6 +44,7 @@ public class TrKeys {
     // =========================
     public static final String FREEZE_BEGINS = "freeze.begins";
     public static final String FREEZE_ENDS = "freeze.ends";
+    public static final String FREEZE_COMMAND_DENIED = "freeze.command_denied";
 
     // =========================
     // Discord integration
