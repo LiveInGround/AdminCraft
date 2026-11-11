@@ -40,6 +40,15 @@ public class TrKeys {
     public static final String REPORT_FAILED_DATABASE = "command.report.failed.database";
 
     // =========================
+    // Reports
+    // =========================
+    public static final String REPORTS_NOT_FOUND = "reports.not_found";
+    public static final String REPORTS_UNCLAIM_NOT_CLAIMED = "reports.unclaim.not_claimed";
+    public static final String REPORTS_UNCLAIM_SUCCESS = "reports.unclaim.success";
+    public static final String REPORTS_COMPLETED_SUCCESS = "reports.completed.success";
+    public static final String REPORTS_COMPLETED_FAILED = "reports.completed.already_completed";
+
+    // =========================
     // Freeze system
     // =========================
     public static final String FREEZE_BEGINS = "freeze.begins";

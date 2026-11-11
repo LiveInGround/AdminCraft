@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import fr.liveinground.admin_craft.Config;
 import fr.liveinground.admin_craft.commands.tools.HistoryCommand;
+import fr.liveinground.admin_craft.lang.LangManager;
+import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import fr.liveinground.admin_craft.storage.types.reports.ReportStatus;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -94,7 +97,18 @@ public class ReportsCommand {
                 .then(Commands.literal("unclaim")
                         .then(Commands.argument("id", IntegerArgumentType.integer(0))
                                 .executes(ctx -> {
-                                    //todo
+                                    int id = IntegerArgumentType.getInteger(ctx, "id");
+                                    ReportData reportData = Database.getReport(id);
+                                    if (reportData == null) {
+                                        ctx.getSource().sendFailure(LangManager.parse(TrKeys.REPORTS_NOT_FOUND, Map.of("id", String.valueOf(id))));
+                                        return 1;
+                                    }
+                                    if (!(reportData.status() == ReportStatus.CLAIMED)) {
+                                        ctx.getSource().sendFailure(LangManager.parse(TrKeys.REPORTS_UNCLAIM_NOT_CLAIMED));
+                                        return 1;
+                                    }
+                                    Database.updateReportStatus(id, ReportStatus.UNRESOLVED, null);
+                                    ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.REPORTS_UNCLAIM_SUCCESS, Map.of("id", String.valueOf(id))), true);
                                     return 1;
                                 })
                         )
@@ -102,20 +116,49 @@ public class ReportsCommand {
                 .then(Commands.literal("info")
                         .then(Commands.argument("id", IntegerArgumentType.integer(0))
                                 .executes(ctx -> {
-                                    //todo
+                                    int id = IntegerArgumentType.getInteger(ctx, "id");
+                                    ReportData data = Database.getReport(id);
+                                    if (data == null) {
+                                        ctx.getSource().sendFailure(LangManager.parse(TrKeys.REPORTS_NOT_FOUND, Map.of("id", String.valueOf(id))));
+                                        return 1;
+                                    }
+                                    ctx.getSource().sendSuccess(() -> reportInfo(data), false);
                                     return 1;
                                 })
                         )
                 )
                 .then(Commands.literal("complete")
                         .then(Commands.argument("id", IntegerArgumentType.integer(0))
-                                .executes(ctx -> {
-                                    //todo
-                                    return 1;
-                                })
+                                .then(Commands.literal("NO_ACTION_TAKEN")
+                                    .executes(ctx -> {
+                                        complete(ctx, ReportStatus.NO_ACTION_TAKEN);
+                                        return 1;
+                                    })
+                                )
+                                .then(Commands.literal("SANCTION_ISSUED")
+                                        .executes(ctx -> {
+                                            complete(ctx, ReportStatus.SANCTION_ISSUED);
+                                            return 1;
+                                        })
+                                )
                         )
                 )
         );
+    }
+
+    private static void complete(CommandContext<CommandSourceStack> ctx, ReportStatus status) {
+        int id = IntegerArgumentType.getInteger(ctx, "id");
+        ReportData reportData = Database.getReport(id);
+        if (reportData == null) {
+            ctx.getSource().sendFailure(LangManager.parse(TrKeys.REPORTS_NOT_FOUND, Map.of("id", String.valueOf(id))));
+            return;
+        }
+        if ((reportData.status() == ReportStatus.SANCTION_ISSUED || reportData.status() == ReportStatus.NO_ACTION_TAKEN)) {
+            ctx.getSource().sendFailure(LangManager.parse(TrKeys.REPORTS_COMPLETED_FAILED));
+            return;
+        }
+        Database.updateReportStatus(id, status, null);
+        ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.REPORTS_COMPLETED_SUCCESS, Map.of("id", String.valueOf(id), "status", status.name())), true);
     }
 
     private static void list(CommandContext<CommandSourceStack> ctx, @Nullable Collection<NameAndId> profiles, int page) {
@@ -159,28 +202,32 @@ public class ReportsCommand {
             ReportData report = data.get(i);
 
             if (profiles == null && !report.status().equals(ReportStatus.UNRESOLVED)) continue;
-            output.append(Component.literal("* ").withStyle(ChatFormatting.GRAY));
-
-            output.append(Component.literal("#" + report.id() + "\n").withStyle(ChatFormatting.DARK_RED));
-
-            output.append(Component.literal("  • ").withStyle(ChatFormatting.DARK_GRAY))
-                    .append(Component.literal("Status: ").withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(report.status().toString() + "\n")
-                            .withStyle(getStatusColor(report.status())));
-            HistoryCommand.addField(output, "Date", report.date().toString());
-            HistoryCommand.addField(output, "Reason", report.reason());
-            HistoryCommand.addField(output, "Reported by", report.sourceUUID().toString());
-            HistoryCommand.addField(output, "Target", report.targetUUID().toString());
-
-            if (report.claimedUUID() != null) {
-                HistoryCommand.addField(output, "Claimed by", report.claimedUUID().toString());
-            } else {
-                HistoryCommand.addField(output, "Claimed by", "Nobody");
-            }
+            output.append(reportInfo(report));
         }
         output.append(Component.literal("\nPage " + page + " on " + totalPages));
 
         ctx.getSource().sendSuccess(() -> output, false);
+    }
+
+    private static Component reportInfo(ReportData report) {
+        MutableComponent output = Component.empty();
+        output.append(Component.literal("* ").withStyle(ChatFormatting.GRAY));
+        output.append(Component.literal("#" + report.id() + "\n").withStyle(ChatFormatting.DARK_RED));
+        output.append(Component.literal("  • ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(Component.literal("Status: ").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(report.status().toString() + "\n")
+                        .withStyle(getStatusColor(report.status())));
+        HistoryCommand.addField(output, "Date", report.date().toString());
+        HistoryCommand.addField(output, "Reason", report.reason());
+        HistoryCommand.addField(output, "Reported by", report.sourceUUID().toString());
+        HistoryCommand.addField(output, "Target", report.targetUUID().toString());
+        if (report.claimedUUID() != null) {
+            HistoryCommand.addField(output, "Claimed by", report.claimedUUID().toString());
+        } else {
+            HistoryCommand.addField(output, "Claimed by", "Nobody");
+        }
+
+        return output;
     }
 
     private static ChatFormatting getStatusColor(ReportStatus status) {

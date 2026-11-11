@@ -9,16 +9,12 @@ import fr.liveinground.admin_craft.lang.LangManager;
 import fr.liveinground.admin_craft.lang.TrKeys;
 import fr.liveinground.admin_craft.mutes.Utils;
 import fr.liveinground.admin_craft.storage.Database;
-import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.NameAndId;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,8 +23,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -81,6 +75,7 @@ public class ReportCommand {
                 )
         );
 
+        /*
         dispatcher.register(Commands.literal("reports")
                 .requires(commandSource -> commandSource.hasPermission(Config.reports_level))
                 .then(Commands.argument("player", GameProfileArgument.gameProfile())
@@ -120,7 +115,9 @@ public class ReportCommand {
                                 ctx.getSource().sendFailure(Component.literal("No player was found"));
                             }
                             return 1;
-                })));
+                })
+            )
+        );*/
     }
 
     private static String calculateDist(ServerPlayer reportedPlayer, ServerPlayer player) {
