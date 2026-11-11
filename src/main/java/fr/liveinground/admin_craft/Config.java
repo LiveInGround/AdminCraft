@@ -234,6 +234,18 @@ public class Config {
     private static final ModConfigSpec.BooleanValue ENABLE_CHAT_CHANNELS;
     public static boolean enableChatChannels;
 
+    private static final ModConfigSpec.BooleanValue ENABLE_LOCAL_CHAT;
+    public static boolean enableLocalChat;
+
+    private static final ModConfigSpec.IntValue LOCAL_CHAT_RANGE;
+    public static int localChatRange;
+
+    private static final ModConfigSpec.BooleanValue ENABLE_STAFF_CHAT;
+    public static boolean enableStaffChat;
+
+    private static final ModConfigSpec.IntValue STAFF_CHAT_PERMISSION;
+    public static int staffChatLevel;
+
 
     static {
         BUILDER.push("misc");
@@ -365,6 +377,10 @@ public class Config {
         BUILDER.push("chatChannels").comment("The general configuration for everything related to chat channels.");
 
         ENABLE_CHAT_CHANNELS = BUILDER.comment("Enable the whole chat channel system").worldRestart().define("enableChatChannels", true);
+        ENABLE_LOCAL_CHAT = BUILDER.comment("Enable local chat channel").worldRestart().define("enableLocalChat", true);
+        LOCAL_CHAT_RANGE = BUILDER.comment("The range until messages sent into the local chat channel aren't visible").worldRestart().defineInRange("localChatRange", 50, 1, Integer.MAX_VALUE);
+        ENABLE_STAFF_CHAT = BUILDER.comment("Enable staff chat channel").worldRestart().define("enableStaffChat", true);
+        STAFF_CHAT_PERMISSION = BUILDER.comment("The OP level required to receive and send messages on the staff chat channel").worldRestart().defineInRange("staffChatPermission", 1, 0, 4);
     }
 
     static final ModConfigSpec SPEC = BUILDER.build();
@@ -614,6 +630,11 @@ public class Config {
         // -------------------------
 
         enableChatChannels = ENABLE_CHAT_CHANNELS.get();
+        enableLocalChat = ENABLE_LOCAL_CHAT.get();
+        localChatRange = LOCAL_CHAT_RANGE.get();
+        enableStaffChat = ENABLE_STAFF_CHAT.get();
+        staffChatLevel = STAFF_CHAT_PERMISSION.get();
+
     }
 
     public static Set<Holder<MobEffect>> loadEffects(Level level) {

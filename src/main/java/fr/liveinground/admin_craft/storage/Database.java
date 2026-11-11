@@ -1,6 +1,8 @@
 package fr.liveinground.admin_craft.storage;
 
 import fr.liveinground.admin_craft.AdminCraft;
+import fr.liveinground.admin_craft.storage.types.chat.ChatChannel;
+import fr.liveinground.admin_craft.storage.types.chat.ChatPlayerPreference;
 import fr.liveinground.admin_craft.storage.types.reports.ReportData;
 import fr.liveinground.admin_craft.storage.types.reports.ReportStatus;
 import fr.liveinground.admin_craft.storage.types.sanction.AppealStatus;
@@ -25,6 +27,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class Database {
@@ -51,6 +54,43 @@ public class Database {
             throw new RuntimeException(e);
         }
         return DriverManager.getConnection(URL);
+    }
+
+    public static void start() {
+        String init = """
+                CREATE TABLE IF NOT EXISTS sanctions (
+                    id TEXT PRIMARY KEY,
+                    type TEXT NOT NULL,
+                    uuid TEXT NOT NULL,
+                    ign TEXT,
+                    reason TEXT NOT NULL,
+                    date BIGINT NOT NULL,
+                    expires BIGINT,
+                    appealStatus TEXT NOT NULL,
+                    appealDate BIGINT,
+                    removed INTEGER NOT NULL DEFAULT 0
+                );
+                
+                CREATE TABLE IF NOT EXISTS reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    status TEXT DEFAULT UNRESOLVED,
+                    reporteruuid TEXT NOT NULL,
+                    reporteduuid TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    date BIGINT NOT NULL,
+                    claimeduuid TEXT
+                );
+                
+                CREATE TABLE IF NOT EXISTS channels (
+                    playeruuid TEXT PRIMARY KEY NOT NULL,
+                    channel TEXT DEFAULT 'GLOBAL'
+                );""";
+        Exception ans = post(init);
+        if (ans == null) {
+            AdminCraft.LOGGER.info("Successfully connected to the database");
+        } else {
+            AdminCraft.LOGGER.error("Error while initialising the database: ", ans);
+        }
     }
 
     private static String generateID() {
@@ -186,38 +226,6 @@ public class Database {
         }
     }
 
-    public static void start() {
-        String init = """
-                CREATE TABLE IF NOT EXISTS sanctions (
-                    id TEXT PRIMARY KEY,
-                    type TEXT NOT NULL,
-                    uuid TEXT NOT NULL,
-                    ign TEXT,
-                    reason TEXT NOT NULL,
-                    date BIGINT NOT NULL,
-                    expires BIGINT,
-                    appealStatus TEXT NOT NULL,
-                    appealDate BIGINT,
-                    removed INTEGER NOT NULL DEFAULT 0
-                );
-                
-                CREATE TABLE IF NOT EXISTS reports (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    status TEXT DEFAULT UNRESOLVED,
-                    reporteruuid TEXT NOT NULL,
-                    reporteduuid TEXT NOT NULL,
-                    reason TEXT NOT NULL,
-                    date BIGINT NOT NULL,
-                    claimeduuid TEXT
-                );""";
-        Exception ans = post(init);
-        if (ans == null) {
-            AdminCraft.LOGGER.info("Successfully connected to the database");
-        } else {
-            AdminCraft.LOGGER.error("Error while initialising the database: ", ans);
-        }
-    }
-
     public static boolean registerReport(UUID reporter, UUID reported, String reason) {
         return update("INSERT INTO reports(reporteruuid, reporteduuid, reason, date) VALUES (?, ?, ?, ?);", stmt -> {
             stmt.setString(1, reporter.toString());
@@ -258,7 +266,7 @@ public class Database {
     public static boolean updateReportStatus(int id, ReportStatus status, @Nullable UUID claimer) {
         if (status.equals(ReportStatus.CLAIMED)) {
             if (claimer == null) {
-                AdminCraft.LOGGER.error("Trying to claim report " + id + " without a provided staff!");
+                AdminCraft.LOGGER.error("Trying to claim report {} without a provided staff!", id);
                 return false;
             }
             return update("UPDATE reports SET status = ?, claimeduuid = ? WHERE id = ?;", stmt -> {
@@ -415,5 +423,53 @@ public class Database {
         return update("UPDATE sanctions SET removed = 1 WHERE id = ?;", stmt -> {
             stmt.setString(1, id);
         });
+    }
+
+    private static List<ChatPlayerPreference> queryPlayerChannel(String sql, StatementPreparer preparer) {
+        List<ChatPlayerPreference> results = new ArrayList<>();
+        try (
+                Connection conn = connect();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            preparer.prepare(stmt);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String playerStringUUID = rs.getString("playeruuid");
+                    UUID playerUUID;
+                    if (rs.wasNull()) {
+                        playerUUID = null;
+                    } else {
+                        playerUUID = UUID.fromString(playerStringUUID);
+                    }
+                    ChatPlayerPreference data = new ChatPlayerPreference(
+                            playerUUID,
+                            ChatChannel.valueOf(rs.getString("channel"))
+                    );
+
+                    results.add(data);
+                }
+            }
+        } catch (SQLException e) {
+            AdminCraft.LOGGER.error("Issue while posting a query to the channels table: ", e);
+        }
+        return results;
+    }
+
+    public static boolean updateChatPreference(UUID uuid, ChatChannel channel) {
+        return update("INSERT INTO channels (playeruuid, channel) VALUES (?, ?) ON CONFLICT(playeruuid) DO UPDATE SET channel = excluded.channel;", stmt -> {
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, channel.name());
+        });
+    }
+
+    public static ChatPlayerPreference getPlayerCurrentChannel(UUID uuid) {
+        try {
+            return queryPlayerChannel("SELECT * FROM channels WHERE playeruuid = ?", stmt -> {
+                stmt.setString(1, uuid.toString());
+            }).getFirst();
+        } catch (NoSuchElementException ignored) {
+            return new ChatPlayerPreference(uuid, ChatChannel.GLOBAL);
+        }
     }
 }
