@@ -57,13 +57,17 @@ public class ChatCommand {
                                 ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_NO_PERM));
                                 return 1;
                             }
+                            if (channel == ChatChannel.TEAM && ((source.isPlayer() && Objects.requireNonNull(source.getPlayer()).getTeam() == null) || !source.isPlayer())) {
+                                ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_TEAM_NO_TEAM));
+                                return 1;
+                            }
                             Database.updateChatPreference(uuid, channel);
                             ctx.getSource().sendSuccess(() -> LangManager.parse(TrKeys.CHAT_SWITCHED_CHANNEL, Map.of("channel", channelStr)), false);
                             return 1;
                         })
                         .then(Commands.argument("message", StringArgumentType.greedyString())
                                 .executes(ctx -> {
-                                    String channelStr = StringArgumentType.getString(ctx, "channel");
+                                    String channelStr = StringArgumentType.getString(ctx, "channel").toUpperCase();
                                     ChatChannel channel;
                                     try {
                                         channel = ChatChannel.valueOf(channelStr);
@@ -87,6 +91,10 @@ public class ChatCommand {
                                     } else {
                                         pos = new Vec3(0, 0, 0);
                                         team = null;
+                                    }
+                                    if (channel == ChatChannel.TEAM && ((source.isPlayer() && team == null) || !source.isPlayer())) {
+                                        ctx.getSource().sendFailure(LangManager.parse(TrKeys.CHAT_TEAM_NO_TEAM));
+                                        return 1;
                                     }
                                     AdminCraft.sendMessageInChannel(ctx.getSource().getTextName(), StringArgumentType.getString(ctx, "message"), channel, pos, team);
                                     return 1;

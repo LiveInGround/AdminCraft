@@ -204,4 +204,5 @@ public class TrKeys {
     public static final String CHAT_CHANNEL_LOCAL = "chat.channel.local";
     public static final String CHAT_CHANNEL_STAFF = "chat.channel.staff";
     public static final String CHAT_CHANNEL_TEAM = "chat.channel.team";
+    public static final String CHAT_TEAM_NO_TEAM = "chat.team.no_team";
 }

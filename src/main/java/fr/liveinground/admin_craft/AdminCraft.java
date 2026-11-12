@@ -464,6 +464,14 @@ public class AdminCraft {
             case TEAM -> TrKeys.CHAT_CHANNEL_TEAM;
             case STAFF -> TrKeys.CHAT_CHANNEL_STAFF;
         };
+        if (channel == ChatChannel.TEAM && team == null) {
+            ServerPlayer p = ServerHolder.getServer().getPlayerList().getPlayer(source);
+            AdminCraft.LOGGER.warn("{} tried to send a chat message in {}, but doesn't belong to a team: {}", source, channel, message);
+            if (p != null) {
+                p.sendSystemMessage(LangManager.parse(TrKeys.CHAT_TEAM_NO_TEAM));
+            }
+            return;
+        }
 
         Component msg = LangManager.parse(key, Map.of(
                 "displayName", source,

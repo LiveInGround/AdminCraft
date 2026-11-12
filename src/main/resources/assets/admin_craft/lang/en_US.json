@@ -8,6 +8,7 @@
   "chat.invalid_channel": "<red>Unknown channel <gold>%channel%",
   "chat.no_permission": "<red>You are not allowed to use this channel.",
   "chat.switched_channel": "<green>Switched to channel <gold>%channel%",
+  "chat.team.no_team": "<red>You aren't in a team. Switch back to <gold>/chat global <red>if you want everyone to see your messages.",
   "command.mute.fail.already_muted": "<red>%player% is already muted",
   "command.mute.success": "%player% was muted: %reason%",
   "command.report.failed.database": "<red>Failed to register the report. Please contact a staff member directly.",
