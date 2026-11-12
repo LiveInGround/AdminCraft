@@ -62,6 +62,15 @@ public class LangManager {
                 .replace("\\>", ">");
     }
 
+
+    private static boolean isEscaped(String input, int index) {
+        int backslashes = 0;
+        for (int i = index - 1; i >= 0 && input.charAt(i) == '\\'; i--) {
+            backslashes++;
+        }
+        return backslashes%2 != 0;
+    }
+
     public static Component format(String input) {
         MutableComponent result = Component.empty();
         Style style = Style.EMPTY;
@@ -74,15 +83,27 @@ public class LangManager {
                 break;
             }
 
+            if (isEscaped(input, start)) {
+                result.append(Component.literal(unescapeSubString(input.substring(cursor, start + 1))).withStyle(style));
+                cursor = start + 1;
+                continue;
+            }
+
             if (start > cursor) {
                 result.append(Component.literal(unescapeSubString(input.substring(cursor, start))).withStyle(style));
             }
 
-            int end = input.indexOf('>', start);
+            int end = input.indexOf('>', start + 1);
+
             if (end == -1) {
-                result.append(Component.literal(unescapeSubString(input.substring(start)))
-                        .withStyle(style));
+                result.append(Component.literal(unescapeSubString(input.substring(start))).withStyle(style));
                 break;
+            }
+
+            if (isEscaped(input, end)) {
+                result.append(Component.literal(unescapeSubString(input.substring(start, end + 1))).withStyle(style));
+                cursor = end + 1;
+                continue;
             }
 
             String tag = input.substring(start + 1, end).toLowerCase(Locale.ROOT);
