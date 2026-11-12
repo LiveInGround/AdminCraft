@@ -1,7 +1,12 @@
 package fr.liveinground.admin_craft;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class PlaceHolderSystem {
     public static String replacePlaceholders(String text, Map<String, String> values) {
@@ -38,5 +43,32 @@ public class PlaceHolderSystem {
             values2.put(key, escapedValue.toString());
         }
         return replacePlaceholders(text, values2);
+    }
+
+    public static MutableComponent insertComponent(Component original, String placeholder, Component replacement) {
+        MutableComponent result = Component.empty();
+
+        String finalPlaceholder = "%" + placeholder + "%";
+        original.visit((style, text) -> {
+            int start = 0;
+            int index;
+
+            while ((index = text.indexOf(finalPlaceholder, start)) != -1) {
+                if (index > start) {
+                    result.append(Component.literal(text.substring(start, index)).setStyle(style));
+                }
+
+                result.append(replacement.copy().withStyle(style));
+                start = index + finalPlaceholder.length();
+            }
+
+            if (start < text.length()) {
+                result.append(Component.literal(text.substring(start)).setStyle(style));
+            }
+
+            return Optional.empty();
+        }, Style.EMPTY);
+
+        return result;
     }
 }

@@ -30,7 +30,6 @@ import fr.liveinground.admin_craft.mutes.Utils;
 import fr.liveinground.admin_craft.storage.Database;
 import fr.liveinground.admin_craft.storage.PlayerDataManager;
 import fr.liveinground.admin_craft.storage.types.chat.ChatChannel;
-import fr.liveinground.admin_craft.storage.types.chat.ChatPlayerPreference;
 import fr.liveinground.admin_craft.storage.types.freeze.Freeze;
 import fr.liveinground.admin_craft.updates.UpdateChecker;
 import net.minecraft.ChatFormatting;
@@ -52,7 +51,6 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -62,7 +60,6 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -458,6 +455,20 @@ public class AdminCraft {
 
 
     public static void sendMessageInChannel(String source, String message, ChatChannel channel, Vec3 sourcePos, @Nullable PlayerTeam team) {
+        sendMessageInChannel(Component.literal(source), message, channel, sourcePos, team);
+    }
+
+    /*@SubscribeEvent(priority = EventPriority.HIGH)
+    public void onChatMessage(ServerChatEvent event) {
+        if (event.isCanceled() || !Config.enableChatChannels) {
+            return;
+        }
+        ChatPlayerPreference pref = Database.getPlayerCurrentChannel(event.getPlayer().getUUID());
+        sendMessageInChannel(event.getUsername(), event.getRawText(), pref.channel(), event.getPlayer().position(), event.getPlayer().getTeam());
+        event.setCanceled(true);
+    }*/
+
+    public static void sendMessageInChannel(Component source, String message, ChatChannel channel, Vec3 sourcePos, @Nullable PlayerTeam team) {
         String key = switch (channel) {
             case GLOBAL -> TrKeys.CHAT_CHANNEL_GLOBAL;
             case LOCAL -> TrKeys.CHAT_CHANNEL_LOCAL;
@@ -465,7 +476,7 @@ public class AdminCraft {
             case STAFF -> TrKeys.CHAT_CHANNEL_STAFF;
         };
         if (channel == ChatChannel.TEAM && team == null) {
-            ServerPlayer p = ServerHolder.getServer().getPlayerList().getPlayer(source);
+            ServerPlayer p = ServerHolder.getServer().getPlayerList().getPlayers().stream().filter(pl -> pl.getDisplayName().equals(source) || pl.getName().equals(source)).toList().getFirst();
             AdminCraft.LOGGER.warn("{} tried to send a chat message in {}, but doesn't belong to a team: {}", source, channel, message);
             if (p != null) {
                 p.sendSystemMessage(LangManager.parse(TrKeys.CHAT_TEAM_NO_TEAM));
@@ -474,10 +485,10 @@ public class AdminCraft {
         }
 
         Component msg = LangManager.parse(key, Map.of(
-                "displayName", source,
                 "message", message,
                 "team", team != null ? team.getName() : ""
         ));
+        msg = PlaceHolderSystem.insertComponent(msg, "displayName", source);
 
         for (ServerPlayer player : ServerHolder.getServer().getPlayerList().getPlayers()) {
             boolean shouldReceive = switch (channel) {
@@ -492,15 +503,5 @@ public class AdminCraft {
             }
         }
         LOGGER.info("[CHAT] {}", msg.getString());
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onChatMessage(ServerChatEvent event) {
-        if (event.isCanceled() || !Config.enableChatChannels) {
-            return;
-        }
-        ChatPlayerPreference pref = Database.getPlayerCurrentChannel(event.getPlayer().getUUID());
-        sendMessageInChannel(event.getUsername(), event.getRawText(), pref.channel(), event.getPlayer().position(), event.getPlayer().getTeam());
-        event.setCanceled(true);
     }
 }
