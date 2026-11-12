@@ -3,16 +3,13 @@ package fr.liveinground.admin_craft.lang;
 import fr.liveinground.admin_craft.PlaceHolderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.PlainTextContents;
 
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 public class LangManager {
 
@@ -59,6 +56,12 @@ public class LangManager {
         load(langDir);
     }
 
+    private static String unescapeSubString(String s) {
+        return s.replace("\\\\", "\\")
+                .replace("\\<", "<")
+                .replace("\\>", ">");
+    }
+
     public static Component format(String input) {
         MutableComponent result = Component.empty();
         Style style = Style.EMPTY;
@@ -67,17 +70,17 @@ public class LangManager {
         while (cursor < input.length()) {
             int start = input.indexOf("<", cursor);
             if (start == -1) {
-                result.append(Component.literal(input.substring(cursor)).withStyle(style));
+                result.append(Component.literal(unescapeSubString(input.substring(cursor))).withStyle(style));
                 break;
             }
 
             if (start > cursor) {
-                result.append(Component.literal(input.substring(cursor, start)).withStyle(style));
+                result.append(Component.literal(unescapeSubString(input.substring(cursor, start))).withStyle(style));
             }
 
             int end = input.indexOf('>', start);
             if (end == -1) {
-                result.append(Component.literal(input.substring(start))
+                result.append(Component.literal(unescapeSubString(input.substring(start)))
                         .withStyle(style));
                 break;
             }
@@ -104,7 +107,7 @@ public class LangManager {
                         }
                     }
                 } else {
-                    result.append(Component.literal(input.substring(start, end + 1)).withStyle(style));
+                    result.append(Component.literal(unescapeSubString(input.substring(start, end + 1))).withStyle(style));
                 }
             }
             cursor = end + 1;
@@ -148,27 +151,10 @@ public class LangManager {
     }
 
     public static Component parse(String key, Map<String, String> placeholders) {
-        String value = tr(key);
-        Map<String, String> safeValues = new HashMap<>();
+        String translated = tr(key);
+        String replaced = PlaceHolderSystem.safeReplacePlaceholders(translated, placeholders);
 
-        for (var entry : placeholders.entrySet()) {
-            String token = "§§PLACEHOLDER_" + UUID.randomUUID() + "§§";
-            safeValues.put(token, entry.getValue());
-            value = value.replace(
-                    "%" + entry.getKey() + "%",
-                    token
-            );
-        }
-
-        Component result = format(value);
-        for (var entry : safeValues.entrySet()) {
-            result = replace(
-                    result,
-                    entry.getKey(),
-                    Component.literal(entry.getValue())
-            );
-        }
-        return result;
+        return format(replaced);
     }
 
     public static Component parse(String key) {
