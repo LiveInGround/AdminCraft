@@ -31,12 +31,10 @@ public class PlayerDataManager {
     private static final String IPS_FILE_NAME = "ips.json";
     // private static final String STAFF_MODE_DATA = "staff_mode.json";
     // private static final String WORLD_CHANGES_DATABASE_FILE = "world_changes.db";
-    private static final String REPORTS = "reports.json";
 
     private final Path mute_data_file;
     private final Path ips_data_file;
     // private final Path staff_mode_data_file;
-    private final Path reports_data_file;
 
     private final List<PlayerMuteData> muteEntries = new ArrayList<>();
     private final List<PlayerIPSData> ipsEntries = new ArrayList<>();
@@ -53,11 +51,9 @@ public class PlayerDataManager {
         this.mute_data_file = worldPath.resolve(ROOT).resolve(MUTE_FILE_NAME);
         this.ips_data_file = worldPath.resolve(ROOT).resolve(IPS_FILE_NAME);
         // this.staff_mode_data_file = worldPath.resolve(ROOT).resolve(STAFF_MODE_DATA);
-        this.reports_data_file = worldPath.resolve(ROOT).resolve(REPORTS);
 
         createIfAbsent(mute_data_file);
         createIfAbsent(ips_data_file);
-        createIfAbsent(reports_data_file);
 
         load();
     }

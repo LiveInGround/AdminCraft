@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.players.NameAndId;
+import net.neoforged.neoforge.common.UsernameCache;
 
 import java.util.Collection;
 import java.util.List;
@@ -227,9 +228,9 @@ public class ReportsCommand {
             Style style = Style.EMPTY;
             style.withClickEvent(new ClickEvent.RunCommand("reports info " + report.id()));
             MutableComponent rComponent = Component.empty().withStyle();
-            rComponent.append(LangManager.parse(" <dark_gray>* ["));
+            rComponent.append(LangManager.parse(" <dark_gray>• ["));
             rComponent.append(Component.literal(report.status().name()).withStyle(getStatusColor(report.status())));
-            rComponent.append(LangManager.parse("<dark_gray>] <gold>" + report.sourceUUID() + "<dark_red> reported <gold>" + report.targetUUID() + "<dark_red>: <yellow>" + report.reason() + "\n"));
+            rComponent.append(LangManager.parse("<dark_gray>] <yellow>#" + report.id() + " <gold>" + UsernameCache.getLastKnownUsername(report.sourceUUID()) + "<dark_red> reported <gold>" + UsernameCache.getLastKnownUsername(report.targetUUID()) + "<dark_red>: <yellow>" + report.reason() + "\n"));
             output.append(rComponent);
         }
         Style style1 = Style.EMPTY;
