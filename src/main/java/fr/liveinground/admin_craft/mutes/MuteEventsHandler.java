@@ -76,7 +76,10 @@ public class MuteEventsHandler {
                                 return;
                             }
                         }
-                        Utils.logCancelledMessage(sender, String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+                        String msg = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                        if (!msg.isEmpty()) {
+                            Utils.logCancelledMessage(sender, msg);
+                        }
                         event.setCanceled(true);
                         Component messageComponent = LangManager.parse(TrKeys.MUTE_MESSAGE_CANCELLED);
                         sender.sendSystemMessage(messageComponent);
